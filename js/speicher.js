@@ -1,147 +1,106 @@
 /**
- * Laden, Speichern und Zurücksetzen des Zustands.
+ * Laden und Speichern der Daten (Schema 2) inklusive Übernahme aus 0.1.
  *
  * Der Speicher wird als Parameter übergeben (in der App window.localStorage,
- * im Test ein nachgebautes Objekt). Alle Zugriffe sind abgesichert – die App
- * stürzt nie ab, auch wenn der Speicher fehlt, voll ist oder Unsinn enthält.
+ * im Test ein nachgebautes Objekt). Alle Zugriffe sind abgesichert.
  *
- * Gespeichert werden die eingegebenen TEXTE (nicht die geprüften Zahlen),
- * damit auch halbfertige Eingaben nach dem Neuladen erhalten bleiben.
- *
- * Hinweis: Dieses Modul nutzt die reinen Module einheiten.js und texte.js
- * für Standardwerte. Die Abhängigkeitsrichtung bleibt einseitig.
+ * Schutz vor Datenverlust (Architektur Sprint 2, R6):
+ * - Daten aus 0.1 werden in einen NEUEN Schlüssel übernommen; der alte bleibt unverändert.
+ * - Sind gespeicherte Daten beschädigt, werden sie vor dem Neustart unter „.defekt“ aufbewahrt.
+ * - Vor jedem Import werden die aktuellen Daten unter „.vorImport“ kopiert.
  */
 
-import { STANDARD_LAENGENEINHEIT, istBekannteEinheit, standardBezug } from './einheiten.js';
-import { STANDARD_SPRACHE, istBekannteSprache } from './texte.js';
+import { leereDaten, pruefeDaten } from './modell.js';
+import { SCHLUESSEL_V1, vonSchema1 } from './migration.js';
 
-export const SPEICHER_SCHLUESSEL = 'maschenrechner.zustand';
-export const SCHEMA_VERSION = 1;
+export { SCHLUESSEL_V1 };
+export const SCHLUESSEL_V2 = 'maschenrechner.daten.v2';
+export const SCHLUESSEL_DEFEKT = 'maschenrechner.daten.v2.defekt';
+export const SCHLUESSEL_VOR_IMPORT = 'maschenrechner.daten.v2.vorImport';
 
-/**
- * Bereinigt die Einstellungen. Sprache und Längeneinheit sind zwei getrennte
- * Felder; unbekannte Werte fallen auf die Standardwerte zurück.
- * @param {unknown} einstellungen
- * @returns {{sprache:string, laengeneinheit:string}}
- */
-export function bereinigeEinstellungen(einstellungen) {
-  const e = einstellungen && typeof einstellungen === 'object' ? einstellungen : {};
-  return {
-    sprache: istBekannteSprache(e.sprache) ? e.sprache : STANDARD_SPRACHE,
-    laengeneinheit: istBekannteEinheit(e.laengeneinheit) ? e.laengeneinheit : STANDARD_LAENGENEINHEIT,
-  };
-}
-
-/**
- * Ausgangszustand: Anzahlen leer, Bezugsmaße = Standard der Einheit (cm: 10),
- * Anpassungen "0", Nadelstärke leer. Die Einstellungen werden übernommen.
- * @param {unknown} [einstellungen]
- */
-export function ausgangszustand(einstellungen) {
-  const e = bereinigeEinstellungen(einstellungen);
-  const bezug = String(standardBezug(e.laengeneinheit));
-  const rechner = () => ({ eingabe: '', anpassung: '0' });
-  return {
-    schemaVersion: SCHEMA_VERSION,
-    einstellungen: e,
-    probeAnleitung: { maschenAnzahl: '', maschenBezug: bezug, reihenAnzahl: '', reihenBezug: bezug },
-    probeEigen: { maschenAnzahl: '', maschenBezug: bezug, reihenAnzahl: '', reihenBezug: bezug, nadelstaerkeMm: '' },
-    rechner: {
-      maschenAusAnleitung: rechner(),
-      reihenAusAnleitung: rechner(),
-      breiteZuMaschen: rechner(),
-      laengeZuReihen: rechner(),
-    },
-  };
-}
-
-/**
- * Übernimmt aus `quelle` nur Felder, die es in `basis` gibt und die Text sind.
- * Unbekannte oder falsch typisierte Felder werden ignoriert.
- */
-function zusammenfuehren(basis, quelle) {
-  const ergebnis = {};
-  for (const [schluessel, basisWert] of Object.entries(basis)) {
-    const quellWert = quelle && typeof quelle === 'object' ? quelle[schluessel] : undefined;
-    if (basisWert && typeof basisWert === 'object') {
-      ergebnis[schluessel] = zusammenfuehren(basisWert, quellWert);
-    } else if (typeof basisWert === 'string' && typeof quellWert === 'string') {
-      ergebnis[schluessel] = quellWert;
-    } else {
-      ergebnis[schluessel] = basisWert;
-    }
-  }
-  return ergebnis;
-}
-
-/**
- * Bringt gespeicherte Daten älterer Schema-Versionen auf den aktuellen Stand.
- * Derzeit gibt es nur Version 1. Unbekannte Versionen → null (Ausgangszustand).
- * @param {any} daten
- * @returns {any|null}
- */
-export function migrieren(daten) {
-  if (!daten || typeof daten !== 'object') return null;
-  if (daten.schemaVersion === SCHEMA_VERSION) return daten;
-  return null;
-}
-
-/**
- * Lädt den Zustand.
- * @param {Storage|null} speicher
- * @returns {{zustand: ReturnType<typeof ausgangszustand>, speicherbar: boolean}}
- */
-export function laden(speicher) {
-  if (!speicher) return { zustand: ausgangszustand(), speicherbar: false };
-
-  let roh;
+function lies(speicher, schluessel) {
   try {
-    roh = speicher.getItem(SPEICHER_SCHLUESSEL);
+    return { ok: true, wert: speicher.getItem(schluessel) };
   } catch {
-    return { zustand: ausgangszustand(), speicherbar: false };
+    return { ok: false, wert: null };
   }
-  if (roh === null || roh === undefined) return { zustand: ausgangszustand(), speicherbar: true };
-
-  let daten;
-  try {
-    daten = migrieren(JSON.parse(roh));
-  } catch {
-    daten = null;
-  }
-  if (!daten) return { zustand: ausgangszustand(), speicherbar: true };
-
-  const basis = ausgangszustand(daten.einstellungen);
-  const zustand = zusammenfuehren(basis, daten);
-  // Einstellungen immer bereinigt übernehmen, Schema-Version immer aktuell
-  zustand.einstellungen = basis.einstellungen;
-  zustand.schemaVersion = SCHEMA_VERSION;
-  return { zustand, speicherbar: true };
 }
 
-/**
- * Speichert den Zustand.
- * @param {Storage|null} speicher
- * @param {object} zustand
- * @returns {boolean} true bei Erfolg
- */
-export function speichern(speicher, zustand) {
-  if (!speicher) return false;
+function schreib(speicher, schluessel, wert) {
   try {
-    speicher.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(zustand));
+    speicher.setItem(schluessel, wert);
     return true;
   } catch {
     return false;
   }
 }
 
+function parse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
 /**
- * Setzt alle Eingaben zurück. Die Einstellungen (Sprache, Einheit) bleiben.
+ * Lädt die Daten.
+ * Reihenfolge: Schema 2 → Übernahme aus 0.1 → leere Daten.
  * @param {Storage|null} speicher
- * @param {unknown} einstellungen
- * @returns {ReturnType<typeof ausgangszustand>}
+ * @param {{neueId:(praefix:string)=>string, jetzt:string, projektName:string, stueckName:string}} optionen
+ * @returns {{daten:object, speicherbar:boolean, quelle:'v2'|'v1'|'neu', uebernommenesProjekt:string|null}}
  */
-export function zuruecksetzen(speicher, einstellungen) {
-  const zustand = ausgangszustand(einstellungen);
-  speichern(speicher, zustand);
-  return zustand;
+export function ladeDaten(speicher, { neueId, jetzt, projektName, stueckName }) {
+  const leer = { daten: leereDaten(), speicherbar: false, quelle: 'neu', uebernommenesProjekt: null };
+  if (!speicher) return leer;
+
+  // 1. Schema 2
+  const v2 = lies(speicher, SCHLUESSEL_V2);
+  if (!v2.ok) return leer;
+  if (v2.wert !== null) {
+    const geprueft = pruefeDaten(parse(v2.wert));
+    if (geprueft.gueltig) return { daten: geprueft.daten, speicherbar: true, quelle: 'v2', uebernommenesProjekt: null };
+    // Beschädigt: Rohdaten aufbewahren, bevor irgendetwas überschrieben wird
+    schreib(speicher, SCHLUESSEL_DEFEKT, v2.wert);
+  }
+
+  // 2. Übernahme aus 0.1 (alter Schlüssel wird nur gelesen)
+  const v1 = lies(speicher, SCHLUESSEL_V1);
+  if (v1.ok && v1.wert !== null) {
+    const ergebnis = vonSchema1(parse(v1.wert), {
+      projektId: neueId('p'),
+      stueckId: neueId('s'),
+      jetzt,
+      projektName,
+      stueckName,
+    });
+    if (ergebnis) {
+      speichereDaten(speicher, ergebnis.daten);
+      return { daten: ergebnis.daten, speicherbar: true, quelle: 'v1', uebernommenesProjekt: ergebnis.projektId };
+    }
+  }
+
+  // 3. Neu
+  return { daten: leereDaten(), speicherbar: true, quelle: 'neu', uebernommenesProjekt: null };
+}
+
+/**
+ * Speichert die Daten unter dem Schlüssel für Schema 2.
+ * @returns {boolean} true bei Erfolg
+ */
+export function speichereDaten(speicher, daten) {
+  if (!speicher) return false;
+  return schreib(speicher, SCHLUESSEL_V2, JSON.stringify(daten));
+}
+
+/**
+ * Kopiert die aktuell gespeicherten Daten vor einem Import nach „.vorImport“.
+ * @returns {boolean} true, wenn gesichert wurde oder nichts zu sichern war
+ */
+export function sichereVorImport(speicher) {
+  if (!speicher) return false;
+  const aktuell = lies(speicher, SCHLUESSEL_V2);
+  if (!aktuell.ok) return false;
+  if (aktuell.wert === null) return true;
+  return schreib(speicher, SCHLUESSEL_VOR_IMPORT, aktuell.wert);
 }

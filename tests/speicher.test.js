@@ -1,145 +1,121 @@
-// Tests der Speicherung mit nachgebautem Speicher (ohne Browser).
+// Tests von Laden/Speichern (Schema 2) mit nachgebautem Speicher (US-27, R6).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  laden,
-  speichern,
-  zuruecksetzen,
-  ausgangszustand,
-  bereinigeEinstellungen,
-  migrieren,
-  SPEICHER_SCHLUESSEL,
-  SCHEMA_VERSION,
+  ladeDaten,
+  speichereDaten,
+  sichereVorImport,
+  SCHLUESSEL_V1,
+  SCHLUESSEL_V2,
+  SCHLUESSEL_DEFEKT,
+  SCHLUESSEL_VOR_IMPORT,
 } from '../js/speicher.js';
+import { leereDaten, neuesProjekt } from '../js/modell.js';
+import { neuerSpeicher, gesperrterSpeicher, vollerSpeicher, idZaehler, v1Zustand, ZEIT1 } from './hilfen.js';
 
-/** Einfacher Speicher im Arbeitsspeicher mit der Schnittstelle von localStorage. */
-function neuerSpeicher(anfang = {}) {
-  const daten = new Map(Object.entries(anfang));
-  return {
-    getItem: (k) => (daten.has(k) ? daten.get(k) : null),
-    setItem: (k, v) => daten.set(k, String(v)),
-    removeItem: (k) => daten.delete(k),
-    roh: daten,
-  };
+const opt = () => ({ neueId: idZaehler(), jetzt: ZEIT1, projektName: 'Mein Projekt', stueckName: 'Teil 1' });
+
+function beispiel() {
+  return neuesProjekt(leereDaten(), { name: 'Socken' }, 'p1', ZEIT1).daten;
 }
 
-/** Speicher, der bei jedem Zugriff eine Ausnahme wirft (z. B. gesperrt / voll). */
-const kaputterSpeicher = {
-  getItem() {
-    throw new Error('gesperrt');
-  },
-  setItem() {
-    throw new Error('voll');
-  },
-  removeItem() {
-    throw new Error('gesperrt');
-  },
-};
+test('Schlüssel sind festgelegt und verschieden', () => {
+  assert.equal(SCHLUESSEL_V1, 'maschenrechner.zustand');
+  assert.equal(SCHLUESSEL_V2, 'maschenrechner.daten.v2');
+  assert.equal(new Set([SCHLUESSEL_V1, SCHLUESSEL_V2, SCHLUESSEL_DEFEKT, SCHLUESSEL_VOR_IMPORT]).size, 4);
+});
 
-test('Ausgangszustand: Anzahlen leer, Bezug 10, Anpassung 0, Einstellungen de/cm', () => {
-  const z = ausgangszustand();
-  assert.equal(z.schemaVersion, SCHEMA_VERSION);
-  assert.deepEqual(z.einstellungen, { sprache: 'de', laengeneinheit: 'cm' });
-  assert.deepEqual(z.probeAnleitung, { maschenAnzahl: '', maschenBezug: '10', reihenAnzahl: '', reihenBezug: '10' });
-  assert.equal(z.probeEigen.nadelstaerkeMm, '');
-  for (const r of Object.values(z.rechner)) {
-    assert.deepEqual(r, { eingabe: '', anpassung: '0' });
+test('Erster Start ohne Daten: leer, speicherbar, nichts geschrieben', () => {
+  const s = neuerSpeicher();
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'neu');
+  assert.equal(r.speicherbar, true);
+  assert.equal(r.uebernommenesProjekt, null);
+  assert.deepEqual(r.daten, leereDaten());
+  assert.equal(s.roh.size, 0);
+});
+
+test('Speichern und wieder Laden ergibt dieselben Daten', () => {
+  const s = neuerSpeicher();
+  assert.equal(speichereDaten(s, beispiel()), true);
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'v2');
+  assert.deepEqual(r.daten, beispiel());
+});
+
+test('US-27 AK1/AK2: Übernahme aus 0.1 – alter Schlüssel bleibt unverändert', () => {
+  const alt = JSON.stringify(v1Zustand());
+  const s = neuerSpeicher({ [SCHLUESSEL_V1]: alt });
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'v1');
+  assert.equal(r.uebernommenesProjekt, 'p-test-1');
+  assert.equal(r.daten.projekte[0].strickstuecke[0].id, 's-test-2');
+  assert.equal(s.getItem(SCHLUESSEL_V1), alt, 'Daten aus 0.1 dürfen nicht verändert werden');
+  assert.deepEqual(JSON.parse(s.getItem(SCHLUESSEL_V2)), r.daten, 'Ergebnis wird sofort gespeichert');
+});
+
+test('US-27: Übernahme passiert nur einmal (danach gilt Schema 2)', () => {
+  const s = neuerSpeicher({ [SCHLUESSEL_V1]: JSON.stringify(v1Zustand()) });
+  ladeDaten(s, opt());
+  const zweiter = ladeDaten(s, opt());
+  assert.equal(zweiter.quelle, 'v2');
+  assert.equal(zweiter.uebernommenesProjekt, null);
+  assert.equal(zweiter.daten.projekte.length, 1, 'kein zweites „Mein Projekt“');
+});
+
+test('US-27 AK3: leerer Zustand aus 0.1 → leere Projektliste', () => {
+  const leer = { ...v1Zustand(), rechner: {} };
+  for (const p of ['probeAnleitung', 'probeEigen']) leer[p] = {};
+  const s = neuerSpeicher({ [SCHLUESSEL_V1]: JSON.stringify(leer) });
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'neu');
+  assert.equal(r.daten.projekte.length, 0);
+});
+
+test('Unlesbarer Zustand aus 0.1 → leer, alter Schlüssel bleibt', () => {
+  const s = neuerSpeicher({ [SCHLUESSEL_V1]: '{kaputt' });
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'neu');
+  assert.equal(s.getItem(SCHLUESSEL_V1), '{kaputt');
+});
+
+test('R6: beschädigte Schema-2-Daten werden unter „.defekt“ aufbewahrt', () => {
+  for (const kaputt of ['{nicht json', '"text"', JSON.stringify({ schemaVersion: 2, projekte: 'x' })]) {
+    const s = neuerSpeicher({ [SCHLUESSEL_V2]: kaputt });
+    const r = ladeDaten(s, opt());
+    assert.equal(r.quelle, 'neu');
+    assert.equal(s.getItem(SCHLUESSEL_DEFEKT), kaputt);
+    assert.equal(s.getItem(SCHLUESSEL_V2), kaputt, 'erst beim nächsten Speichern überschrieben');
   }
 });
 
-test('US-07 AK1: Speichern und Laden ergibt denselben Zustand', () => {
+test('R6: beschädigte Schema-2-Daten, aber 0.1 vorhanden → Übernahme aus 0.1', () => {
+  const s = neuerSpeicher({ [SCHLUESSEL_V2]: '{x', [SCHLUESSEL_V1]: JSON.stringify(v1Zustand()) });
+  const r = ladeDaten(s, opt());
+  assert.equal(r.quelle, 'v1');
+  assert.equal(s.getItem(SCHLUESSEL_DEFEKT), '{x');
+});
+
+test('Kein Speicher / gesperrter Speicher: App läuft, aber nicht speicherbar', () => {
+  for (const s of [null, gesperrterSpeicher]) {
+    const r = ladeDaten(s, opt());
+    assert.equal(r.speicherbar, false);
+    assert.deepEqual(r.daten, leereDaten());
+    assert.equal(speichereDaten(s, beispiel()), false);
+    assert.equal(sichereVorImport(s), false);
+  }
+});
+
+test('Voller Speicher: Speichern meldet false, wirft nicht', () => {
+  assert.equal(speichereDaten(vollerSpeicher(), beispiel()), false);
+});
+
+test('US-12 AK3: sichereVorImport kopiert den aktuellen Stand', () => {
   const s = neuerSpeicher();
-  const z = ausgangszustand();
-  z.probeAnleitung.maschenAnzahl = '34';
-  z.probeEigen.maschenAnzahl = '25';
-  z.probeEigen.nadelstaerkeMm = '3,5';
-  z.rechner.maschenAusAnleitung = { eingabe: '320', anpassung: '-2' };
-  assert.equal(speichern(s, z), true);
-
-  const { zustand, speicherbar } = laden(s);
-  assert.equal(speicherbar, true);
-  assert.deepEqual(zustand, z);
-});
-
-test('US-07: auch halbfertige/fehlerhafte Eingaben bleiben als Text erhalten', () => {
-  const s = neuerSpeicher();
-  const z = ausgangszustand();
-  z.rechner.breiteZuMaschen.eingabe = '12,';
-  speichern(s, z);
-  assert.equal(laden(s).zustand.rechner.breiteZuMaschen.eingabe, '12,');
-});
-
-test('Erster Start (nichts gespeichert) → Ausgangszustand, speicherbar', () => {
-  const { zustand, speicherbar } = laden(neuerSpeicher());
-  assert.equal(speicherbar, true);
-  assert.deepEqual(zustand, ausgangszustand());
-});
-
-test('Defektes JSON → Ausgangszustand, kein Absturz', () => {
-  const { zustand } = laden(neuerSpeicher({ [SPEICHER_SCHLUESSEL]: '{kaputt' }));
-  assert.deepEqual(zustand, ausgangszustand());
-});
-
-test('Unbekannte Schema-Version → Ausgangszustand', () => {
-  const { zustand } = laden(neuerSpeicher({ [SPEICHER_SCHLUESSEL]: JSON.stringify({ schemaVersion: 99 }) }));
-  assert.deepEqual(zustand, ausgangszustand());
-  assert.equal(migrieren({ schemaVersion: 99 }), null);
-  assert.equal(migrieren(null), null);
-});
-
-test('Fehlende Felder werden ergänzt, fremde/falsch typisierte ignoriert', () => {
-  const gespeichert = {
-    schemaVersion: 1,
-    probeAnleitung: { maschenAnzahl: '34', boese: '<script>' },
-    probeEigen: { maschenAnzahl: 25 },
-    rechner: { maschenAusAnleitung: { eingabe: '320' } },
-    fremd: { x: 1 },
-  };
-  const { zustand } = laden(neuerSpeicher({ [SPEICHER_SCHLUESSEL]: JSON.stringify(gespeichert) }));
-  assert.equal(zustand.probeAnleitung.maschenAnzahl, '34');
-  assert.equal(zustand.probeAnleitung.maschenBezug, '10');
-  assert.equal('boese' in zustand.probeAnleitung, false);
-  assert.equal(zustand.probeEigen.maschenAnzahl, '', 'Zahl statt Text wird ignoriert');
-  assert.deepEqual(zustand.rechner.maschenAusAnleitung, { eingabe: '320', anpassung: '0' });
-  assert.equal('fremd' in zustand, false);
-});
-
-test('Einstellungen: Sprache und Einheit getrennt, Unbekanntes fällt auf de/cm zurück', () => {
-  assert.deepEqual(bereinigeEinstellungen({ sprache: 'xx', laengeneinheit: 'cm' }), { sprache: 'de', laengeneinheit: 'cm' });
-  assert.deepEqual(bereinigeEinstellungen({ sprache: 'de', laengeneinheit: 'meile' }), { sprache: 'de', laengeneinheit: 'cm' });
-  assert.deepEqual(bereinigeEinstellungen(null), { sprache: 'de', laengeneinheit: 'cm' });
-  assert.deepEqual(bereinigeEinstellungen({ sprache: 'toString' }), { sprache: 'de', laengeneinheit: 'cm' });
-});
-
-test('US-07 AK2: ohne Speicher (null) läuft alles weiter, speicherbar = false', () => {
-  const { zustand, speicherbar } = laden(null);
-  assert.equal(speicherbar, false);
-  assert.deepEqual(zustand, ausgangszustand());
-  assert.equal(speichern(null, zustand), false);
-});
-
-test('Gesperrter/voller Speicher: kein Absturz', () => {
-  const { speicherbar } = laden(kaputterSpeicher);
-  assert.equal(speicherbar, false);
-  assert.equal(speichern(kaputterSpeicher, ausgangszustand()), false);
-  assert.doesNotThrow(() => zuruecksetzen(kaputterSpeicher, { sprache: 'de', laengeneinheit: 'cm' }));
-});
-
-test('US-07 AK3: Zurücksetzen leert Eingaben, behält Einstellungen und speichert', () => {
-  const s = neuerSpeicher();
-  const z = ausgangszustand();
-  z.probeAnleitung.maschenAnzahl = '34';
-  speichern(s, z);
-
-  const neu = zuruecksetzen(s, z.einstellungen);
-  assert.deepEqual(neu, ausgangszustand(z.einstellungen));
-  assert.deepEqual(laden(s).zustand, ausgangszustand());
-});
-
-test('Ausgangszustand liefert jedes Mal ein neues Objekt (keine geteilten Referenzen)', () => {
-  const a = ausgangszustand();
-  const b = ausgangszustand();
-  a.rechner.maschenAusAnleitung.eingabe = '1';
-  assert.equal(b.rechner.maschenAusAnleitung.eingabe, '');
-  assert.notEqual(a.rechner.maschenAusAnleitung, a.rechner.reihenAusAnleitung);
+  assert.equal(sichereVorImport(s), true, 'nichts zu sichern ist kein Fehler');
+  assert.equal(s.getItem(SCHLUESSEL_VOR_IMPORT), null);
+  speichereDaten(s, beispiel());
+  assert.equal(sichereVorImport(s), true);
+  assert.equal(s.getItem(SCHLUESSEL_VOR_IMPORT), s.getItem(SCHLUESSEL_V2));
+  assert.equal(sichereVorImport(vollerSpeicher({ [SCHLUESSEL_V2]: '{}' })), false);
 });

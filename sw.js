@@ -9,9 +9,10 @@
  * Nutzerinnen weiterhin die alte Version.
  */
 
-const CACHE_NAME = 'maschenrechner-v0.1.0';
+const CACHE_NAME = 'maschenrechner-v0.2.0';
 
 // Alle Dateien der App, relativ zum Speicherort dieses Service Workers
+// (Der Test tests/sw-liste.test.js prüft, dass keine Datei fehlt.)
 const APP_DATEIEN = [
   './',
   './index.html',
@@ -24,6 +25,19 @@ const APP_DATEIEN = [
   './js/texte.js',
   './js/einheiten.js',
   './js/speicher.js',
+  './js/modell.js',
+  './js/migration.js',
+  './js/sicherung.js',
+  './js/zaehler.js',
+  './js/geraet.js',
+  './js/router.js',
+  './js/dom.js',
+  './js/ansichten/gemeinsam.js',
+  './js/ansichten/projektliste.js',
+  './js/ansichten/projekt.js',
+  './js/ansichten/strickstueck.js',
+  './js/ansichten/zaehler.js',
+  './js/ansichten/einstellungen.js',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -34,7 +48,10 @@ self.addEventListener('install', (ereignis) => {
   ereignis.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_DATEIEN))
+      .then((cache) =>
+        // cache: 'reload' umgeht den HTTP-Cache, damit wirklich die neue Version gespeichert wird
+        cache.addAll(APP_DATEIEN.map((url) => new Request(url, { cache: 'reload' }))),
+      )
       .then(() => self.skipWaiting()),
   );
 });

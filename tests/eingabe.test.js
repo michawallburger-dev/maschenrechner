@@ -93,3 +93,29 @@ test('Regeln sind unveränderlich', () => {
   assert.ok(Object.isFrozen(REGELN));
   assert.ok(Object.isFrozen(REGELN.anpassung));
 });
+
+// ---------------------------------------------------------------- ab 0.2 (MAS-30, MAS-31)
+
+test('MAS-30/E13: Tausenderpunkt nur in Ganzzahlfeldern', () => {
+  assert.deepEqual(pruefeZahl('1.000', 'ganzPositiv'), { gueltig: true, wert: 1000 });
+  assert.deepEqual(pruefeZahl('12.500', 'zaehler'), { gueltig: true, wert: 12500 });
+  assert.deepEqual(pruefeZahl('1.000', 'laenge'), { gueltig: true, wert: 1 });
+  assert.deepEqual(pruefeZahl('1.00', 'ganzPositiv'), { gueltig: true, wert: 1 }); // Dezimal 1,00 = 1
+  assert.equal(pruefeZahl('1.50', 'ganzPositiv').fehler, 'KEINE_GANZZAHL');
+  assert.equal(pruefeZahl('1.000,5', 'ganzPositiv').fehler, 'KEINE_ZAHL');
+  assert.equal(pruefeZahl('100.000', 'ganzPositiv').fehler, 'ZU_GROSS');
+});
+
+test('MAS-31: Zwischenstände beim Tippen sind „unvollständig“', () => {
+  for (const text of ['12,', '12.', ',', '.', '-', '+', '−']) {
+    assert.equal(pruefeZahl(text, 'anpassung').fehler, 'UNVOLLSTAENDIG', text);
+  }
+  assert.equal(pruefeZahl('12,', 'probenAnzahl').fehler, 'UNVOLLSTAENDIG');
+  assert.equal(pruefeZahl('', 'probenAnzahl').fehler, 'LEER');
+});
+
+test('Regel zaehler: 0 … 99 999, ganzzahlig', () => {
+  assert.deepEqual(pruefeZahl('0', 'zaehler'), { gueltig: true, wert: 0 });
+  assert.equal(pruefeZahl('-1', 'zaehler').fehler, 'ZU_KLEIN');
+  assert.equal(pruefeZahl('100000', 'zaehler').fehler, 'ZU_GROSS');
+});

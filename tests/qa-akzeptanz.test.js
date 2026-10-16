@@ -186,14 +186,18 @@ test('QA Randfall: Extremwerte an allen Grenzen gleichzeitig ergeben endliche Er
   assert.equal(r.gueltig, true);
 });
 
-test('QA Randfall: Zwischenstand beim Tippen „12,“ wird abgelehnt (siehe Befund F-02 im Testbericht)', () => {
-  // Dokumentiert das aktuelle Verhalten: Während der Eingabe von „12,5“ erscheint kurz ein Fehler.
-  assert.equal(pruefeZahl('12,', 'laenge').fehler, 'KEINE_ZAHL');
+test('QA MAS-31: Zwischenstand beim Tippen „12,“ gilt als unvollständig, nicht als Fehler', () => {
+  // Vorher (0.1): KEINE_ZAHL → Fehlermeldung blitzte auf. Ab 0.2: UNVOLLSTAENDIG, keine Meldung während der Eingabe.
+  assert.equal(pruefeZahl('12,', 'laenge').fehler, 'UNVOLLSTAENDIG');
+  assert.equal(pruefeZahl('12.', 'laenge').fehler, 'UNVOLLSTAENDIG');
+  assert.equal(pruefeZahl('-', 'anpassung').fehler, 'UNVOLLSTAENDIG');
 });
 
-test('QA Befund F-01: „1.000“ als Maschenzahl wird still als 1 gelesen (Tausenderpunkt)', () => {
-  // Dokumentiert das aktuelle Verhalten – im Deutschen bedeutet „1.000“ jedoch tausend.
-  assert.deepEqual(pruefeZahl('1.000', 'ganzPositiv'), { gueltig: true, wert: 1 });
-  // „1.200“ fällt dagegen auf (1,2 ist keine ganze Zahl)
-  assert.equal(pruefeZahl('1.200', 'ganzPositiv').fehler, 'KEINE_GANZZAHL');
+test('QA MAS-30: „1.000“ in Ganzzahlfeldern ist tausend (Entscheidung E13)', () => {
+  // Vorher (0.1): still als 1 gelesen. Ab 0.2: Punkt vor genau drei Ziffern = Tausendertrenner.
+  assert.deepEqual(pruefeZahl('1.000', 'ganzPositiv'), { gueltig: true, wert: 1000 });
+  assert.deepEqual(pruefeZahl('1.200', 'ganzPositiv'), { gueltig: true, wert: 1200 });
+  assert.equal(pruefeZahl('1.5', 'ganzPositiv').fehler, 'KEINE_GANZZAHL');
+  // In Dezimalfeldern bleibt der Punkt ein Dezimaltrenner
+  assert.deepEqual(pruefeZahl('1.000', 'laenge'), { gueltig: true, wert: 1 });
 });

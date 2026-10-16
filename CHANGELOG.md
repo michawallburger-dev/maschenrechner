@@ -1,5 +1,27 @@
 # Änderungsprotokoll
 
+## 0.2.0 – (Sprint 2 „Projekte & Reihenzähler“, noch nicht veröffentlicht)
+
+### Neu
+- Projekte mit Name, Beschreibung, Garn, Nadelstärke und den beiden Maschenproben; Liste „Meine Projekte“, neueste zuerst (US-09)
+- Strickstücke je Projekt (z. B. Vorderteil, Ärmel links), jedes mit eigenen vier Rechnern (US-10)
+- Reihenzähler je Strickstück: große +1-Fläche, −1 mit Abstand, Direkteingabe, „Auf 0 setzen“ mit Rückfrage; Bildschirm bleibt an, wo das Gerät es erlaubt (US-11)
+- Datensicherung als Datei über das Teilen-Menü (Dateien, Mail, AirDrop) und Einlesen mit Rückfrage (US-12)
+- Farbschema wählbar: Wie System, Hell, Dunkel – über das Zahnrad oben rechts (US-26)
+- Eingaben aus 0.1 werden automatisch in das Projekt „Mein Projekt“ übernommen; die alten Daten bleiben unverändert erhalten (US-27)
+
+### Behoben
+- MAS-30: „1.000“ wird in Maschen-, Reihen- und Zählerfeldern als tausend gelesen
+- MAS-31: Beim Tippen einer Kommazahl („12,“) erscheint keine Fehlermeldung mehr; erst beim Verlassen des Feldes
+- MAS-32: Änderungen an den Proben lösen keine Screenreader-Ansagen in den Rechnern mehr aus (Proben und Rechner liegen jetzt in getrennten Ansichten)
+- MAS-33: Neue Versionen werden beim Update am HTTP-Cache vorbei geladen
+
+### Geändert
+- „Alle Eingaben zurücksetzen“ ist jetzt „Eingaben zurücksetzen“ je Strickstück; der Reihenzähler bleibt dabei erhalten. Proben gehören zum Projekt.
+
+### Bewusst nicht umgesetzt
+- MAS-34 (Hinweis bei unrealistischen Maschenproben) – Entscheidung E14
+
 ## 0.1.0 – 16.10.2026 (Sprint 1 „Excel ersetzen“)
 Erste nutzbare Version.
 

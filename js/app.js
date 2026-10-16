@@ -1,360 +1,200 @@
 /**
- * Einstiegspunkt der App: verbindet Oberfläche, Zustand und reine Module.
+ * Einstiegspunkt der App (ab 0.2): lädt die Daten, wendet das Farbschema an,
+ * verbindet den Router mit den Ansichten und speichert Änderungen.
  *
- * Nur dieses Modul greift auf das DOM zu. Rechnen, Prüfen, Formatieren,
- * Texte und Einheiten liegen in eigenen, testbaren Modulen.
+ * Rechnen, Prüfen, Datenmodell, Sicherung und Texte liegen in eigenen,
+ * reinen Modulen; die Ansichten bekommen alles über das Objekt „ctx“.
  */
 
-import { umrechnenAusAnleitung, umrechnenAusCm } from './rechner.js';
-import { pruefeZahl, REGELN } from './eingabe.js';
-import { formatZahl, formatGanzzahl, formatAbweichung, LEER_ANZEIGE } from './format.js';
 import { text, localeFuer } from './texte.js';
-import { zuCm, vonCm } from './einheiten.js';
-import { laden, speichern, zuruecksetzen } from './speicher.js';
+import { ladeDaten, speichereDaten } from './speicher.js';
+import { neueId, jetztIso, erzeugeWachhalter, teileDatei, leseDatei, systemIstDunkel, beiSystemFarbwechsel } from './geraet.js';
+import { starteRouter, navigiere, hashFuer } from './router.js';
+import { texteFuellen, leeren } from './dom.js';
+import * as projektliste from './ansichten/projektliste.js';
+import * as projekt from './ansichten/projekt.js';
+import * as strickstueck from './ansichten/strickstueck.js';
+import * as zaehler from './ansichten/zaehler.js';
+import * as einstellungen from './ansichten/einstellungen.js';
 
-/** Die vier Rechner-Karten: welche Richtung (Maschen/Reihen) und welche Art. */
-const KARTEN = {
-  maschenAusAnleitung: { richtung: 'maschen', art: 'anleitung' },
-  reihenAusAnleitung: { richtung: 'reihen', art: 'anleitung' },
-  breiteZuMaschen: { richtung: 'maschen', art: 'laenge' },
-  laengeZuReihen: { richtung: 'reihen', art: 'laenge' },
-};
+export const APP_VERSION = '0.2.0';
 
 const SPEICHER_VERZOEGERUNG_MS = 300;
+const THEME_FARBE = { hell: '#7a2e4a', dunkel: '#1d1a19' };
 
-// ---------------------------------------------------------------------------
-// Zustand
-// ---------------------------------------------------------------------------
+const ANSICHTEN = { liste: projektliste, projekt, strickstueck, zaehlen: zaehler, einstellungen };
+
+// ---------------------------------------------------------------- Speicher und Daten
 
 /** localStorage kann selbst beim Zugriff eine Ausnahme werfen (z. B. gesperrt). */
 function holeSpeicher() {
   try {
-    const s = window.localStorage;
-    return s ?? null;
+    return window.localStorage ?? null;
   } catch {
     return null;
   }
 }
 
 const speicher = holeSpeicher();
-let { zustand, speicherbar } = laden(speicher);
-
-/** IDs der Felder, die die Nutzerin schon berührt hat (für den Hinweis „leer“). */
-const beruehrt = new Set();
-
+const geladen = ladeDaten(speicher, {
+  neueId,
+  jetzt: jetztIso(),
+  projektName: text('de', 'migration.projektName'),
+  stueckName: text('de', 'migration.stueckName'),
+});
+let daten = geladen.daten;
+let speicherbar = geladen.speicherbar;
 let speicherTimer = null;
-
-function sprache() {
-  return zustand.einstellungen.sprache;
-}
-
-function einheit() {
-  return zustand.einstellungen.laengeneinheit;
-}
-
-function locale() {
-  return localeFuer(sprache());
-}
-
-/** Text in der eingestellten Sprache; {einheit} wird immer mit dem Kürzel gefüllt. */
-function t(schluessel, werte = {}) {
-  const einheitKuerzel = text(sprache(), `einheit.${einheit()}`);
-  return text(sprache(), schluessel, { einheit: einheitKuerzel, ...werte });
-}
-
-/** Liest einen Wert über einen Pfad wie "probeEigen.maschenAnzahl". */
-function liesPfad(objekt, pfad) {
-  return pfad.split('.').reduce((o, teil) => (o == null ? undefined : o[teil]), objekt);
-}
-
-/** Schreibt einen Wert über einen Pfad wie "probeEigen.maschenAnzahl". */
-function schreibePfad(objekt, pfad, wert) {
-  const teile = pfad.split('.');
-  const letzter = teile.pop();
-  const ziel = teile.reduce((o, teil) => o[teil], objekt);
-  ziel[letzter] = wert;
-}
-
-// ---------------------------------------------------------------------------
-// Speichern
-// ---------------------------------------------------------------------------
+let ungespeichert = false; // nur speichern, wenn sich wirklich etwas geändert hat
 
 function jetztSpeichern() {
   clearTimeout(speicherTimer);
   speicherTimer = null;
-  if (!speicherbar) return;
-  if (!speichern(speicher, zustand)) {
+  if (!speicherbar || !ungespeichert) return;
+  ungespeichert = false;
+  if (!speichereDaten(speicher, daten)) {
     speicherbar = false;
     zeigeSpeicherHinweis();
   }
 }
 
-function speichernVerzoegert() {
-  clearTimeout(speicherTimer);
-  speicherTimer = setTimeout(jetztSpeichern, SPEICHER_VERZOEGERUNG_MS);
-}
-
 function zeigeSpeicherHinweis() {
-  const hinweis = document.querySelector('[data-hinweis="speicher"]');
-  if (hinweis) hinweis.hidden = speicherbar;
+  document.querySelector('[data-hinweis="speicher"]').hidden = speicherbar;
 }
 
-// ---------------------------------------------------------------------------
-// Texte und Felder
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------- Texte
 
-/** Füllt alle statischen Texte aus texte.js ein (Sprache + Einheit). */
-function texteAnwenden() {
-  document.documentElement.lang = sprache();
-  document.title = t('app.titel');
-  for (const el of document.querySelectorAll('[data-text]')) {
-    el.textContent = t(el.dataset.text);
-  }
-  for (const el of document.querySelectorAll('[data-text-aria-label]')) {
-    el.setAttribute('aria-label', t(el.dataset.textAriaLabel));
-  }
+const sprache = () => daten.einstellungen.sprache;
+const einheit = () => daten.einstellungen.laengeneinheit;
+const locale = () => localeFuer(sprache());
+
+/** Text in der eingestellten Sprache; {einheit} wird immer mit dem Kürzel gefüllt. */
+function t(schluessel, werte = {}) {
+  return text(sprache(), schluessel, { einheit: text(sprache(), `einheit.${einheit()}`), ...werte });
 }
 
-/** Überträgt die gespeicherten Texte in die Eingabefelder. */
-function felderBefuellen() {
-  for (const input of document.querySelectorAll('input[data-feld]')) {
-    const wert = liesPfad(zustand, input.dataset.feld);
-    input.value = typeof wert === 'string' ? wert : '';
-  }
+// ---------------------------------------------------------------- Farbschema (US-26)
+
+function farbschemaAnwenden() {
+  const wahl = daten.einstellungen.farbschema;
+  const wurzel = document.documentElement;
+  if (wahl === 'system') wurzel.removeAttribute('data-farbschema');
+  else wurzel.dataset.farbschema = wahl;
+  const dunkel = wahl === 'dunkel' || (wahl === 'system' && systemIstDunkel());
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dunkel ? THEME_FARBE.dunkel : THEME_FARBE.hell);
 }
 
-/**
- * Prüft ein Feld und zeigt ggf. die Fehlermeldung an.
- * Der Hinweis „leer“ erscheint erst, wenn das Feld berührt wurde.
- * @returns {{gueltig:boolean, wert?:number|null, fehler?:string}}
- */
-function pruefeFeld(input) {
-  const ergebnis = pruefeZahl(input.value, input.dataset.regel);
-  const fehlerEl = document.getElementById(`fehler-${input.id}`);
-  const anzeigen = !ergebnis.gueltig && (ergebnis.fehler !== 'LEER' || beruehrt.has(input.id));
+// ---------------------------------------------------------------- Kopfzeile und Meldungen
 
-  if (anzeigen) {
-    input.setAttribute('aria-invalid', 'true');
-    if (fehlerEl) {
-      fehlerEl.textContent = t(`fehler.${ergebnis.fehler}`, { grenze: grenzeAnzeigen(ergebnis.grenze) });
-      fehlerEl.hidden = false;
-    }
-  } else {
-    input.removeAttribute('aria-invalid');
-    if (fehlerEl) {
-      fehlerEl.textContent = '';
-      fehlerEl.hidden = true;
-    }
-  }
-  return ergebnis;
+const kopfTitel = document.getElementById('kopf-titel');
+const kopfZurueck = document.getElementById('kopf-zurueck');
+const kopfZahnrad = document.getElementById('kopf-zahnrad');
+const meldungEl = document.querySelector('[data-hinweis="meldung"]');
+let offeneMeldung = null;
+
+function setzeTitel(titel, seitentitel = titel) {
+  kopfTitel.textContent = titel;
+  document.title = t('titel.seite', { ansicht: seitentitel });
 }
 
-function grenzeAnzeigen(grenze) {
-  if (typeof grenze !== 'number') return '';
-  return grenze < 0 ? `−${Math.abs(grenze)}` : String(grenze);
-}
+// ---------------------------------------------------------------- Kontext für die Ansichten
 
-// ---------------------------------------------------------------------------
-// Berechnung und Anzeige
-// ---------------------------------------------------------------------------
-
-function setzeErgebnis(schluessel, anzeige) {
-  const el = document.querySelector(`[data-ergebnis="${schluessel}"]`);
-  if (el) el.textContent = anzeige;
-}
-
-function setzeStatus(karte, schluessel) {
-  const el = document.querySelector(`[data-status="${karte}"]`);
-  if (!el) return;
-  if (schluessel) {
-    el.textContent = t(schluessel);
-    el.hidden = false;
-  } else {
-    el.textContent = '';
-    el.hidden = true;
-  }
-}
-
-/**
- * Liest eine Probe (Anleitung oder eigene) für eine Richtung.
- * @returns {{anzahl:number, bezugCm:number}|null} null, wenn ungültig
- */
-function probeAusErgebnissen(ergebnisse, probeName, richtung) {
-  const anzahl = ergebnisse.get(`${probeName}.${richtung}Anzahl`);
-  const bezug = ergebnisse.get(`${probeName}.${richtung}Bezug`);
-  if (!anzahl?.gueltig || !bezug?.gueltig) return null;
-  return { anzahl: anzahl.wert, bezug: bezug.wert, bezugCm: zuCm(bezug.wert, einheit()) };
-}
-
-/** Dichte in der Anzeigeeinheit (z. B. Maschen pro cm) anzeigen. */
-function zeigeDichte(probeName, richtung, probe) {
-  const schluessel = `${probeName}.dichte${richtung === 'maschen' ? 'Maschen' : 'Reihen'}`;
-  setzeErgebnis(schluessel, probe ? formatZahl(probe.anzahl / probe.bezug, locale()) : LEER_ANZEIGE);
-}
-
-function leereKarte(name) {
-  for (const feld of ['massAnleitung', 'anleitungGerundet', 'eigenGerundet', 'endgueltig', 'tatsaechlich', 'abweichung']) {
-    setzeErgebnis(`${name}.${feld}`, LEER_ANZEIGE);
-  }
-}
-
-/** Berechnet eine Rechner-Karte und zeigt die Ergebnisse an. */
-function berechneKarte(name, ergebnisse, proben) {
-  const { richtung, art } = KARTEN[name];
-  const eingabe = ergebnisse.get(`rechner.${name}.eingabe`);
-  const anpassung = ergebnisse.get(`rechner.${name}.anpassung`);
-  const probeAnleitung = proben.anleitung[richtung];
-  const probeEigen = proben.eigen[richtung];
-
-  leereKarte(name);
-  setzeStatus(name, null);
-
-  if (!eingabe?.gueltig) return;
-  if (!probeAnleitung || !probeEigen) {
-    setzeStatus(name, 'hinweis.probenFehlen');
-    return;
-  }
-
-  const anpassungWert = anpassung?.gueltig ? anpassung.wert : 0;
-  const loc = locale();
-  const e = einheit();
-  let r;
-
-  if (art === 'anleitung') {
-    r = umrechnenAusAnleitung(eingabe.wert, probeAnleitung, probeEigen, anpassungWert);
-    setzeErgebnis(`${name}.massAnleitung`, formatZahl(vonCm(r.cmLautAnleitung, e), loc));
-  } else {
-    r = umrechnenAusCm(zuCm(eingabe.wert, e), probeAnleitung, probeEigen, anpassungWert);
-    setzeErgebnis(`${name}.anleitungGerundet`, formatGanzzahl(r.anleitungGerundet, loc));
-  }
-  setzeErgebnis(`${name}.eigenGerundet`, formatGanzzahl(r.eigenGerundet, loc));
-
-  // Bei ungültiger Anpassung kein Endergebnis zeigen (Fehler steht am Feld)
-  if (!anpassung?.gueltig) return;
-
-  if (!r.gueltig) {
-    setzeStatus(name, 'hinweis.ergebnisZuKlein');
-    return;
-  }
-  setzeErgebnis(`${name}.endgueltig`, formatGanzzahl(r.endgueltig, loc));
-  setzeErgebnis(`${name}.tatsaechlich`, formatZahl(vonCm(r.cmTatsaechlich, e), loc));
-  setzeErgebnis(`${name}.abweichung`, formatAbweichung(vonCm(r.abweichungCm, e), loc));
-}
-
-/** Prüft alle Felder und berechnet alles neu (US-02, AK7: sofort, ohne Knopf). */
-function aktualisieren() {
-  const ergebnisse = new Map();
-  for (const input of document.querySelectorAll('input[data-feld][data-regel]')) {
-    ergebnisse.set(input.dataset.feld, pruefeFeld(input));
-  }
-
-  const proben = { anleitung: {}, eigen: {} };
-  for (const richtung of ['maschen', 'reihen']) {
-    proben.anleitung[richtung] = probeAusErgebnissen(ergebnisse, 'probeAnleitung', richtung);
-    proben.eigen[richtung] = probeAusErgebnissen(ergebnisse, 'probeEigen', richtung);
-    zeigeDichte('probeAnleitung', richtung, proben.anleitung[richtung]);
-    zeigeDichte('probeEigen', richtung, proben.eigen[richtung]);
-  }
-
-  for (const name of Object.keys(KARTEN)) {
-    berechneKarte(name, ergebnisse, proben);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Ereignisse
-// ---------------------------------------------------------------------------
-
-function beiEingabe(ereignis) {
-  const input = ereignis.target;
-  if (!(input instanceof HTMLInputElement) || !input.dataset.feld) return;
-  schreibePfad(zustand, input.dataset.feld, input.value);
-  beruehrt.add(input.id);
-  aktualisieren();
-  speichernVerzoegert();
-}
-
-function beiFokusVerlust(ereignis) {
-  const input = ereignis.target;
-  if (!(input instanceof HTMLInputElement) || !input.dataset.feld) return;
-  if (!beruehrt.has(input.id)) {
-    beruehrt.add(input.id);
-    aktualisieren();
-  }
-}
-
-/** −/+-Knöpfe der Anpassung. Ungültiger Inhalt zählt als 0. */
-function beiKlick(ereignis) {
-  const knopf = ereignis.target.closest('[data-schritt]');
-  if (!knopf) return;
-  const input = document.getElementById(knopf.dataset.ziel);
-  if (!input) return;
-
-  const regel = REGELN.anpassung;
-  const aktuell = pruefeZahl(input.value, 'anpassung');
-  const basis = aktuell.gueltig ? aktuell.wert : 0;
-  const neu = Math.min(regel.max, Math.max(regel.min, basis + Number(knopf.dataset.schritt)));
-
-  input.value = String(neu);
-  schreibePfad(zustand, input.dataset.feld, input.value);
-  beruehrt.add(input.id);
-  aktualisieren();
-  speichernVerzoegert();
-}
-
-function zuruecksetzenEinrichten() {
-  const dialog = document.getElementById('dialog-zuruecksetzen');
-  const oeffnen = document.getElementById('knopf-zuruecksetzen');
-  const abbrechen = document.getElementById('dialog-abbrechen');
-  const bestaetigen = document.getElementById('dialog-bestaetigen');
-  if (!dialog || !oeffnen) return;
-
-  oeffnen.addEventListener('click', () => {
-    if (typeof dialog.showModal === 'function') {
-      dialog.showModal();
-    }
-  });
-  abbrechen?.addEventListener('click', () => dialog.close());
-  bestaetigen?.addEventListener('click', () => {
+const ctx = {
+  appVersion: APP_VERSION,
+  speicher,
+  daten: () => daten,
+  /** Übernimmt neue Daten; gespeichert wird verzögert oder sofort. */
+  aendern(neu, { sofort = false } = {}) {
+    daten = neu;
+    ungespeichert = true;
     clearTimeout(speicherTimer);
-    zustand = zuruecksetzen(speicherbar ? speicher : null, zustand.einstellungen);
-    beruehrt.clear();
-    felderBefuellen();
-    aktualisieren();
-    dialog.close();
-  });
+    if (sofort) jetztSpeichern();
+    else speicherTimer = setTimeout(jetztSpeichern, SPEICHER_VERZOEGERUNG_MS);
+  },
+  /** Ersetzt die Daten nach einem Import (bereits gespeichert). */
+  ersetzeDaten(neu) {
+    clearTimeout(speicherTimer);
+    ungespeichert = false;
+    daten = neu;
+    ctx.uebernommenesProjekt = null;
+  },
+  speicherbar: () => speicherbar,
+  uebernommenesProjekt: geladen.uebernommenesProjekt,
+  t,
+  locale,
+  einheit,
+  jetzt: jetztIso,
+  neueId,
+  navigiere,
+  setzeTitel: (titel) => setzeTitel(titel),
+  fokusTitel: () => kopfTitel.focus(),
+  farbschemaAnwenden,
+  erzeugeWachhalter,
+  teileDatei,
+  leseDatei,
+  meldung(textMeldung) {
+    offeneMeldung = textMeldung;
+  },
+};
+
+// ---------------------------------------------------------------- Router
+
+const wurzel = document.getElementById('ansicht');
+let aufraeumen = null;
+
+function zeigeAnsicht(route) {
+  if (aufraeumen) aufraeumen();
+  aufraeumen = null;
+  // Offene Dialoge schließen (z. B. nach der Zurück-Geste)
+  for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
+  leeren(wurzel);
+
+  const ergebnis = ANSICHTEN[route.ansicht].zeige(ctx, route, wurzel);
+  if (!ergebnis) {
+    // Unbekanntes Projekt/Strickstück (z. B. gelöscht): zur Liste
+    navigiere({ ansicht: 'liste' }, { ersetzen: true });
+    return;
+  }
+  aufraeumen = ergebnis.aufraeumen ?? null;
+  setzeTitel(ergebnis.titel, ergebnis.seitentitel ?? ergebnis.titel);
+  document.body.dataset.ansicht = route.ansicht;
+
+  kopfZurueck.hidden = !ergebnis.zurueck;
+  if (ergebnis.zurueck) kopfZurueck.href = hashFuer(ergebnis.zurueck);
+  kopfZahnrad.hidden = route.ansicht === 'einstellungen';
+
+  meldungEl.textContent = offeneMeldung ?? '';
+  meldungEl.hidden = !offeneMeldung;
+  offeneMeldung = null;
+
+  window.scrollTo(0, 0);
+  kopfTitel.focus({ preventScroll: true });
 }
 
-function serviceWorkerRegistrieren() {
-  if (!('serviceWorker' in navigator)) return;
-  if (location.protocol === 'file:') return;
+// ---------------------------------------------------------------- Start
+
+document.documentElement.lang = sprache();
+texteFuellen(document.querySelector('.kopf'), t);
+texteFuellen(document.querySelector('[data-hinweis="speicher"]'), t);
+farbschemaAnwenden();
+beiSystemFarbwechsel(farbschemaAnwenden);
+zeigeSpeicherHinweis();
+
+// Beim Verlassen/Sperren sofort speichern
+window.addEventListener('pagehide', jetztSpeichern);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') jetztSpeichern();
+});
+
+// Nach der Übernahme aus 0.1 direkt das neue Projekt zeigen (US-27)
+if (geladen.uebernommenesProjekt && (location.hash === '' || location.hash === '#' || location.hash === '#/')) {
+  history.replaceState(null, '', hashFuer({ ansicht: 'projekt', projektId: geladen.uebernommenesProjekt }));
+}
+starteRouter(zeigeAnsicht);
+
+// Offline-Fähigkeit
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {
-    // Ohne Service Worker funktioniert die App weiterhin, nur nicht offline.
+    // ohne Service Worker funktioniert die App weiterhin, nur nicht offline
   });
 }
-
-// ---------------------------------------------------------------------------
-// Start
-// ---------------------------------------------------------------------------
-
-function starten() {
-  texteAnwenden();
-  felderBefuellen();
-  zeigeSpeicherHinweis();
-  aktualisieren();
-
-  document.addEventListener('input', beiEingabe);
-  document.addEventListener('focusout', beiFokusVerlust);
-  document.addEventListener('click', beiKlick);
-  zuruecksetzenEinrichten();
-
-  // Beim Verlassen sofort speichern, damit nichts verloren geht
-  window.addEventListener('pagehide', jetztSpeichern);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') jetztSpeichern();
-  });
-
-  serviceWorkerRegistrieren();
-}
-
-starten();
