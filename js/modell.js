@@ -33,6 +33,12 @@ export const GRENZEN = Object.freeze({
   zaehlerMax: 99999,
 });
 
+/**
+ * Erlaubte Zeichen einer ID. Dasselbe Muster nutzt der Router; IDs mit anderen
+ * Zeichen wären in der Oberfläche nicht erreichbar (QA S2-03).
+ */
+export const ID_MUSTER = /^[A-Za-z0-9_-]{1,64}$/;
+
 const PROBE_FELDER = Object.freeze(['maschenAnzahl', 'maschenBezug', 'reihenAnzahl', 'reihenBezug']);
 const NULLZEIT = '1970-01-01T00:00:00.000Z';
 
@@ -258,7 +264,7 @@ export function hinweisGesehen(daten, name) {
 // ---------------------------------------------------------------- Prüfen (Laden und Import)
 
 function eindeutig(id, vergeben, ersatz) {
-  let basis = typeof id === 'string' && id.trim() !== '' ? id.slice(0, GRENZEN.id) : ersatz;
+  const basis = typeof id === 'string' && ID_MUSTER.test(id) ? id : ersatz;
   let kandidat = basis;
   let n = 2;
   while (vergeben.has(kandidat)) kandidat = `${basis}-${n++}`;

@@ -10,7 +10,7 @@ import { text, localeFuer } from './texte.js';
 import { ladeDaten, speichereDaten } from './speicher.js';
 import { neueId, jetztIso, erzeugeWachhalter, teileDatei, leseDatei, systemIstDunkel, beiSystemFarbwechsel } from './geraet.js';
 import { starteRouter, navigiere, hashFuer } from './router.js';
-import { texteFuellen, leeren } from './dom.js';
+import { texteFuellen, leeren, schliesseDialoge } from './dom.js';
 import * as projektliste from './ansichten/projektliste.js';
 import * as projekt from './ansichten/projekt.js';
 import * as strickstueck from './ansichten/strickstueck.js';
@@ -90,7 +90,7 @@ const kopfTitel = document.getElementById('kopf-titel');
 const kopfZurueck = document.getElementById('kopf-zurueck');
 const kopfZahnrad = document.getElementById('kopf-zahnrad');
 const meldungEl = document.querySelector('[data-hinweis="meldung"]');
-let offeneMeldung = null;
+let offeneMeldung = null; // {text, art:'erfolg'|'warnung'}
 
 function setzeTitel(titel, seitentitel = titel) {
   kopfTitel.textContent = titel;
@@ -132,8 +132,9 @@ const ctx = {
   erzeugeWachhalter,
   teileDatei,
   leseDatei,
-  meldung(textMeldung) {
-    offeneMeldung = textMeldung;
+  /** Meldung, die über der nächsten Ansicht erscheint. */
+  meldung(text, art = 'erfolg') {
+    offeneMeldung = { text, art };
   },
 };
 
@@ -145,8 +146,8 @@ let aufraeumen = null;
 function zeigeAnsicht(route) {
   if (aufraeumen) aufraeumen();
   aufraeumen = null;
-  // Offene Dialoge schließen (z. B. nach der Zurück-Geste)
-  for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
+  // Offene Abfragen abbrechen und Dialoge schließen (z. B. nach der Zurück-Geste, QA S2-01)
+  schliesseDialoge();
   leeren(wurzel);
 
   const ergebnis = ANSICHTEN[route.ansicht].zeige(ctx, route, wurzel);
@@ -163,8 +164,10 @@ function zeigeAnsicht(route) {
   if (ergebnis.zurueck) kopfZurueck.href = hashFuer(ergebnis.zurueck);
   kopfZahnrad.hidden = route.ansicht === 'einstellungen';
 
-  meldungEl.textContent = offeneMeldung ?? '';
+  meldungEl.textContent = offeneMeldung?.text ?? '';
   meldungEl.hidden = !offeneMeldung;
+  meldungEl.classList.toggle('hinweis-warnung', offeneMeldung?.art === 'warnung');
+  meldungEl.classList.toggle('hinweis-erfolg', offeneMeldung?.art !== 'warnung');
   offeneMeldung = null;
 
   window.scrollTo(0, 0);
@@ -185,6 +188,9 @@ window.addEventListener('pagehide', jetztSpeichern);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') jetztSpeichern();
 });
+
+// Gespeicherte Daten waren unlesbar: Nutzerin auf die Sicherung hinweisen (QA S2-04)
+if (geladen.beschaedigt) ctx.meldung(t('hinweis.datenBeschaedigt'), 'warnung');
 
 // Nach der Übernahme aus 0.1 direkt das neue Projekt zeigen (US-27)
 if (geladen.uebernommenesProjekt && (location.hash === '' || location.hash === '#' || location.hash === '#/')) {

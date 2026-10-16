@@ -1,5 +1,4 @@
 // QA Sprint 2: unabhängige Akzeptanztests der Logik (US-09 … US-12, US-26, US-27, Bugs).
-// Tests mit { todo } dokumentieren gefundene Fehler; sie lassen `npm test` nicht scheitern.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { umrechnenAusAnleitung, umrechnenAusCm } from '../js/rechner.js';
@@ -117,7 +116,7 @@ test('Router: jede ID aus der App ist erreichbar', () => {
   assert.equal(routeAus(hashFuer({ ansicht: 'projekt', projektId: id })).projektId, id);
 });
 
-test('QA S2-03: IDs aus einer Sicherung, die nicht ins Routenmuster passen, werden ersetzt', { todo: 'S2-03' }, () => {
+test('QA S2-03: IDs aus einer Sicherung, die nicht ins Routenmuster passen, werden ersetzt', () => {
   const r = pruefeDaten({ schemaVersion: 2, projekte: [{ id: 'mein projekt', name: 'A', strickstuecke: [{ id: 'teil/1', name: 'B' }] }] });
   const p = r.daten.projekte[0];
   assert.equal(routeAus(hashFuer({ ansicht: 'projekt', projektId: p.id })).ansicht, 'projekt');

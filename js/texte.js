@@ -162,6 +162,7 @@ export const SPRACHEN = Object.freeze({
       'migration.stueckName': 'Teil 1',
       'hinweis.uebernommen': 'Neu in Version 0.2: Deine bisherigen Eingaben stehen jetzt in diesem Projekt, im Strickstück „Teil 1“. Über „Zurück“ siehst du alle Projekte und kannst weitere anlegen.',
       'hinweis.verstanden': 'Verstanden',
+      'hinweis.datenBeschaedigt': 'Deine gespeicherten Daten konnten nicht gelesen werden. Falls du eine Sicherung hast, lies sie über das Zahnrad → „Sicherung einlesen“ wieder ein.',
       'ersatz.projekt': 'Projekt {nr}',
       'ersatz.strickstueck': 'Teil {nr}',
 
@@ -194,6 +195,7 @@ export const SPRACHEN = Object.freeze({
       'dialog.zaehlerNull.titel': 'Zähler auf 0 setzen?',
       'dialog.zaehlerNull.text': 'Der Zählerstand von „{name}“ ({n}) wird auf 0 gesetzt.',
       'zaehler.wachAktiv': 'Der Bildschirm bleibt an, solange diese Ansicht offen ist.',
+      'zaehler.wachAbgelehnt': 'Der Bildschirm kann gerade nicht wachgehalten werden, z. B. im Stromsparmodus oder auf dem iPhone vor iOS 18.4. Es hilft, in den iPhone-Einstellungen die „Automatische Sperre“ zu verlängern.',
       'zaehler.wachNicht': 'Dieses Gerät kann den Bildschirm nicht wachhalten. Auf dem iPhone geht das in der installierten App ab iOS 18.4. Bis dahin hilft es, in den iPhone-Einstellungen die „Automatische Sperre“ zu verlängern.',
 
       // Einstellungen (US-26, US-12)

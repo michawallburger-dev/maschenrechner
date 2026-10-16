@@ -48,20 +48,23 @@ function parse(text) {
  * Reihenfolge: Schema 2 → Übernahme aus 0.1 → leere Daten.
  * @param {Storage|null} speicher
  * @param {{neueId:(praefix:string)=>string, jetzt:string, projektName:string, stueckName:string}} optionen
- * @returns {{daten:object, speicherbar:boolean, quelle:'v2'|'v1'|'neu', uebernommenesProjekt:string|null}}
+ * @returns {{daten:object, speicherbar:boolean, quelle:'v2'|'v1'|'neu', uebernommenesProjekt:string|null, beschaedigt:boolean}}
+ *   beschaedigt = gespeicherte Daten (Schema 2) waren unlesbar und liegen jetzt unter „.defekt“ (QA S2-04)
  */
 export function ladeDaten(speicher, { neueId, jetzt, projektName, stueckName }) {
-  const leer = { daten: leereDaten(), speicherbar: false, quelle: 'neu', uebernommenesProjekt: null };
+  const leer = { daten: leereDaten(), speicherbar: false, quelle: 'neu', uebernommenesProjekt: null, beschaedigt: false };
   if (!speicher) return leer;
 
   // 1. Schema 2
   const v2 = lies(speicher, SCHLUESSEL_V2);
   if (!v2.ok) return leer;
+  let beschaedigt = false;
   if (v2.wert !== null) {
     const geprueft = pruefeDaten(parse(v2.wert));
-    if (geprueft.gueltig) return { daten: geprueft.daten, speicherbar: true, quelle: 'v2', uebernommenesProjekt: null };
+    if (geprueft.gueltig) return { daten: geprueft.daten, speicherbar: true, quelle: 'v2', uebernommenesProjekt: null, beschaedigt };
     // Beschädigt: Rohdaten aufbewahren, bevor irgendetwas überschrieben wird
     schreib(speicher, SCHLUESSEL_DEFEKT, v2.wert);
+    beschaedigt = true;
   }
 
   // 2. Übernahme aus 0.1 (alter Schlüssel wird nur gelesen)
@@ -76,12 +79,12 @@ export function ladeDaten(speicher, { neueId, jetzt, projektName, stueckName }) 
     });
     if (ergebnis) {
       speichereDaten(speicher, ergebnis.daten);
-      return { daten: ergebnis.daten, speicherbar: true, quelle: 'v1', uebernommenesProjekt: ergebnis.projektId };
+      return { daten: ergebnis.daten, speicherbar: true, quelle: 'v1', uebernommenesProjekt: ergebnis.projektId, beschaedigt };
     }
   }
 
   // 3. Neu
-  return { daten: leereDaten(), speicherbar: true, quelle: 'neu', uebernommenesProjekt: null };
+  return { daten: leereDaten(), speicherbar: true, quelle: 'neu', uebernommenesProjekt: null, beschaedigt };
 }
 
 /**

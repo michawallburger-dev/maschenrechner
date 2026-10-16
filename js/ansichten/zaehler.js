@@ -9,6 +9,9 @@ import { zaehlerPlus, zaehlerMinus, zaehlerAusText } from '../zaehler.js';
 import { vorlage, texteFuellen, bestaetigen } from '../dom.js';
 import { grenzeAnzeigen } from './gemeinsam.js';
 
+/** Hinweis „gerade nicht möglich“ in dieser Sitzung schon gezeigt? */
+let abgelehntGezeigt = false;
+
 export function zeige(ctx, route, wurzel) {
   const gefunden = finde(ctx.daten(), route.projektId, route.stueckId);
   if (!gefunden) return null;
@@ -24,6 +27,7 @@ export function zeige(ctx, route, wurzel) {
   const wachHinweis = ansicht.querySelector('[data-rolle="wach-hinweis"]');
   ansicht.querySelector('[data-rolle="projektname"]').textContent = gefunden.projekt.name;
 
+  let ansageTimer = null;
   const stand = () => finde(ctx.daten(), projektId, stueckId)?.stueck.zaehler ?? 0;
 
   function zeigeStand({ ansagen = false } = {}) {
@@ -31,7 +35,15 @@ export function zeige(ctx, route, wurzel) {
     wert.removeAttribute('aria-invalid');
     fehler.hidden = true;
     fehler.textContent = '';
-    if (ansagen) ansage.textContent = ctx.t('zaehler.ansage', { n: formatGanzzahl(stand(), ctx.locale()) });
+    if (ansagen) {
+      // Erst leeren, dann neu setzen – so wird auch ein gleicher Text erneut angesagt (QA S2-08)
+      const text = ctx.t('zaehler.ansage', { n: formatGanzzahl(stand(), ctx.locale()) });
+      ansage.textContent = '';
+      clearTimeout(ansageTimer);
+      ansageTimer = setTimeout(() => {
+        ansage.textContent = text;
+      }, 50);
+    }
   }
 
   /** Speichert sofort (US-11, AK4: kein Verlust beim Sperren des iPhones). */
@@ -90,13 +102,21 @@ export function zeige(ctx, route, wurzel) {
   const wachhalter = ctx.erzeugeWachhalter();
   wachhalter.starten().then((ergebnis) => {
     if (!ansicht.isConnected) return;
-    if (ergebnis === 'aktiv') {
-      wachHinweis.hidden = true;
-    } else if (!ctx.daten().hinweise.wachhaltenNichtMoeglich) {
-      // Einmaliger Hinweis, danach nicht mehr
+    if (ergebnis === 'nicht-verfuegbar') {
+      // Gerät kann es grundsätzlich nicht: einmaliger Hinweis, danach nicht mehr
+      if (ctx.daten().hinweise.wachhaltenNichtMoeglich) return;
       wachHinweis.textContent = ctx.t('zaehler.wachNicht');
       wachHinweis.hidden = false;
       ctx.aendern(hinweisGesehen(ctx.daten(), 'wachhaltenNichtMoeglich'), { sofort: true });
+    } else if (ergebnis === 'abgelehnt') {
+      // Vielleicht nur vorübergehend (z. B. Stromsparmodus): nicht dauerhaft merken,
+      // aber höchstens einmal je App-Start zeigen (QA S2-05)
+      if (abgelehntGezeigt) return;
+      abgelehntGezeigt = true;
+      wachHinweis.textContent = ctx.t('zaehler.wachAbgelehnt');
+      wachHinweis.hidden = false;
+    } else {
+      wachHinweis.hidden = true;
     }
   });
 
@@ -106,6 +126,9 @@ export function zeige(ctx, route, wurzel) {
     titel: gefunden.stueck.name,
     seitentitel: `${gefunden.stueck.name} – ${gefunden.projekt.name}`,
     zurueck: { ansicht: 'strickstueck', projektId, stueckId },
-    aufraeumen: () => wachhalter.beenden(),
+    aufraeumen: () => {
+      clearTimeout(ansageTimer);
+      wachhalter.beenden();
+    },
   };
 }

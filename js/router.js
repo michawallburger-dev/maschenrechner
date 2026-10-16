@@ -9,7 +9,10 @@
  *   #/einstellungen                 Einstellungen
  */
 
-const ID = '([A-Za-z0-9_-]{1,64})';
+import { ID_MUSTER } from './modell.js';
+
+// Gleiches Muster wie im Datenmodell, ohne die Anker ^ und $
+const ID = `(${ID_MUSTER.source.slice(1, -1)})`;
 const MUSTER = [
   { ansicht: 'einstellungen', regex: /^#\/einstellungen$/ },
   { ansicht: 'zaehlen', regex: new RegExp(`^#/p/${ID}/s/${ID}/zaehlen$`) },

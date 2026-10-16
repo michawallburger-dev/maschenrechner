@@ -140,6 +140,12 @@ body {
   line-height: 1.2;
   color: var(--akzent);
   overflow-wrap: anywhere;
+  /* Lange Namen auf 2 Zeilen begrenzen, damit die feste Kopfzeile klein bleibt (QA S2-06) */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .kopf h1:focus,

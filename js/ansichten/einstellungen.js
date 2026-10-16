@@ -3,7 +3,7 @@
  */
 
 import { einstellungAendern, anzahlStrickstuecke } from '../modell.js';
-import { erzeugeSicherung, leseSicherung } from '../sicherung.js';
+import { erzeugeSicherung, leseSicherung, MAX_GROESSE } from '../sicherung.js';
 import { speichereDaten, sichereVorImport } from '../speicher.js';
 import { vorlage, texteFuellen, bestaetigen } from '../dom.js';
 import { anzahlText } from './gemeinsam.js';
@@ -56,6 +56,12 @@ export function zeige(ctx, route, wurzel) {
         abbrechenText: ctx.t('dialog.abbrechen'),
         nurOk: true,
       });
+
+    // Zu große Dateien gar nicht erst einlesen (QA S2-07)
+    if (typeof gewaehlt.size === 'number' && gewaehlt.size > MAX_GROESSE) {
+      await fehlerZeigen('ZU_GROSS');
+      return;
+    }
 
     let text;
     try {

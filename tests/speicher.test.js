@@ -30,6 +30,7 @@ test('Erster Start ohne Daten: leer, speicherbar, nichts geschrieben', () => {
   const r = ladeDaten(s, opt());
   assert.equal(r.quelle, 'neu');
   assert.equal(r.speicherbar, true);
+  assert.equal(r.beschaedigt, false);
   assert.equal(r.uebernommenesProjekt, null);
   assert.deepEqual(r.daten, leereDaten());
   assert.equal(s.roh.size, 0);
@@ -84,6 +85,7 @@ test('R6: beschädigte Schema-2-Daten werden unter „.defekt“ aufbewahrt', ()
     const s = neuerSpeicher({ [SCHLUESSEL_V2]: kaputt });
     const r = ladeDaten(s, opt());
     assert.equal(r.quelle, 'neu');
+    assert.equal(r.beschaedigt, true, 'S2-04: App kann darauf hinweisen');
     assert.equal(s.getItem(SCHLUESSEL_DEFEKT), kaputt);
     assert.equal(s.getItem(SCHLUESSEL_V2), kaputt, 'erst beim nächsten Speichern überschrieben');
   }
@@ -93,6 +95,7 @@ test('R6: beschädigte Schema-2-Daten, aber 0.1 vorhanden → Übernahme aus 0.1
   const s = neuerSpeicher({ [SCHLUESSEL_V2]: '{x', [SCHLUESSEL_V1]: JSON.stringify(v1Zustand()) });
   const r = ladeDaten(s, opt());
   assert.equal(r.quelle, 'v1');
+  assert.equal(r.beschaedigt, true);
   assert.equal(s.getItem(SCHLUESSEL_DEFEKT), '{x');
 });
 

@@ -47,8 +47,32 @@ export function texteFuellen(wurzel, t) {
 
 /** Öffnet einen <dialog> modal, mit Rückfall, falls showModal fehlt. */
 function oeffne(dialog) {
+  if (dialog.open) return;
   if (typeof dialog.showModal === 'function') dialog.showModal();
   else dialog.setAttribute('open', '');
+}
+
+/**
+ * Laufende Abfragen je Dialog. Jede Abfrage muss beendet werden, bevor eine
+ * neue denselben Dialog benutzt – sonst bleiben ihre Klick-Handler hängen und
+ * eine alte Aktion (z. B. „Projekt löschen“) würde später mit ausgeführt (QA S2-01).
+ * @type {Map<HTMLDialogElement, () => void>}
+ */
+const laufend = new Map();
+
+/** Beendet eine eventuell laufende Abfrage dieses Dialogs als „abgebrochen“. */
+function beendeLaufende(dialog) {
+  const abbrechen = laufend.get(dialog);
+  if (abbrechen) abbrechen();
+}
+
+/**
+ * Bricht alle offenen Abfragen ab und schließt die Dialoge,
+ * z. B. beim Wechsel der Ansicht (Zurück-Geste).
+ */
+export function schliesseDialoge() {
+  for (const abbrechen of [...laufend.values()]) abbrechen();
+  for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
 }
 
 /**
@@ -57,6 +81,7 @@ function oeffne(dialog) {
  */
 export function bestaetigen({ titel, text, okText, abbrechenText, gefahr = false, nurOk = false }) {
   const dialog = document.getElementById('dialog-bestaetigen');
+  beendeLaufende(dialog);
   const ok = dialog.querySelector('[data-rolle="ok"]');
   const abbrechen = dialog.querySelector('[data-rolle="abbrechen"]');
   dialog.querySelector('[data-rolle="titel"]').textContent = titel;
@@ -68,9 +93,11 @@ export function bestaetigen({ titel, text, okText, abbrechenText, gefahr = false
 
   return new Promise((aufloesen) => {
     const fertig = (ergebnis) => {
+      laufend.delete(dialog);
       ok.removeEventListener('click', beiOk);
       abbrechen.removeEventListener('click', beiAbbrechen);
       dialog.removeEventListener('cancel', beiAbbrechen);
+      dialog.removeEventListener('close', beiSchliessen);
       if (dialog.open) dialog.close();
       aufloesen(ergebnis);
     };
@@ -79,9 +106,15 @@ export function bestaetigen({ titel, text, okText, abbrechenText, gefahr = false
       e?.preventDefault?.();
       fertig(false);
     };
+    // Von außen geschlossen (ohne Antwort) → gilt als abgebrochen
+    const beiSchliessen = () => {
+      if (!dialog.open) fertig(false);
+    };
+    laufend.set(dialog, () => fertig(false));
     ok.addEventListener('click', beiOk);
     abbrechen.addEventListener('click', beiAbbrechen);
     dialog.addEventListener('cancel', beiAbbrechen);
+    dialog.addEventListener('close', beiSchliessen);
     oeffne(dialog);
     (nurOk ? ok : abbrechen).focus();
   });
@@ -93,6 +126,7 @@ export function bestaetigen({ titel, text, okText, abbrechenText, gefahr = false
  */
 export function frageName({ titel, label, wert = '', vorschlaege = [], okText, abbrechenText, fehlerLeer, maxLaenge = 80 }) {
   const dialog = document.getElementById('dialog-name');
+  beendeLaufende(dialog);
   const eingabe = dialog.querySelector('input');
   const fehler = dialog.querySelector('[data-rolle="fehler"]');
   const vorschlagListe = dialog.querySelector('[data-rolle="vorschlaege"]');
@@ -121,12 +155,17 @@ export function frageName({ titel, label, wert = '', vorschlaege = [], okText, a
 
   return new Promise((aufloesen) => {
     const fertig = (ergebnis) => {
+      laufend.delete(dialog);
       ok.removeEventListener('click', beiOk);
       abbrechen.removeEventListener('click', beiAbbrechen);
       dialog.removeEventListener('cancel', beiAbbrechen);
+      dialog.removeEventListener('close', beiSchliessen);
       eingabe.removeEventListener('keydown', beiTaste);
       if (dialog.open) dialog.close();
       aufloesen(ergebnis);
+    };
+    const beiSchliessen = () => {
+      if (!dialog.open) fertig(null);
     };
     const beiOk = () => {
       const name = eingabe.value.trim();
@@ -149,9 +188,11 @@ export function frageName({ titel, label, wert = '', vorschlaege = [], okText, a
         beiOk();
       }
     };
+    laufend.set(dialog, () => fertig(null));
     ok.addEventListener('click', beiOk);
     abbrechen.addEventListener('click', beiAbbrechen);
     dialog.addEventListener('cancel', beiAbbrechen);
+    dialog.addEventListener('close', beiSchliessen);
     eingabe.addEventListener('keydown', beiTaste);
     oeffne(dialog);
     eingabe.focus();

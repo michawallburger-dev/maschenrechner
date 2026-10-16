@@ -19,6 +19,7 @@ import {
   hinweisGesehen,
   pruefeDaten,
   anzahlStrickstuecke,
+  ID_MUSTER,
 } from '../js/modell.js';
 import { ZEIT1, ZEIT2, ZEIT3 } from './hilfen.js';
 
@@ -235,4 +236,20 @@ test('anzahlStrickstuecke zählt über alle Projekte', () => {
   d = neuesStrickstueck(d, 'p1', 'Rücken', 's2', ZEIT3).daten;
   d = neuesProjekt(d, { name: 'Mütze' }, 'p2', ZEIT3).daten;
   assert.equal(anzahlStrickstuecke(d), 2);
+});
+
+test('S2-03: ungültige IDs werden durch Ersatz-IDs ersetzt, gültige bleiben', () => {
+  const r = pruefeDaten({
+    schemaVersion: 2,
+    projekte: [
+      { id: 'mein projekt', name: 'A', strickstuecke: [{ id: 'teil/1', name: 'B' }, { id: 'ok_1', name: 'C' }] },
+      { id: 'p-ok', name: 'D' },
+      { id: 'ä', name: 'E' },
+      { id: 'x'.repeat(65), name: 'F' },
+    ],
+  });
+  const ids = r.daten.projekte.map((p) => p.id);
+  assert.deepEqual(ids, ['p-reparatur-1', 'p-ok', 'p-reparatur-3', 'p-reparatur-4']);
+  assert.deepEqual(r.daten.projekte[0].strickstuecke.map((s) => s.id), ['s-reparatur-1', 'ok_1']);
+  for (const id of ids) assert.match(id, ID_MUSTER);
 });

@@ -31,19 +31,33 @@ export function jetztIso() {
  */
 export function erzeugeWachhalter() {
   let sperre = null;
+  let anfrage = null; // laufende Anforderung, damit nicht doppelt angefordert wird
   let gewuenscht = false;
 
   async function anfordern() {
     if (!('wakeLock' in navigator) || typeof navigator.wakeLock?.request !== 'function') return 'nicht-verfuegbar';
-    try {
-      sperre = await navigator.wakeLock.request('screen');
-      sperre.addEventListener?.('release', () => {
-        sperre = null;
-      });
-      return 'aktiv';
-    } catch {
-      return 'abgelehnt';
-    }
+    if (sperre) return 'aktiv';
+    if (anfrage) return anfrage;
+    anfrage = (async () => {
+      try {
+        const neu = await navigator.wakeLock.request('screen');
+        // Inzwischen beendet (Ansicht schnell verlassen)? Dann sofort freigeben (QA S2-02)
+        if (!gewuenscht) {
+          neu.release?.().catch?.(() => {});
+          return 'beendet';
+        }
+        sperre = neu;
+        sperre.addEventListener?.('release', () => {
+          if (sperre === neu) sperre = null;
+        });
+        return 'aktiv';
+      } catch {
+        return 'abgelehnt';
+      } finally {
+        anfrage = null;
+      }
+    })();
+    return anfrage;
   }
 
   function beiSichtbarkeit() {
@@ -51,7 +65,7 @@ export function erzeugeWachhalter() {
   }
 
   return {
-    /** @returns {Promise<'aktiv'|'nicht-verfuegbar'|'abgelehnt'>} */
+    /** @returns {Promise<'aktiv'|'nicht-verfuegbar'|'abgelehnt'|'beendet'>} */
     async starten() {
       gewuenscht = true;
       document.addEventListener('visibilitychange', beiSichtbarkeit);
@@ -61,8 +75,9 @@ export function erzeugeWachhalter() {
       gewuenscht = false;
       document.removeEventListener('visibilitychange', beiSichtbarkeit);
       if (sperre) {
-        sperre.release().catch(() => {});
+        const alt = sperre;
         sperre = null;
+        alt.release?.().catch?.(() => {});
       }
     },
   };
