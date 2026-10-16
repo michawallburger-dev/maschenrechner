@@ -1,0 +1,482 @@
+/* =========================================================================
+   Maschenrechner – Gestaltung
+   Mobil zuerst, große Touch-Ziele, hell/dunkel, keine externen Ressourcen.
+   ========================================================================= */
+
+:root {
+  color-scheme: light dark;
+
+  /* Farben hell */
+  --hintergrund: #f6f1ea;
+  --flaeche: #ffffff;
+  --flaeche-ruhig: #f9f5f0;
+  --text: #2a2321;
+  --text-leise: #5f5450;
+  --linie: #d9cfc6;
+  --akzent: #7a2e4a;          /* Beerenrot, Kontrast auf Weiß ca. 9:1 */
+  --akzent-text: #ffffff;
+  --akzent-hell: #f3e3e9;
+  --fehler: #a4161a;
+  --fehler-hell: #fbe9e9;
+  --warnung-hell: #fff4d6;
+  --warnung-text: #5c4300;
+  --fokus: #1f5fbf;
+
+  --radius: 14px;
+  --abstand: 16px;
+  --touch: 48px;
+  --schrift: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #1d1a19;
+    --flaeche: #282423;
+    --flaeche-ruhig: #221f1e;
+    --text: #f3ede7;
+    --text-leise: #c8bdb6;
+    --linie: #4a423f;
+    --akzent: #f19bb8;
+    --akzent-text: #2a1019;
+    --akzent-hell: #3a2730;
+    --fehler: #ff9a9a;
+    --fehler-hell: #3a2222;
+    --warnung-hell: #3a3220;
+    --warnung-text: #f5dd9a;
+    --fokus: #8ab4ff;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--hintergrund);
+  color: var(--text);
+  font-family: var(--schrift);
+  font-size: 1.125rem;          /* 18 px Grundschrift */
+  line-height: 1.5;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------- Kopf --- */
+
+.kopf {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px var(--abstand) 8px;
+}
+
+.kopf h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  color: var(--akzent);
+  letter-spacing: -0.01em;
+}
+
+.untertitel {
+  margin: 4px 0 0;
+  color: var(--text-leise);
+  font-size: 1rem;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 8px var(--abstand) 0;
+  display: grid;
+  gap: var(--abstand);
+}
+
+/* ------------------------------------------------------------ Karten --- */
+
+.karte {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: var(--abstand);
+  min-width: 0;
+}
+
+.karte h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.beschreibung {
+  margin: 4px 0 12px;
+  color: var(--text-leise);
+  font-size: 1rem;
+}
+
+/* Maschenproben als aufklappbarer Bereich */
+.proben summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--touch);
+  border-radius: 8px;
+}
+
+.proben summary::-webkit-details-marker {
+  display: none;
+}
+
+.proben summary h2 {
+  display: inline;
+}
+
+.proben summary::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid var(--akzent);
+  border-bottom: 3px solid var(--akzent);
+  transform: rotate(45deg);
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.proben[open] summary::after {
+  transform: rotate(-135deg);
+}
+
+.proben-raster {
+  display: grid;
+  gap: var(--abstand);
+  margin-top: 8px;
+}
+
+.probe {
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  margin: 0;
+  padding: 12px;
+  background: var(--flaeche-ruhig);
+  min-width: 0;
+}
+
+.probe legend {
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.probe-zeile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.dichte {
+  margin: 4px 0 12px;
+  font-size: 1rem;
+  color: var(--text-leise);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dichte output {
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ Felder --- */
+
+.feld {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+
+label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  min-height: var(--touch);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 1.25rem;           /* ≥ 16 px verhindert Auto-Zoom auf iOS */
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 2px solid var(--linie);
+  border-radius: 10px;
+  appearance: none;
+}
+
+input[type="text"]:hover {
+  border-color: var(--text-leise);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--fehler);
+  background: var(--fehler-hell);
+}
+
+.fehler {
+  margin: 0;
+  color: var(--fehler);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.fehler::before {
+  content: "⚠ ";
+}
+
+.feldhinweis {
+  margin: 0;
+  color: var(--text-leise);
+  font-size: 0.9rem;
+}
+
+.feld-nadel {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------- Anpassung --- */
+
+.stepper {
+  display: grid;
+  grid-template-columns: var(--touch) minmax(0, 1fr) var(--touch);
+  gap: 8px;
+  max-width: 260px;
+}
+
+.stepper input {
+  text-align: center;
+}
+
+.stepper-knopf {
+  min-width: var(--touch);
+  min-height: var(--touch);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--akzent);
+  background: var(--akzent-hell);
+  border: 2px solid var(--akzent);
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.stepper-knopf:active {
+  transform: scale(0.96);
+}
+
+/* --------------------------------------------------------- Ergebnisse --- */
+
+.werte {
+  margin: 8px 0;
+  display: grid;
+  gap: 2px;
+}
+
+.werte > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--linie);
+}
+
+.werte > div:last-child {
+  border-bottom: 0;
+}
+
+.werte dt {
+  color: var(--text-leise);
+  font-size: 1rem;
+}
+
+.werte dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ergebnis {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--akzent-hell);
+}
+
+.hauptergebnis {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.hauptergebnis output {
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--akzent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ Hinweise --- */
+
+.hinweis {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--flaeche);
+  border-left: 4px solid var(--akzent);
+  font-size: 1rem;
+}
+
+.hinweis-warnung {
+  background: var(--warnung-hell);
+  color: var(--warnung-text);
+  border-left-color: var(--warnung-text);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------- Knöpfe --- */
+
+.knopf {
+  min-height: var(--touch);
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.knopf-zweitrangig {
+  color: var(--text);
+  background: var(--flaeche);
+  border: 2px solid var(--linie);
+}
+
+.knopf-gefahr {
+  color: #ffffff;
+  background: var(--fehler);
+  border: 2px solid var(--fehler);
+}
+
+@media (prefers-color-scheme: dark) {
+  .knopf-gefahr {
+    color: #2a1010;
+  }
+}
+
+/* ------------------------------------------------------------- Fokus --- */
+
+:focus-visible {
+  outline: 3px solid var(--fokus);
+  outline-offset: 2px;
+}
+
+input[type="text"]:focus-visible {
+  outline-offset: 0;
+  border-color: var(--fokus);
+}
+
+/* ----------------------------------------------------------- Fußzeile --- */
+
+.fuss {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px var(--abstand) 40px;
+  color: var(--text-leise);
+  font-size: 0.95rem;
+}
+
+.fuss p {
+  margin: 12px 0 0;
+}
+
+/* ------------------------------------------------------------- Dialog --- */
+
+dialog {
+  width: min(92vw, 420px);
+  padding: 20px;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.dialog-knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* ------------------------------------------------- Größere Bildschirme --- */
+
+@media (min-width: 700px) {
+  .proben-raster {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  main {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hinweis-warnung,
+  .proben {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --------------------------------------------------- Weniger Bewegung --- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .stepper-knopf:active {
+    transform: none;
+  }
+}

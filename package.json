@@ -1,0 +1,10 @@
+{
+  "name": "maschenrechner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PWA zum Umrechnen von Strickanleitungen auf die eigene Maschenprobe",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Datenschutz: Nur eigene Ressourcen, keine Inline-Skripte/-Styles, keine fremden Verbindungen -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Maschenrechner: Strickanleitungen auf die eigene Maschenprobe umrechnen. Offline nutzbar, alle Daten bleiben auf dem Gerät.">
+  <meta name="theme-color" content="#7a2e4a" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1d1a19" media="(prefers-color-scheme: dark)">
+  <title>Maschenrechner</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+  <header class="kopf">
+    <h1 data-text="app.titel">Maschenrechner</h1>
+    <p class="untertitel" data-text="app.untertitel">Anleitung auf deine Maschenprobe umrechnen</p>
+  </header>
+
+  <main>
+    <p class="hinweis hinweis-warnung" data-hinweis="speicher" role="status" hidden data-text="hinweis.speicherNichtVerfuegbar">Eingaben können auf diesem Gerät nicht gespeichert werden.</p>
+
+    <!-- ================= Maschenproben (US-01, US-02) ================= -->
+    <details class="karte proben" open>
+      <summary><h2 data-text="proben.titel">Maschenproben</h2></summary>
+
+      <div class="proben-raster">
+        <fieldset class="probe">
+          <legend data-text="proben.anleitung">Laut Anleitung</legend>
+
+          <div class="probe-zeile">
+            <div class="feld">
+              <label for="anleitung-maschenAnzahl" data-text="proben.maschen">Maschen</label>
+              <input id="anleitung-maschenAnzahl" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeAnleitung.maschenAnzahl" data-regel="probenAnzahl" aria-describedby="fehler-anleitung-maschenAnzahl">
+              <p class="fehler" id="fehler-anleitung-maschenAnzahl" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="anleitung-maschenBezug" data-text="proben.bezugBreite">auf Breite (cm)</label>
+              <input id="anleitung-maschenBezug" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeAnleitung.maschenBezug" data-regel="bezugsmass" aria-describedby="fehler-anleitung-maschenBezug">
+              <p class="fehler" id="fehler-anleitung-maschenBezug" hidden></p>
+            </div>
+          </div>
+          <p class="dichte"><span data-text="proben.dichteMaschen">Maschen pro cm</span> <output data-ergebnis="probeAnleitung.dichteMaschen">–</output></p>
+
+          <div class="probe-zeile">
+            <div class="feld">
+              <label for="anleitung-reihenAnzahl" data-text="proben.reihen">Reihen</label>
+              <input id="anleitung-reihenAnzahl" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeAnleitung.reihenAnzahl" data-regel="probenAnzahl" aria-describedby="fehler-anleitung-reihenAnzahl">
+              <p class="fehler" id="fehler-anleitung-reihenAnzahl" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="anleitung-reihenBezug" data-text="proben.bezugHoehe">auf Höhe (cm)</label>
+              <input id="anleitung-reihenBezug" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeAnleitung.reihenBezug" data-regel="bezugsmass" aria-describedby="fehler-anleitung-reihenBezug">
+              <p class="fehler" id="fehler-anleitung-reihenBezug" hidden></p>
+            </div>
+          </div>
+          <p class="dichte"><span data-text="proben.dichteReihen">Reihen pro cm</span> <output data-ergebnis="probeAnleitung.dichteReihen">–</output></p>
+        </fieldset>
+
+        <fieldset class="probe">
+          <legend data-text="proben.eigen">Eigene Probe</legend>
+
+          <div class="probe-zeile">
+            <div class="feld">
+              <label for="eigen-maschenAnzahl" data-text="proben.maschen">Maschen</label>
+              <input id="eigen-maschenAnzahl" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeEigen.maschenAnzahl" data-regel="probenAnzahl" aria-describedby="fehler-eigen-maschenAnzahl">
+              <p class="fehler" id="fehler-eigen-maschenAnzahl" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="eigen-maschenBezug" data-text="proben.bezugBreite">auf Breite (cm)</label>
+              <input id="eigen-maschenBezug" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeEigen.maschenBezug" data-regel="bezugsmass" aria-describedby="fehler-eigen-maschenBezug">
+              <p class="fehler" id="fehler-eigen-maschenBezug" hidden></p>
+            </div>
+          </div>
+          <p class="dichte"><span data-text="proben.dichteMaschen">Maschen pro cm</span> <output data-ergebnis="probeEigen.dichteMaschen">–</output></p>
+
+          <div class="probe-zeile">
+            <div class="feld">
+              <label for="eigen-reihenAnzahl" data-text="proben.reihen">Reihen</label>
+              <input id="eigen-reihenAnzahl" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeEigen.reihenAnzahl" data-regel="probenAnzahl" aria-describedby="fehler-eigen-reihenAnzahl">
+              <p class="fehler" id="fehler-eigen-reihenAnzahl" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="eigen-reihenBezug" data-text="proben.bezugHoehe">auf Höhe (cm)</label>
+              <input id="eigen-reihenBezug" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                     data-feld="probeEigen.reihenBezug" data-regel="bezugsmass" aria-describedby="fehler-eigen-reihenBezug">
+              <p class="fehler" id="fehler-eigen-reihenBezug" hidden></p>
+            </div>
+          </div>
+          <p class="dichte"><span data-text="proben.dichteReihen">Reihen pro cm</span> <output data-ergebnis="probeEigen.dichteReihen">–</output></p>
+
+          <div class="feld feld-nadel">
+            <label for="eigen-nadel" data-text="proben.nadel">Nadelstärke (mm)</label>
+            <input id="eigen-nadel" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+                   data-feld="probeEigen.nadelstaerkeMm" data-regel="nadel" aria-describedby="hinweis-eigen-nadel fehler-eigen-nadel">
+            <p class="feldhinweis" id="hinweis-eigen-nadel" data-text="proben.nadelHinweis">Nur zur Information – fließt nicht in die Berechnung ein.</p>
+            <p class="fehler" id="fehler-eigen-nadel" hidden></p>
+          </div>
+        </fieldset>
+      </div>
+    </details>
+
+    <!-- ================= Rechner 1: Maschen aus der Anleitung (US-03) ================= -->
+    <section class="karte rechner" aria-labelledby="titel-maschenAusAnleitung" data-karte="maschenAusAnleitung">
+      <h2 id="titel-maschenAusAnleitung" data-text="rechner.maschenAusAnleitung.titel">Maschen aus der Anleitung</h2>
+      <p class="beschreibung" data-text="rechner.maschenAusAnleitung.beschreibung">Rechnet eine Maschenzahl aus der Anleitung auf deine Probe um.</p>
+
+      <div class="feld">
+        <label for="eingabe-maschenAusAnleitung" data-text="rechner.maschenAusAnleitung.eingabe">Maschen laut Anleitung</label>
+        <input id="eingabe-maschenAusAnleitung" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="12"
+               data-feld="rechner.maschenAusAnleitung.eingabe" data-regel="ganzPositiv" aria-describedby="fehler-eingabe-maschenAusAnleitung">
+        <p class="fehler" id="fehler-eingabe-maschenAusAnleitung" hidden></p>
+      </div>
+
+      <dl class="werte" aria-live="polite">
+        <div><dt data-text="rechner.maschenAusAnleitung.massAnleitung">Breite laut Anleitung (cm)</dt><dd data-ergebnis="maschenAusAnleitung.massAnleitung">–</dd></div>
+        <div><dt data-text="rechner.maschenAusAnleitung.eigenGerundet">Eigene Maschen, gerundet</dt><dd data-ergebnis="maschenAusAnleitung.eigenGerundet">–</dd></div>
+      </dl>
+
+      <div class="feld anpassung">
+        <label for="anpassung-maschenAusAnleitung" data-text="anpassung.label">Anpassung</label>
+        <div class="stepper">
+          <button type="button" class="stepper-knopf" data-schritt="-1" data-ziel="anpassung-maschenAusAnleitung" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+          <input id="anpassung-maschenAusAnleitung" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="6"
+                 data-feld="rechner.maschenAusAnleitung.anpassung" data-regel="anpassung" aria-describedby="hinweis-anpassung-maschenAusAnleitung fehler-anpassung-maschenAusAnleitung">
+          <button type="button" class="stepper-knopf" data-schritt="1" data-ziel="anpassung-maschenAusAnleitung" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        </div>
+        <p class="feldhinweis" id="hinweis-anpassung-maschenAusAnleitung" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
+        <p class="fehler" id="fehler-anpassung-maschenAusAnleitung" hidden></p>
+      </div>
+
+      <div class="ergebnis" aria-live="polite">
+        <p class="hauptergebnis"><span data-text="rechner.maschenAusAnleitung.endgueltig">Deine Maschen</span> <output data-ergebnis="maschenAusAnleitung.endgueltig">–</output></p>
+        <dl class="werte">
+          <div><dt data-text="rechner.maschenAusAnleitung.tatsaechlich">Tatsächliche Breite (cm)</dt><dd data-ergebnis="maschenAusAnleitung.tatsaechlich">–</dd></div>
+          <div><dt data-text="rechner.maschenAusAnleitung.abweichung">Abweichung zur Anleitung (cm)</dt><dd data-ergebnis="maschenAusAnleitung.abweichung">–</dd></div>
+        </dl>
+        <p class="hinweis" data-status="maschenAusAnleitung" hidden></p>
+      </div>
+    </section>
+
+    <!-- ================= Rechner 2: Reihen aus der Anleitung (US-04) ================= -->
+    <section class="karte rechner" aria-labelledby="titel-reihenAusAnleitung" data-karte="reihenAusAnleitung">
+      <h2 id="titel-reihenAusAnleitung" data-text="rechner.reihenAusAnleitung.titel">Reihen aus der Anleitung</h2>
+      <p class="beschreibung" data-text="rechner.reihenAusAnleitung.beschreibung">Rechnet eine Reihenzahl aus der Anleitung auf deine Probe um.</p>
+
+      <div class="feld">
+        <label for="eingabe-reihenAusAnleitung" data-text="rechner.reihenAusAnleitung.eingabe">Reihen laut Anleitung</label>
+        <input id="eingabe-reihenAusAnleitung" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="12"
+               data-feld="rechner.reihenAusAnleitung.eingabe" data-regel="ganzPositiv" aria-describedby="fehler-eingabe-reihenAusAnleitung">
+        <p class="fehler" id="fehler-eingabe-reihenAusAnleitung" hidden></p>
+      </div>
+
+      <dl class="werte" aria-live="polite">
+        <div><dt data-text="rechner.reihenAusAnleitung.massAnleitung">Höhe laut Anleitung (cm)</dt><dd data-ergebnis="reihenAusAnleitung.massAnleitung">–</dd></div>
+        <div><dt data-text="rechner.reihenAusAnleitung.eigenGerundet">Eigene Reihen, gerundet</dt><dd data-ergebnis="reihenAusAnleitung.eigenGerundet">–</dd></div>
+      </dl>
+
+      <div class="feld anpassung">
+        <label for="anpassung-reihenAusAnleitung" data-text="anpassung.label">Anpassung</label>
+        <div class="stepper">
+          <button type="button" class="stepper-knopf" data-schritt="-1" data-ziel="anpassung-reihenAusAnleitung" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+          <input id="anpassung-reihenAusAnleitung" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="6"
+                 data-feld="rechner.reihenAusAnleitung.anpassung" data-regel="anpassung" aria-describedby="hinweis-anpassung-reihenAusAnleitung fehler-anpassung-reihenAusAnleitung">
+          <button type="button" class="stepper-knopf" data-schritt="1" data-ziel="anpassung-reihenAusAnleitung" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        </div>
+        <p class="feldhinweis" id="hinweis-anpassung-reihenAusAnleitung" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
+        <p class="fehler" id="fehler-anpassung-reihenAusAnleitung" hidden></p>
+      </div>
+
+      <div class="ergebnis" aria-live="polite">
+        <p class="hauptergebnis"><span data-text="rechner.reihenAusAnleitung.endgueltig">Deine Reihen</span> <output data-ergebnis="reihenAusAnleitung.endgueltig">–</output></p>
+        <dl class="werte">
+          <div><dt data-text="rechner.reihenAusAnleitung.tatsaechlich">Tatsächliche Höhe (cm)</dt><dd data-ergebnis="reihenAusAnleitung.tatsaechlich">–</dd></div>
+          <div><dt data-text="rechner.reihenAusAnleitung.abweichung">Abweichung zur Anleitung (cm)</dt><dd data-ergebnis="reihenAusAnleitung.abweichung">–</dd></div>
+        </dl>
+        <p class="hinweis" data-status="reihenAusAnleitung" hidden></p>
+      </div>
+    </section>
+
+    <!-- ================= Rechner 3: Breite in Maschen (US-05) ================= -->
+    <section class="karte rechner" aria-labelledby="titel-breiteZuMaschen" data-karte="breiteZuMaschen">
+      <h2 id="titel-breiteZuMaschen" data-text="rechner.breiteZuMaschen.titel">Breite in Maschen</h2>
+      <p class="beschreibung" data-text="rechner.breiteZuMaschen.beschreibung">Wie viele Maschen brauchst du für eine bestimmte Breite?</p>
+
+      <div class="feld">
+        <label for="eingabe-breiteZuMaschen" data-text="rechner.breiteZuMaschen.eingabe">Gewünschte Breite (cm)</label>
+        <input id="eingabe-breiteZuMaschen" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+               data-feld="rechner.breiteZuMaschen.eingabe" data-regel="laenge" aria-describedby="fehler-eingabe-breiteZuMaschen">
+        <p class="fehler" id="fehler-eingabe-breiteZuMaschen" hidden></p>
+      </div>
+
+      <dl class="werte" aria-live="polite">
+        <div><dt data-text="rechner.breiteZuMaschen.anleitungGerundet">Maschen laut Anleitung, gerundet</dt><dd data-ergebnis="breiteZuMaschen.anleitungGerundet">–</dd></div>
+        <div><dt data-text="rechner.breiteZuMaschen.eigenGerundet">Eigene Maschen, gerundet</dt><dd data-ergebnis="breiteZuMaschen.eigenGerundet">–</dd></div>
+      </dl>
+
+      <div class="feld anpassung">
+        <label for="anpassung-breiteZuMaschen" data-text="anpassung.label">Anpassung</label>
+        <div class="stepper">
+          <button type="button" class="stepper-knopf" data-schritt="-1" data-ziel="anpassung-breiteZuMaschen" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+          <input id="anpassung-breiteZuMaschen" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="6"
+                 data-feld="rechner.breiteZuMaschen.anpassung" data-regel="anpassung" aria-describedby="hinweis-anpassung-breiteZuMaschen fehler-anpassung-breiteZuMaschen">
+          <button type="button" class="stepper-knopf" data-schritt="1" data-ziel="anpassung-breiteZuMaschen" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        </div>
+        <p class="feldhinweis" id="hinweis-anpassung-breiteZuMaschen" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
+        <p class="fehler" id="fehler-anpassung-breiteZuMaschen" hidden></p>
+      </div>
+
+      <div class="ergebnis" aria-live="polite">
+        <p class="hauptergebnis"><span data-text="rechner.breiteZuMaschen.endgueltig">Deine Maschen</span> <output data-ergebnis="breiteZuMaschen.endgueltig">–</output></p>
+        <dl class="werte">
+          <div><dt data-text="rechner.breiteZuMaschen.tatsaechlich">Tatsächliche Breite (cm)</dt><dd data-ergebnis="breiteZuMaschen.tatsaechlich">–</dd></div>
+          <div><dt data-text="rechner.breiteZuMaschen.abweichung">Abweichung zur gewünschten Breite (cm)</dt><dd data-ergebnis="breiteZuMaschen.abweichung">–</dd></div>
+        </dl>
+        <p class="hinweis" data-status="breiteZuMaschen" hidden></p>
+      </div>
+    </section>
+
+    <!-- ================= Rechner 4: Länge in Reihen (US-06) ================= -->
+    <section class="karte rechner" aria-labelledby="titel-laengeZuReihen" data-karte="laengeZuReihen">
+      <h2 id="titel-laengeZuReihen" data-text="rechner.laengeZuReihen.titel">Länge in Reihen</h2>
+      <p class="beschreibung" data-text="rechner.laengeZuReihen.beschreibung">Wie viele Reihen brauchst du für eine bestimmte Länge?</p>
+
+      <div class="feld">
+        <label for="eingabe-laengeZuReihen" data-text="rechner.laengeZuReihen.eingabe">Gewünschte Länge (cm)</label>
+        <input id="eingabe-laengeZuReihen" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" maxlength="12"
+               data-feld="rechner.laengeZuReihen.eingabe" data-regel="laenge" aria-describedby="fehler-eingabe-laengeZuReihen">
+        <p class="fehler" id="fehler-eingabe-laengeZuReihen" hidden></p>
+      </div>
+
+      <dl class="werte" aria-live="polite">
+        <div><dt data-text="rechner.laengeZuReihen.anleitungGerundet">Reihen laut Anleitung, gerundet</dt><dd data-ergebnis="laengeZuReihen.anleitungGerundet">–</dd></div>
+        <div><dt data-text="rechner.laengeZuReihen.eigenGerundet">Eigene Reihen, gerundet</dt><dd data-ergebnis="laengeZuReihen.eigenGerundet">–</dd></div>
+      </dl>
+
+      <div class="feld anpassung">
+        <label for="anpassung-laengeZuReihen" data-text="anpassung.label">Anpassung</label>
+        <div class="stepper">
+          <button type="button" class="stepper-knopf" data-schritt="-1" data-ziel="anpassung-laengeZuReihen" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+          <input id="anpassung-laengeZuReihen" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" maxlength="6"
+                 data-feld="rechner.laengeZuReihen.anpassung" data-regel="anpassung" aria-describedby="hinweis-anpassung-laengeZuReihen fehler-anpassung-laengeZuReihen">
+          <button type="button" class="stepper-knopf" data-schritt="1" data-ziel="anpassung-laengeZuReihen" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        </div>
+        <p class="feldhinweis" id="hinweis-anpassung-laengeZuReihen" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
+        <p class="fehler" id="fehler-anpassung-laengeZuReihen" hidden></p>
+      </div>
+
+      <div class="ergebnis" aria-live="polite">
+        <p class="hauptergebnis"><span data-text="rechner.laengeZuReihen.endgueltig">Deine Reihen</span> <output data-ergebnis="laengeZuReihen.endgueltig">–</output></p>
+        <dl class="werte">
+          <div><dt data-text="rechner.laengeZuReihen.tatsaechlich">Tatsächliche Länge (cm)</dt><dd data-ergebnis="laengeZuReihen.tatsaechlich">–</dd></div>
+          <div><dt data-text="rechner.laengeZuReihen.abweichung">Abweichung zur gewünschten Länge (cm)</dt><dd data-ergebnis="laengeZuReihen.abweichung">–</dd></div>
+        </dl>
+        <p class="hinweis" data-status="laengeZuReihen" hidden></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="fuss">
+    <button type="button" class="knopf knopf-zweitrangig" id="knopf-zuruecksetzen" data-text="zuruecksetzen.knopf">Alle Eingaben zurücksetzen</button>
+    <p data-text="fuss.datenschutz">Alle Eingaben bleiben auf diesem Gerät. Es werden keine Daten übertragen.</p>
+  </footer>
+
+  <!-- Sicherheitsabfrage zum Zurücksetzen (US-07, AK3) -->
+  <dialog id="dialog-zuruecksetzen" aria-labelledby="dialog-titel" aria-describedby="dialog-text">
+    <h2 id="dialog-titel" data-text="zuruecksetzen.titel">Alle Eingaben zurücksetzen?</h2>
+    <p id="dialog-text" data-text="zuruecksetzen.text">Beide Maschenproben, die Nadelstärke und alle Rechner werden geleert. Das lässt sich nicht rückgängig machen.</p>
+    <div class="dialog-knoepfe">
+      <button type="button" class="knopf knopf-zweitrangig" id="dialog-abbrechen" data-text="zuruecksetzen.abbrechen" autofocus>Abbrechen</button>
+      <button type="button" class="knopf knopf-gefahr" id="dialog-bestaetigen" data-text="zuruecksetzen.bestaetigen">Zurücksetzen</button>
+    </div>
+  </dialog>
+</body>
+</html>

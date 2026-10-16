@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Hintergrund -->
+  <rect width="512" height="512" rx="112" fill="#7a2e4a"/>
+  <!-- Stricknadeln -->
+  <g stroke="#e9d3a8" stroke-width="18" stroke-linecap="round">
+    <line x1="120" y1="420" x2="392" y2="88"/>
+    <line x1="392" y1="420" x2="120" y2="88"/>
+  </g>
+  <circle cx="392" cy="88" r="20" fill="#e9d3a8"/>
+  <circle cx="120" cy="88" r="20" fill="#e9d3a8"/>
+  <!-- Wollknäuel -->
+  <circle cx="256" cy="288" r="132" fill="#f6f1ea"/>
+  <g fill="none" stroke="#c9849c" stroke-width="12" stroke-linecap="round">
+    <path d="M150 220 C 210 260, 300 260, 368 214"/>
+    <path d="M128 290 C 200 330, 312 330, 384 284"/>
+    <path d="M150 360 C 210 396, 300 396, 362 356"/>
+    <path d="M226 160 C 190 230, 196 340, 246 418"/>
+    <path d="M300 166 C 336 236, 330 340, 286 416"/>
+  </g>
+  <circle cx="256" cy="288" r="132" fill="none" stroke="#c9849c" stroke-width="10"/>
+</svg>
