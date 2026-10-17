@@ -105,12 +105,31 @@ test('US-16: Anpassung mit Ergebnis < 1 → Fehler mit Feld', () => {
   );
 });
 
-test('Abnahme: Option mit Endmaschen < 1 entfällt', () => {
-  // 3 M → 0,x M (gerundet 1): Differenz −2 bei 3 M pro Ereignis → „weniger“ hätte 0 Ereignisse, „mehr“ −1 M
+test('Abnahme: Option mit Endmaschen < 1 entfällt, „keine Abnahme“ bleibt (S3-01)', () => {
+  // 3 M → 1 M: Differenz −2 bei 3 M pro Ereignis → „weniger“ = 0 Ereignisse (3 M), „mehr“ wäre 0 M
   const p = { maschen: { anzahl: 10, bezugCm: 10 }, reihen: { anzahl: 10, bezugCm: 10 } };
   const r = berechnePlan({ anfangCm: 3, endCm: 1, laengeCm: 10, proEreignis: 3 }, p);
   assert.equal(r.status, 'auswahl');
-  assert.deepEqual(r.optionen, []);
+  assert.deepEqual(r.optionen.map((o) => [o.wahl, o.endMaschen, o.ereignisse]), [['weniger', 3, 0]]);
+});
+
+test('S3-01: Differenz kleiner als Maschen pro Ereignis → Optionen „keine Zunahme“ und 1 Zunahme', () => {
+  // 50 → 53 M bei 4 M pro Ereignis
+  const r = berechnePlan({ anfangCm: 20, endCm: 21, laengeCm: 45, proEreignis: 4 }, PROBE);
+  assert.deepEqual(r.optionen.map((o) => [o.wahl, o.endMaschen, o.ereignisse]), [['weniger', 50, 0], ['mehr', 54, 1]]);
+  const keine = berechnePlan({ anfangCm: 20, endCm: 21, laengeCm: 45, proEreignis: 4, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(keine.status, 'keineAenderung');
+  assert.equal(keine.ende, 50);
+  assert.equal(keine.gewaehlt, 'weniger');
+  assert.equal(keine.ereignisse, undefined, 'kein Plan');
+});
+
+test('S3-02: nach der Wahl bleiben die Optionen im Ergebnis; bei teilbarer Differenz keine', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'mehr' }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.gewaehlt, 'mehr');
+  assert.deepEqual(r.optionen.map((o) => o.endMaschen), [84, 86]);
+  assert.equal(berechnePlan({ ...REF, proEreignis: 1 }, PROBE).optionen, null);
 });
 
 // ---------------------------------------------------------------- Zu wenig Platz, zu viele Ereignisse

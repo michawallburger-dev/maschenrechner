@@ -10,6 +10,14 @@
 - Reihenzähler zeigt das Ziel („39 von 80“) und die gestrickte Länge in cm; die Zielquelle ist wählbar, wenn es mehrere gibt (US-30)
 - Die Reihenzahl im Zähler hat einen sichtbaren Rahmen und ein Stift-Symbol (US-33)
 
+### Behoben nach der QA von Sprint 3
+- S3-01: Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, gibt es zusätzlich die Option „keine Zu-/Abnahme“
+- S3-02: Die Auswahl der Endmaschenzahl bleibt nach der Wahl sichtbar und lässt sich ändern
+- S3-03: „nur 1 passende Reihe“ bzw. „keine passende Reihe“ statt „1 passende Reihen“
+- S3-04: Die Plan-Zusammenfassung wird erst nach einer Sekunde ohne Änderung angesagt, nicht bei jedem Tastendruck
+- S3-05: Die Stepper im Plan haben eindeutige Namen, z. B. „Maschen am Ende um 1 verringern“
+- S3-06: Sind die gespeicherten Daten beschädigt und wird ein älterer Stand angezeigt, sagt die Warnung das ausdrücklich
+
 ### Geändert
 - Die Nadelstärke gehört jetzt zur Probe, nicht mehr zum Projekt
 - Daten und Sicherungen aus 0.2 werden automatisch übernommen: Die bisherige Probe wird „Probe 1“; die Daten aus 0.2 bleiben unter dem alten Schlüssel unverändert

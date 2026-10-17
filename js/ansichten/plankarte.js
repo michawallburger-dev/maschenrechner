@@ -14,6 +14,9 @@ import { vorlage, texteFuellen, el, leeren, bestaetigen } from '../dom.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, planArt } from './gemeinsam.js';
 
+/** Wartezeit, bis die Zusammenfassung für Screenreader angesagt wird (QA S3-04). */
+const ANSAGE_VERZOEGERUNG_MS = 1000;
+
 /** Ab dieser Länge wird die Liste verzögert aufgebaut (Architektur H1). */
 const LISTE_VERZOEGERT_AB = 500;
 const LISTE_VERZOEGERUNG_MS = 300;
@@ -46,6 +49,11 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     label.htmlFor = input.id;
     label.dataset.text = w.anpassung;
     zeile.querySelector('[data-rolle="titel"]').dataset.text = w.titel;
+    // Stepper mit eindeutigem Namen, z. B. „Maschen am Ende um 1 verringern“ (QA S3-05)
+    for (const [knopf, schluessel] of [[zeile.querySelector('[data-schritt="-1"]'), 'plan.schrittMinus'], [zeile.querySelector('[data-schritt="1"]'), 'plan.schrittPlus']]) {
+      delete knopf.dataset.textAriaLabel;
+      knopf.setAttribute('aria-label', ctx.t(schluessel, { wert: ctx.t(w.titel) }));
+    }
     werteBereich.append(zeile);
   }
   texteFuellen(karte, ctx.t);
@@ -57,12 +65,32 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   const auswahl = karte.querySelector('[data-rolle="auswahl"]');
   const status = karte.querySelector('[data-rolle="status"]');
   const zusammenfassung = karte.querySelector('[data-rolle="zusammenfassung"]');
+  const planAnsage = karte.querySelector('[data-rolle="plan-ansage"]');
   const liste = karte.querySelector('[data-rolle="liste"]');
   probeFehlt.querySelector('[data-rolle="probe-link"]').href = hashFuer({ ansicht: 'projekt', projektId });
 
   const beruehrt = new Set();
   let listenTimer = null;
   let letzteListe = '';
+  let ansageTimer = null;
+  let letzteAnsage = '';
+
+  /** Text, den Screenreader zum Ergebnis hören sollen. */
+  function ansageText() {
+    return [zusammenfassung.textContent, status.hidden ? '' : status.textContent].filter((x) => x && x !== LEER_ANZEIGE).join(' ');
+  }
+
+  /** Sagt die Zusammenfassung erst an, wenn sich eine Sekunde lang nichts geändert hat (QA S3-04). */
+  function sagZusammenfassungAn() {
+    clearTimeout(ansageTimer);
+    ansageTimer = setTimeout(() => {
+      if (!karte.isConnected || mitPlan.hidden) return;
+      const text = ansageText();
+      if (text === letzteAnsage) return;
+      letzteAnsage = text;
+      planAnsage.textContent = text;
+    }, ANSAGE_VERZOEGERUNG_MS);
+  }
 
   const aktuell = () => finde(ctx.daten(), projektId, stueckId);
 
@@ -118,7 +146,8 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   }
 
   function zeigeAuswahl(r) {
-    if (r?.status !== 'auswahl' || r.optionen.length === 0) {
+    // Sichtbar, solange die Differenz nicht teilbar ist – auch nach der Wahl (QA S3-02)
+    if (!r?.optionen || r.optionen.length === 0) {
       auswahl.hidden = true;
       return;
     }
@@ -136,7 +165,9 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     optionen.dataset.schluessel = schluessel;
     leeren(optionen);
     for (const o of r.optionen) {
-      const anzahl = ctx.t(`plan.${r.richtung === 'ab' ? 'abnahmen' : 'zunahmen'}.${o.ereignisse === 1 ? 'eins' : 'mehr'}`, { n: o.ereignisse });
+      const anzahl = o.ereignisse === 0
+        ? ctx.t('plan.keineOption')
+        : ctx.t(`plan.${r.richtung === 'ab' ? 'abnahmen' : 'zunahmen'}.${o.ereignisse === 1 ? 'eins' : 'mehr'}`, { n: o.ereignisse });
       const radio = el('input', { attribute: { type: 'radio', name: 'plan-ereigniswahl', value: o.wahl } });
       optionen.append(
         el('label', { klasse: 'option' }, [
@@ -147,7 +178,13 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     }
   }
 
+  /** Nach jeder Änderung: neu berechnen und das Ergebnis verzögert ansagen. */
   function aktualisieren() {
+    berechneUndZeige();
+    sagZusammenfassungAn();
+  }
+
+  function berechneUndZeige() {
     const g = aktuell();
     if (!g) return;
     const plan = g.stueck.plan;
@@ -207,10 +244,14 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
         zusammenfassung.textContent = LEER_ANZEIGE;
         zeigeStatus(r.optionen.length === 0 ? t('plan.auswahlKeine', { pro: r.proEreignis }) : null);
         break;
-      case 'fehler':
+      case 'fehler': {
         zusammenfassung.textContent = LEER_ANZEIGE;
-        zeigeStatus(t(`plan.fehler.${r.fehler}`, { anzahl: r.anzahlEreignisse, moeglich: r.moeglich, grenze: r.grenze }));
+        // Einzahl/Mehrzahl bei „passende Reihe(n)“ (QA S3-03)
+        let schluessel = `plan.fehler.${r.fehler}`;
+        if (r.fehler === 'ZU_WENIG_REIHEN' && r.moeglich <= 1) schluessel += r.moeglich === 1 ? '.eins' : '.keine';
+        zeigeStatus(t(schluessel, { anzahl: r.anzahlEreignisse, moeglich: r.moeglich, grenze: r.grenze }));
         break;
+      }
       default: {
         zeigeStatus(null);
         const art = planArt(t, r.richtung);
@@ -310,7 +351,15 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
 
   const plan = aktuell()?.stueck.plan;
   if (plan) fuelleFelder(plan);
-  aktualisieren();
+  // Beim Öffnen nichts ansagen – nur nach Änderungen
+  berechneUndZeige();
+  letzteAnsage = ansageText();
 
-  return { aktualisieren, aufraeumen: () => clearTimeout(listenTimer) };
+  return {
+    aktualisieren,
+    aufraeumen: () => {
+      clearTimeout(listenTimer);
+      clearTimeout(ansageTimer);
+    },
+  };
 }

@@ -108,9 +108,6 @@ test('US-13 AK4: beide Optionen liegen auf verschiedenen Seiten der berechneten 
     for (let endeCm = 21; endeCm < 40; endeCm += 0.4) {
       const r = berechnePlan({ anfangCm: 20, endCm: endeCm, laengeCm: 45, proEreignis: pro }, p);
       if (r.status !== 'auswahl') continue;
-      // Befund S3-01: Ist die Differenz kleiner als die Maschen pro Ereignis, fehlt die Option „weniger“
-      // (sie hätte 0 Ereignisse). Diese Fälle prüft der Test unten gesondert.
-      if (r.optionen.length < 2) continue;
       const [weniger, mehr] = r.optionen;
       assert.ok(weniger.endMaschen < r.ende && mehr.endMaschen > r.ende, `bei ${endeCm} cm, ${pro} M`);
       assert.equal(mehr.ereignisse - weniger.ereignisse, 1);
@@ -263,10 +260,10 @@ test('US-14 AK2/AK4: Plan bleibt nach Speichern erhalten und liefert dem Zähler
   assert.equal(z.quellen[0].reihen, 167);
 });
 
-test('Befund S3-01: Differenz kleiner als Maschen pro Ereignis → nur eine Option („mehr“)', () => {
+test('S3-01 (behoben, Entscheidung PO): Differenz kleiner als Maschen pro Ereignis → „keine Zu-/Abnahme“ oder 1 Schritt', () => {
   const p = { maschen: { anzahl: 25, bezugCm: 10 }, reihen: { anzahl: 37, bezugCm: 10 } };
-  // 50 → 53 M bei 4 M pro Ereignis: angeboten wird nur 54 M (1 Zunahme), nicht „keine Zunahme“
+  // 50 → 53 M bei 4 M pro Ereignis: 50 M (keine Zunahme) oder 54 M (1 Zunahme)
   const r = berechnePlan({ anfangCm: 20, endCm: 21, laengeCm: 45, proEreignis: 4 }, p);
   assert.equal(r.status, 'auswahl');
-  assert.deepEqual(r.optionen.map((o) => [o.wahl, o.endMaschen]), [['mehr', 54]]);
+  assert.deepEqual(r.optionen.map((o) => [o.wahl, o.endMaschen, o.ereignisse]), [['weniger', 50, 0], ['mehr', 54, 1]]);
 });

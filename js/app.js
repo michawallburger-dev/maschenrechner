@@ -190,7 +190,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Gespeicherte Daten waren unlesbar: Nutzerin auf die Sicherung hinweisen (QA S2-04)
-if (geladen.beschaedigt) ctx.meldung(t('hinweis.datenBeschaedigt'), 'warnung');
+if (geladen.beschaedigt) {
+  // Wurde stattdessen ein älterer Stand übernommen, sagt die Warnung das ausdrücklich (QA S3-06)
+  const alt = { v2: '0.2', v1: '0.1' }[geladen.quelle];
+  ctx.meldung(alt ? t('hinweis.datenBeschaedigtAlt', { version: alt }) : t('hinweis.datenBeschaedigt'), 'warnung');
+}
 
 // Nach der Übernahme aus 0.1 direkt das neue Projekt zeigen (US-27)
 if (geladen.uebernommenesProjekt && (location.hash === '' || location.hash === '#' || location.hash === '#/')) {

@@ -73,9 +73,11 @@ export function verteile(e, n) {
  *
  * @returns {object} Immer mit den Grundwerten (soweit berechenbar) und einem „status“:
  *   - 'plan'           gültiger Plan mit „ereignisse“
- *   - 'keineAenderung' Anfangs- und Endmaschen gleich
+ *   - 'keineAenderung' Anfangs- und Endmaschen gleich oder „keine Zu-/Abnahme“ gewählt
  *   - 'auswahl'        Differenz nicht teilbar, „optionen“ zur Wahl
  *   - 'fehler'         „fehler“: ERGEBNIS_ZU_KLEIN (mit „feld“) | ZU_WENIG_REIHEN | ZU_VIELE_EREIGNISSE
+ * Bei nicht teilbarer Differenz enthält das Ergebnis immer „optionen“ und „gewaehlt“,
+ * auch nach der Wahl (S3-02). Die Option „weniger“ kann 0 Ereignisse haben (S3-01).
  */
 export function berechnePlan(e, probe) {
   const anpassung = { anfang: 0, ende: 0, reihen: 0, ...(e.anpassung ?? {}) };
@@ -119,12 +121,14 @@ export function berechnePlan(e, probe) {
   let ereignisse = betrag / e.proEreignis;
   let ende = endeBerechnet;
   let gewaehlt = null;
+  let optionen = null;
   if (betrag % e.proEreignis !== 0) {
-    const optionen = [];
+    optionen = [];
     for (const wahl of EREIGNIS_WAHLEN) {
       const anzahl = wahl === 'weniger' ? Math.floor(ereignisse) : Math.ceil(ereignisse);
       const endMaschen = anfang + vorzeichen * anzahl * e.proEreignis;
-      if (anzahl < 1 || endMaschen < 1) continue;
+      // „weniger“ darf 0 Zu-/Abnahmen haben – das ist die Option „keine Zu-/Abnahme“ (S3-01)
+      if (endMaschen < 1) continue;
       optionen.push({ wahl, endMaschen, endCm: anzahlZuCm(endMaschen, probe.maschen), ereignisse: anzahl });
     }
     const option = optionen.find((o) => o.wahl === e.ereignisWahl);
@@ -134,7 +138,11 @@ export function berechnePlan(e, probe) {
     gewaehlt = option.wahl;
   }
 
-  const mitWahl = { ...basis, ende, endCm: anzahlZuCm(ende, probe.maschen), richtung, anzahlEreignisse: ereignisse, gewaehlt };
+  // Die Optionen bleiben auch nach der Wahl im Ergebnis, damit die Wahl sichtbar und änderbar bleibt (S3-02)
+  const mitWahl = { ...basis, ende, endCm: anzahlZuCm(ende, probe.maschen), richtung, anzahlEreignisse: ereignisse, gewaehlt, optionen };
+
+  // Gewählt wurde „keine Zu-/Abnahme“ (S3-01)
+  if (ereignisse === 0) return { ...mitWahl, status: 'keineAenderung' };
 
   // 7. Technische Grenze (vor dem Verteilen geprüft)
   if (ereignisse > MAX_EREIGNISSE) return { ...mitWahl, status: 'fehler', fehler: 'ZU_VIELE_EREIGNISSE', grenze: MAX_EREIGNISSE };
