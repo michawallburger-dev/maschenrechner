@@ -1,6 +1,7 @@
 /**
- * Ansicht „Strickstück“ (US-10): die vier Rechner aus Sprint 1 mit den
- * Maschenproben des Projekts, dazu der Weg zum Reihenzähler.
+ * Ansicht „Strickstück“ (US-10, US-32, US-14): die vier Rechner aus Sprint 1
+ * mit der zugeordneten Probe, „Probe wechseln“, die Karte „Zu- und Abnahmen“
+ * und der Weg zum Reihenzähler.
  *
  * Die Rechenwege sind unverändert aus Sprint 1 übernommen (Architektur R7).
  */
@@ -9,8 +10,9 @@ import { umrechnenAusAnleitung, umrechnenAusCm } from '../rechner.js';
 import { pruefeZahl, REGELN } from '../eingabe.js';
 import { formatZahl, formatGanzzahl, formatAbweichung, LEER_ANZEIGE } from '../format.js';
 import { zuCm, vonCm } from '../einheiten.js';
-import { finde, strickstueckAendern, strickstueckLoeschen, leereRechner, RECHNER_NAMEN } from '../modell.js';
-import { vorlage, texteFuellen, bestaetigen, frageName } from '../dom.js';
+import { finde, probeVon, strickstueckAendern, strickstueckLoeschen, leereRechner, RECHNER_NAMEN } from '../modell.js';
+import { vorlage, texteFuellen, bestaetigen, frageName, waehle } from '../dom.js';
+import { bauePlankarte } from './plankarte.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, probeLesen } from './gemeinsam.js';
 
@@ -112,9 +114,17 @@ export function zeige(ctx, route, wurzel) {
   function zeigeKopfdaten() {
     const g = aktuell();
     if (!g) return;
+    const probe = probeVon(g.projekt, g.stueck);
     ansicht.querySelector('[data-rolle="stand"]').textContent = ctx.t('stueck.zaehlerStand', { n: formatGanzzahl(g.stueck.zaehler, ctx.locale()) });
-    ansicht.querySelector('[data-rolle="probe-anleitung"]').textContent = probeZeile(ctx, 'proben.anleitung', g.projekt.probeAnleitung);
-    ansicht.querySelector('[data-rolle="probe-eigen"]').textContent = probeZeile(ctx, 'proben.eigen', g.projekt.probeEigen);
+    // Kurzfassung der zugeordneten Probe mit Nadel (US-32 AK2, AK3)
+    ansicht.querySelector('[data-rolle="probe-titel"]').textContent = ctx.t('stueck.probeName', { name: probe?.name ?? LEER_ANZEIGE });
+    const nadel = ansicht.querySelector('[data-rolle="probe-nadel"]');
+    const nadelText = probe?.nadelstaerkeMm.trim() ?? '';
+    nadel.hidden = nadelText === '';
+    nadel.textContent = nadelText === '' ? '' : ctx.t('stueck.nadel', { nadel: nadelText });
+    ansicht.querySelector('[data-rolle="probe-anleitung"]').textContent = probe ? probeZeile(ctx, 'proben.anleitung', probe.anleitung) : LEER_ANZEIGE;
+    ansicht.querySelector('[data-rolle="probe-eigen"]').textContent = probe ? probeZeile(ctx, 'proben.eigen', probe.eigen) : LEER_ANZEIGE;
+    ansicht.querySelector('[data-rolle="probe-wechseln"]').hidden = g.projekt.proben.length < 2;
   }
 
   function setze(karte, feld, anzeige) {
@@ -182,10 +192,11 @@ export function zeige(ctx, route, wurzel) {
     const g = aktuell();
     if (!g) return;
     const e = ctx.einheit();
+    const probe = probeVon(g.projekt, g.stueck);
     const proben = { anleitung: {}, eigen: {} };
     for (const richtung of ['maschen', 'reihen']) {
-      proben.anleitung[richtung] = probeLesen(g.projekt.probeAnleitung, richtung, e);
-      proben.eigen[richtung] = probeLesen(g.projekt.probeEigen, richtung, e);
+      proben.anleitung[richtung] = probe ? probeLesen(probe.anleitung, richtung, e) : null;
+      proben.eigen[richtung] = probe ? probeLesen(probe.eigen, richtung, e) : null;
     }
     for (const karte of raster.querySelectorAll('[data-karte]')) berechneKarte(karte, proben);
     zeigeKopfdaten();
@@ -222,7 +233,8 @@ export function zeige(ctx, route, wurzel) {
 
   ansicht.addEventListener('click', async (ereignis) => {
     const knopf = ereignis.target.closest('button');
-    if (!knopf) return;
+    // Knöpfe der Plan-Karte behandelt plankarte.js selbst
+    if (!knopf || knopf.closest('.plan')) return;
 
     if (knopf.dataset.schritt) {
       const input = knopf.closest('.stepper').querySelector('input');
@@ -239,6 +251,25 @@ export function zeige(ctx, route, wurzel) {
     const g = aktuell();
     if (!g) return;
     switch (knopf.dataset.rolle) {
+      case 'probe-wechseln': {
+        // US-32 AK5: Rechner, Anpassungen, Plan und Zähler bleiben, alles rechnet neu
+        const wahl = await waehle({
+          titel: ctx.t('dialog.probeWechseln.titel'),
+          frage: ctx.t('dialog.probeWechseln.frage', { name: g.stueck.name }),
+          legende: ctx.t('stueck.probe'),
+          optionen: g.projekt.proben.map((p) => ({ wert: p.id, text: p.nadelstaerkeMm.trim() ? ctx.t('probe.kurz', { name: p.name, nadel: p.nadelstaerkeMm.trim() }) : p.name })),
+          vorauswahl: g.stueck.probeId,
+          okText: ctx.t('dialog.speichern'),
+          abbrechenText: ctx.t('dialog.abbrechen'),
+        });
+        if (wahl === null || wahl === g.stueck.probeId) return;
+        const ergebnis = strickstueckAendern(ctx.daten(), projektId, stueckId, { probeId: wahl }, ctx.jetzt());
+        if (!ergebnis.gueltig) return;
+        ctx.aendern(ergebnis.daten, { sofort: true });
+        aktualisieren();
+        plankarte.aktualisieren();
+        return;
+      }
       case 'umbenennen': {
         const name = await frageName({
           titel: ctx.t('dialog.umbenennen.titel'),
@@ -294,11 +325,13 @@ export function zeige(ctx, route, wurzel) {
     }
   });
 
+  const plankarte = bauePlankarte(ctx, { projektId, stueckId, behaelter: ansicht.querySelector('[data-rolle="plan"]') });
   aktualisieren();
 
   return {
     titel: gefunden.stueck.name,
     seitentitel: `${gefunden.stueck.name} – ${gefunden.projekt.name}`,
     zurueck: { ansicht: 'projekt', projektId },
+    aufraeumen: () => plankarte.aufraeumen(),
   };
 }

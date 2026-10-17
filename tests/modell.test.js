@@ -1,4 +1,5 @@
-// Tests des Datenmodells Schema 2 (US-09, US-10, US-11, US-26).
+// Tests des Datenmodells (seit Sprint 3: Schema 3) – US-09, US-10, US-11, US-26.
+// Proben, Plan und Zielquelle (US-32, US-14, US-30) stehen in modell-v3.test.js.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -11,6 +12,7 @@ import {
   projekteSortiert,
   neuesProjekt,
   projektAendern,
+  probeAendern,
   projektLoeschen,
   neuesStrickstueck,
   strickstueckAendern,
@@ -35,7 +37,7 @@ function mitStueck() {
   return r.daten;
 }
 
-test('leereDaten: Schema 2, leere Liste, Standard-Einstellungen', () => {
+test('leereDaten: aktuelles Schema, leere Liste, Standard-Einstellungen', () => {
   const d = leereDaten();
   assert.equal(d.schemaVersion, SCHEMA_VERSION);
   assert.deepEqual(d.projekte, []);
@@ -58,8 +60,10 @@ test('US-09 AK2: Projekt anlegen – nur der Name ist Pflicht, getrimmt', () => 
   const p = d.projekte[0];
   assert.equal(p.name, 'Pullover für Sohn');
   assert.equal(p.beschreibung, '');
-  assert.equal(p.probeAnleitung.maschenBezug, '10');
-  assert.equal(p.probeEigen.reihenBezug, '10');
+  assert.equal(p.proben.length, 1, 'ein neues Projekt hat eine leere „Probe 1“');
+  assert.equal(p.proben[0].name, 'Probe 1');
+  assert.equal(p.proben[0].anleitung.maschenBezug, '10');
+  assert.equal(p.proben[0].eigen.reihenBezug, '10');
   assert.deepEqual(p.strickstuecke, []);
   assert.equal(p.erstellt, ZEIT1);
 });
@@ -78,20 +82,23 @@ test('Name wird auf 80 Zeichen gekürzt', () => {
 test('Reine Funktionen: Eingabedaten bleiben unverändert', () => {
   const vorher = mitProjekt();
   const kopie = structuredClone(vorher);
-  projektAendern(vorher, 'p1', { name: 'Neu', probeEigen: { maschenAnzahl: '22' } }, ZEIT2);
+  projektAendern(vorher, 'p1', { name: 'Neu' }, ZEIT2);
+  probeAendern(vorher, 'p1', 'pr-1', { eigen: { maschenAnzahl: '22' } }, ZEIT2);
   neuesStrickstueck(vorher, 'p1', 'Teil', 's9', ZEIT2);
   projektLoeschen(vorher, 'p1');
   assert.deepEqual(vorher, kopie);
 });
 
 test('US-09 AK4: Angaben und Proben ändern', () => {
-  const r = projektAendern(mitProjekt(), 'p1', { garn: 'Merino', probeEigen: { maschenAnzahl: '22', fremd: 'x' } }, ZEIT2);
+  const r1 = projektAendern(mitProjekt(), 'p1', { garn: 'Merino' }, ZEIT2);
+  assert.equal(r1.gueltig, true);
+  const r = probeAendern(r1.daten, 'p1', 'pr-1', { eigen: { maschenAnzahl: '22', fremd: 'x' } }, ZEIT2);
   assert.equal(r.gueltig, true);
   const p = r.daten.projekte[0];
   assert.equal(p.garn, 'Merino');
-  assert.equal(p.probeEigen.maschenAnzahl, '22');
-  assert.equal(p.probeEigen.maschenBezug, '10');
-  assert.equal(p.probeEigen.fremd, undefined);
+  assert.equal(p.proben[0].eigen.maschenAnzahl, '22');
+  assert.equal(p.proben[0].eigen.maschenBezug, '10');
+  assert.equal(p.proben[0].eigen.fremd, undefined);
   assert.equal(p.geaendert, ZEIT2);
 });
 
@@ -187,8 +194,9 @@ test('pruefeDaten: grundsätzlich ungültige Daten', () => {
   assert.equal(pruefeDaten(null).fehler, 'KEIN_OBJEKT');
   assert.equal(pruefeDaten([]).fehler, 'KEIN_OBJEKT');
   assert.equal(pruefeDaten({ schemaVersion: 1, projekte: [] }).fehler, 'SCHEMA');
-  assert.equal(pruefeDaten({ schemaVersion: 3, projekte: [] }).fehler, 'SCHEMA');
-  assert.equal(pruefeDaten({ schemaVersion: 2, projekte: {} }).fehler, 'KEINE_PROJEKTLISTE');
+  assert.equal(pruefeDaten({ schemaVersion: 2, projekte: [] }).fehler, 'SCHEMA', 'Schema 2 wird über migration.js übernommen');
+  assert.equal(pruefeDaten({ schemaVersion: 4, projekte: [] }).fehler, 'SCHEMA');
+  assert.equal(pruefeDaten({ schemaVersion: 3, projekte: {} }).fehler, 'KEINE_PROJEKTLISTE');
 });
 
 test('pruefeDaten: gültige Daten bleiben gleich', () => {
@@ -198,13 +206,13 @@ test('pruefeDaten: gültige Daten bleiben gleich', () => {
 
 test('pruefeDaten: repariert beschädigte Einträge statt sie zu löschen', () => {
   const r = pruefeDaten({
-    schemaVersion: 2,
+    schemaVersion: 3,
     einstellungen: { farbschema: 'dunkel', extra: 1 },
     hinweise: { projektlisteErklaert: 'ja' },
     fremd: 'weg',
     projekte: [
       { id: 'a', name: '', strickstuecke: [{ id: 'x', zaehler: -3 }, { id: 'x', name: 'B', zaehler: 123456 }, 'kaputt'] },
-      { id: 'a', name: '  Zweites  ', probeEigen: { maschenAnzahl: 22 }, erstellt: 'kein Datum' },
+      { id: 'a', name: '  Zweites  ', proben: [{ id: 'pr-1', eigen: { maschenAnzahl: 22 } }], erstellt: 'kein Datum' },
       null,
       { name: 'Ohne ID' },
     ],
@@ -225,7 +233,7 @@ test('pruefeDaten: repariert beschädigte Einträge statt sie zu löschen', () =
   assert.deepEqual(p1.strickstuecke[0].rechner, leereRechner());
   assert.equal(p2.id, 'a-2', 'doppelte ID wird eindeutig gemacht');
   assert.equal(p2.name, 'Zweites');
-  assert.equal(p2.probeEigen.maschenAnzahl, '', 'Zahl statt Text → Ausgangswert');
+  assert.equal(p2.proben[0].eigen.maschenAnzahl, '', 'Zahl statt Text → Ausgangswert');
   assert.equal(p2.erstellt, '1970-01-01T00:00:00.000Z');
   assert.equal(p3.id, 'p-reparatur-3');
   assert.equal(p3.name, 'Ohne ID');
@@ -240,7 +248,7 @@ test('anzahlStrickstuecke zählt über alle Projekte', () => {
 
 test('S2-03: ungültige IDs werden durch Ersatz-IDs ersetzt, gültige bleiben', () => {
   const r = pruefeDaten({
-    schemaVersion: 2,
+    schemaVersion: 3,
     projekte: [
       { id: 'mein projekt', name: 'A', strickstuecke: [{ id: 'teil/1', name: 'B' }, { id: 'ok_1', name: 'C' }] },
       { id: 'p-ok', name: 'D' },

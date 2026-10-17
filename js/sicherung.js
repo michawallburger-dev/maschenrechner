@@ -5,7 +5,8 @@
  * übernimmt geraet.js.
  */
 
-import { pruefeDaten, anzahlStrickstuecke } from './modell.js';
+import { pruefeDaten, anzahlStrickstuecke, anzahlProben } from './modell.js';
+import { vonSchema2 } from './migration.js';
 
 export const SICHERUNG_APP = 'maschenrechner';
 export const SICHERUNG_FORMAT = 1;
@@ -17,7 +18,7 @@ function zweistellig(n) {
 
 /**
  * Erzeugt Dateiname und Inhalt der Sicherung.
- * @param {object} daten   Daten in Schema 2
+ * @param {object} daten   Daten in Schema 3
  * @param {Date} jetzt
  * @param {string} appVersion
  * @returns {{dateiname:string, inhalt:string}}
@@ -36,7 +37,7 @@ export function erzeugeSicherung(daten, jetzt, appVersion) {
 /**
  * Prüft den Text einer Sicherungsdatei.
  * @param {string} text
- * @returns {{gueltig:true, daten:object, zusammenfassung:{projekte:number, strickstuecke:number, erstellt:string|null}}
+ * @returns {{gueltig:true, daten:object, zusammenfassung:{projekte:number, strickstuecke:number, proben:number, erstellt:string|null}}
  *          |{gueltig:false, fehler:'ZU_GROSS'|'KEIN_JSON'|'FALSCHE_APP'|'UNBEKANNTES_FORMAT'|'DATEN_UNGUELTIG'}}
  */
 export function leseSicherung(text) {
@@ -52,16 +53,24 @@ export function leseSicherung(text) {
   if (roh === null || typeof roh !== 'object' || roh.app !== SICHERUNG_APP) return { gueltig: false, fehler: 'FALSCHE_APP' };
   if (roh.format !== SICHERUNG_FORMAT) return { gueltig: false, fehler: 'UNBEKANNTES_FORMAT' };
 
-  const geprueft = pruefeDaten(roh.daten);
-  if (!geprueft.gueltig) return { gueltig: false, fehler: 'DATEN_UNGUELTIG' };
+  // Sicherungen aus 0.2 (Schema 2) werden wie gespeicherte Daten übernommen (US-32 AK9, US-14 AK5)
+  let daten = null;
+  if (roh.daten?.schemaVersion === 2) {
+    daten = vonSchema2(roh.daten);
+  } else {
+    const geprueft = pruefeDaten(roh.daten);
+    if (geprueft.gueltig) daten = geprueft.daten;
+  }
+  if (!daten) return { gueltig: false, fehler: 'DATEN_UNGUELTIG' };
 
   const erstellt = typeof roh.erstellt === 'string' && !Number.isNaN(Date.parse(roh.erstellt)) ? roh.erstellt : null;
   return {
     gueltig: true,
-    daten: geprueft.daten,
+    daten,
     zusammenfassung: {
-      projekte: geprueft.daten.projekte.length,
-      strickstuecke: anzahlStrickstuecke(geprueft.daten),
+      projekte: daten.projekte.length,
+      strickstuecke: anzahlStrickstuecke(daten),
+      proben: anzahlProben(daten),
       erstellt,
     },
   };

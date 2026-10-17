@@ -1,5 +1,19 @@
 # Änderungsprotokoll
 
+## 0.3.0 – (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“, noch nicht veröffentlicht)
+
+### Neu
+- Mehrere Maschenproben pro Projekt, je mit Name und Nadelstärke; jedes Strickstück nutzt genau eine Probe, „Probe wechseln“ in der Strickstück-Ansicht (US-32)
+- Zu-/Abnahmeplan je Strickstück: gleichmäßige Verteilung, Reihen oder Runden, „nur jede 2. Reihe/Runde“, Auswahl bei nicht teilbarer Differenz (US-13, US-14)
+- Anpassung von Anfangsmaschen, Endmaschen und Reihen im Plan (US-16)
+- Reihenzähler zeigt letzte, nächste und übernächste Zu-/Abnahme und in der Ereignisreihe den Hinweis „Jetzt: 2 M zunehmen“ (US-15)
+- Reihenzähler zeigt das Ziel („39 von 80“) und die gestrickte Länge in cm; die Zielquelle ist wählbar, wenn es mehrere gibt (US-30)
+- Die Reihenzahl im Zähler hat einen sichtbaren Rahmen und ein Stift-Symbol (US-33)
+
+### Geändert
+- Die Nadelstärke gehört jetzt zur Probe, nicht mehr zum Projekt
+- Daten und Sicherungen aus 0.2 werden automatisch übernommen: Die bisherige Probe wird „Probe 1“; die Daten aus 0.2 bleiben unter dem alten Schlüssel unverändert
+
 ## 0.2.0 – (Sprint 2 „Projekte & Reihenzähler“, noch nicht veröffentlicht)
 
 ### Neu

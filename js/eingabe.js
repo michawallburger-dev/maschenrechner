@@ -24,6 +24,8 @@ export const REGELN = Object.freeze({
   anpassung: Object.freeze({ ganzzahl: true, positiv: false, min: -9999, max: 9999, leerErlaubt: true, leerWert: 0 }),
   // Reihenzähler: ganze Zahl von 0 bis 99 999 (US-11)
   zaehler: Object.freeze({ ganzzahl: true, positiv: false, min: 0, max: 99999 }),
+  // Maschen pro Zu-/Abnahme im Plan (US-13)
+  proEreignis: Object.freeze({ ganzzahl: true, positiv: true, max: 99 }),
 });
 
 // Zwischenstand während des Tippens, z. B. „12,“, „12.“, „-“ oder „+“ (MAS-31)

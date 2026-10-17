@@ -1,4 +1,4 @@
-// Tests der Übernahme aus 0.1 (US-27).
+// Tests der Übernahme aus 0.1 (US-27) – seit Sprint 3 direkt in Schema 3.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { bereinigeV1, hatInhalt, vonSchema1 } from '../js/migration.js';
@@ -11,18 +11,22 @@ test('US-27 AK1: Proben, Nadelstärke und Rechner werden vollständig übernomme
   const ergebnis = vonSchema1(v1Zustand(), OPT);
   assert.equal(ergebnis.projektId, 'p-neu');
   const { daten } = ergebnis;
-  assert.equal(daten.schemaVersion, 2);
+  assert.equal(daten.schemaVersion, 3);
   assert.equal(daten.projekte.length, 1);
   const p = daten.projekte[0];
   assert.equal(p.name, 'Mein Projekt');
-  assert.equal(p.nadelstaerkeMm, '4,5');
-  assert.deepEqual(p.probeAnleitung, { maschenAnzahl: '34', maschenBezug: '10', reihenAnzahl: '52', reihenBezug: '10' });
-  assert.deepEqual(p.probeEigen, { maschenAnzahl: '25', maschenBezug: '10', reihenAnzahl: '35', reihenBezug: '10' });
+  assert.equal(p.proben.length, 1);
+  assert.equal(p.proben[0].name, 'Probe 1');
+  assert.equal(p.proben[0].nadelstaerkeMm, '4,5');
+  assert.deepEqual(p.proben[0].anleitung, { maschenAnzahl: '34', maschenBezug: '10', reihenAnzahl: '52', reihenBezug: '10' });
+  assert.deepEqual(p.proben[0].eigen, { maschenAnzahl: '25', maschenBezug: '10', reihenAnzahl: '35', reihenBezug: '10' });
   assert.equal(p.strickstuecke.length, 1);
   const s = p.strickstuecke[0];
   assert.equal(s.id, 's-neu');
   assert.equal(s.name, 'Teil 1');
   assert.equal(s.zaehler, 0);
+  assert.equal(s.probeId, p.proben[0].id);
+  assert.equal(s.plan, null);
   assert.deepEqual(s.rechner, v1Zustand().rechner);
 });
 

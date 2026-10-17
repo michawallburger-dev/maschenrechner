@@ -76,3 +76,22 @@ export function wannText(t, locale, iso, jetzt = new Date()) {
   if (differenz === 1) return t('zeit.gestern');
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(d);
 }
+
+/** „zunehmen“ bzw. „abnehmen“ für eine Richtung des Plans. */
+export function planArt(t, richtung) {
+  return t(richtung === 'ab' ? 'plan.abnehmen' : 'plan.zunehmen');
+}
+
+/**
+ * Kurzinfo zum Plan für die Projektansicht (US-14 AK3), z. B. „17 × 2 M zunehmen“.
+ * @param {{t:Function}} ctx
+ * @param {object|null} ergebnis  Ergebnis von planAusTexten
+ * @param {object|null} planTexte gespeicherter Plan (null = kein Plan)
+ * @returns {string} leer, wenn es keinen Plan gibt
+ */
+export function planKurzinfo(ctx, ergebnis, planTexte) {
+  if (!planTexte || !ergebnis) return '';
+  if (ergebnis.status === 'auswahl') return ctx.t('plan.kurzinfoAuswahl');
+  if (ergebnis.status !== 'plan') return '';
+  return ctx.t('plan.kurzinfo', { anzahl: ergebnis.ereignisse.length, pro: ergebnis.proEreignis, art: planArt(ctx.t, ergebnis.richtung) });
+}

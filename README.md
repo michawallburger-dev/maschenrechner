@@ -4,7 +4,7 @@ Progressive Web App zum Umrechnen von Strickanleitungen auf die eigene Maschenpr
 Läuft im Browser, ist nach dem ersten Aufruf offline nutzbar und speichert alle Eingaben
 nur auf dem eigenen Gerät.
 
-**Version:** 0.2.0 – Sprint 2 „Projekte & Reihenzähler“ (US-09 bis US-12, US-26, US-27)
+**Version:** 0.3.0 – Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“ (US-32, US-13 bis US-16, US-30, US-33)
 
 ## Funktionen
 - Maschenproben der Anleitung und die eigene Probe erfassen, mit frei wählbaren Bezugsmaßen (Standard 10 × 10 cm)
@@ -40,7 +40,7 @@ node --test
 3. Nach ein bis zwei Minuten ist die App unter `https://<benutzername>.github.io/maschenrechner/` erreichbar.
 
 ### Neue Version ausliefern
-In `sw.js` den Wert `CACHE_NAME` erhöhen, z. B. von `maschenrechner-v0.1.0` auf `maschenrechner-v0.2.0`. Sonst zeigen bereits installierte Apps weiter die alte Version.
+In `sw.js` den Wert `CACHE_NAME` erhöhen, z. B. von `maschenrechner-v0.2.0` auf `maschenrechner-v0.3.0`. Sonst zeigen bereits installierte Apps weiter die alte Version.
 Neue Dateien müssen außerdem in die Liste `APP_DATEIEN` in `sw.js` eingetragen werden.
 
 ## Am Handy installieren
@@ -51,7 +51,7 @@ Neue Dateien müssen außerdem in die Liste `APP_DATEIEN` in `sw.js` eingetragen
 
 ## Datenschutz
 - Kein Server, keine Konten, keine Cookies, keine Tracker, keine externen Schriften oder Bibliotheken
-- Die Eingaben liegen ausschließlich im `localStorage` des Geräts (Schlüssel `maschenrechner.daten.v2`; die Daten aus 0.1 bleiben unter `maschenrechner.zustand` unverändert)
+- Die Eingaben liegen ausschließlich im `localStorage` des Geräts (Schlüssel `maschenrechner.daten.v3`; die Daten aus 0.2 bleiben unter `maschenrechner.daten.v2` und die aus 0.1 unter `maschenrechner.zustand` unverändert)
 - Eine Content Security Policy verhindert technisch, dass Daten an fremde Adressen gehen
 - Löschen über „Projekt löschen“ bzw. „Strickstück löschen“ oder über die Websitedaten im Browser
 - Die Sicherungsdatei verlässt das Gerät nur, wenn die Nutzerin sie selbst teilt

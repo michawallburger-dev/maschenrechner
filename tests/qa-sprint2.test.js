@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { umrechnenAusAnleitung, umrechnenAusCm } from '../js/rechner.js';
 import { pruefeZahl } from '../js/eingabe.js';
-import { leereDaten, neuesProjekt, projektAendern, neuesStrickstueck, strickstueckAendern, finde, pruefeDaten, projekteSortiert } from '../js/modell.js';
-import { ladeDaten, speichereDaten, SCHLUESSEL_V1, SCHLUESSEL_V2 } from '../js/speicher.js';
+import { leereDaten, neuesProjekt, probeAendern, neuesStrickstueck, strickstueckAendern, finde, pruefeDaten, projekteSortiert } from '../js/modell.js';
+import { ladeDaten, speichereDaten, SCHLUESSEL_V1, SCHLUESSEL_V3 } from '../js/speicher.js';
 import { erzeugeSicherung, leseSicherung } from '../js/sicherung.js';
 import { zaehlerPlus, zaehlerMinus } from '../js/zaehler.js';
 import { routeAus, hashFuer } from '../js/router.js';
@@ -21,17 +21,18 @@ function probe(p, richtung) {
 
 function referenzProjekt() {
   let d = neuesProjekt(leereDaten(), { name: 'Referenz' }, 'p1', T(1)).daten;
-  d = projektAendern(d, 'p1', {
-    probeAnleitung: { maschenAnzahl: '34', reihenAnzahl: '52' },
-    probeEigen: { maschenAnzahl: '25', reihenAnzahl: '37' },
+  // Seit Sprint 3 (Schema 3) liegen die Proben in projekt.proben
+  d = probeAendern(d, 'p1', 'pr-1', {
+    anleitung: { maschenAnzahl: '34', reihenAnzahl: '52' },
+    eigen: { maschenAnzahl: '25', reihenAnzahl: '37' },
   }, T(1)).daten;
   return neuesStrickstueck(d, 'p1', 'Vorderteil', 's1', T(1)).daten;
 }
 
 test('US-10 AK2: Excel-Referenzwerte stimmen mit den Proben des Projekts', () => {
   const { projekt } = finde(referenzProjekt(), 'p1', 's1');
-  const pa = (r) => probe(projekt.probeAnleitung, r);
-  const pe = (r) => probe(projekt.probeEigen, r);
+  const pa = (r) => probe(projekt.proben[0].anleitung, r);
+  const pe = (r) => probe(projekt.proben[0].eigen, r);
   const m = umrechnenAusAnleitung(320, pa('maschen'), pe('maschen'), 0);
   assert.equal(m.eigenGerundet, 235);
   assert.equal(Math.round(m.abweichungCm * 100) / 100, -0.12);
@@ -45,10 +46,10 @@ test('US-10 AK2: Excel-Referenzwerte stimmen mit den Proben des Projekts', () =>
 
 test('US-10 AK3: Probenänderung im Projekt wirkt auf alle Strickstücke', () => {
   let d = neuesStrickstueck(referenzProjekt(), 'p1', 'Rücken', 's2', T(2)).daten;
-  d = projektAendern(d, 'p1', { probeEigen: { maschenAnzahl: '20' } }, T(3)).daten;
+  d = probeAendern(d, 'p1', 'pr-1', { eigen: { maschenAnzahl: '20' } }, T(3)).daten;
   for (const sid of ['s1', 's2']) {
     const { projekt } = finde(d, 'p1', sid);
-    assert.equal(umrechnenAusAnleitung(320, probe(projekt.probeAnleitung, 'maschen'), probe(projekt.probeEigen, 'maschen')).eigenGerundet, 188);
+    assert.equal(umrechnenAusAnleitung(320, probe(projekt.proben[0].anleitung, 'maschen'), probe(projekt.proben[0].eigen, 'maschen')).eigenGerundet, 188);
   }
 });
 
@@ -107,7 +108,7 @@ test('US-27 AK1: Referenzdaten aus 0.1 werden 1:1 übernommen, alter Schlüssel 
   assert.equal(s.getItem(SCHLUESSEL_V1), alt);
   const p = r.daten.projekte[0];
   assert.equal(p.strickstuecke[0].rechner.breiteZuMaschen.anpassung, '-1');
-  assert.ok(s.getItem(SCHLUESSEL_V2));
+  assert.ok(s.getItem(SCHLUESSEL_V3));
 });
 
 test('Router: jede ID aus der App ist erreichbar', () => {
@@ -117,7 +118,7 @@ test('Router: jede ID aus der App ist erreichbar', () => {
 });
 
 test('QA S2-03: IDs aus einer Sicherung, die nicht ins Routenmuster passen, werden ersetzt', () => {
-  const r = pruefeDaten({ schemaVersion: 2, projekte: [{ id: 'mein projekt', name: 'A', strickstuecke: [{ id: 'teil/1', name: 'B' }] }] });
+  const r = pruefeDaten({ schemaVersion: 3, projekte: [{ id: 'mein projekt', name: 'A', strickstuecke: [{ id: 'teil/1', name: 'B' }] }] });
   const p = r.daten.projekte[0];
   assert.equal(routeAus(hashFuer({ ansicht: 'projekt', projektId: p.id })).ansicht, 'projekt');
   assert.equal(routeAus(hashFuer({ ansicht: 'strickstueck', projektId: p.id, stueckId: p.strickstuecke[0].id })).ansicht, 'strickstueck');

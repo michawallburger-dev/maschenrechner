@@ -121,20 +121,63 @@ export function bestaetigen({ titel, text, okText, abbrechenText, gefahr = false
 }
 
 /**
+ * Füllt eine Radiogruppe (fieldset mit legend) mit Optionen.
+ * @param {HTMLFieldSetElement} gruppe
+ * @param {string} name  name-Attribut der Radios
+ * @param {{wert:string, text:string}[]} optionen
+ * @param {string|null} vorauswahl
+ */
+function fuelleOptionen(gruppe, name, optionen, vorauswahl) {
+  const liste = gruppe.querySelector('[data-rolle="optionen"]');
+  leeren(liste);
+  for (const o of optionen) {
+    const radio = el('input', { attribute: { type: 'radio', name, value: o.wert } });
+    radio.checked = o.wert === vorauswahl;
+    liste.append(el('label', { klasse: 'option' }, [radio, el('span', { text: o.text })]));
+  }
+}
+
+function gewaehlt(gruppe) {
+  return gruppe.querySelector('input[type="radio"]:checked')?.value ?? null;
+}
+
+/**
  * Fragt einen Namen ab (Dialog #dialog-name), mit optionalen Vorschlägen.
  * @returns {Promise<string|null>} getrimmter Name oder null bei Abbruch
  */
-export function frageName({ titel, label, wert = '', vorschlaege = [], okText, abbrechenText, fehlerLeer, maxLaenge = 80 }) {
+export async function frageName(optionen) {
+  const ergebnis = await frageNameUndWahl(optionen);
+  return ergebnis === null ? null : ergebnis.name;
+}
+
+/**
+ * Fragt einen Namen und – wenn angegeben – eine Auswahl ab (z. B. die Probe eines
+ * neuen Strickstücks, US-32 AK4). Die Auswahl hat keine Vorauswahl und ist Pflicht.
+ * @param {object} optionen  wie frageName, zusätzlich
+ *   auswahl?: { legende:string, optionen:{wert:string,text:string}[], fehlerText:string }
+ * @returns {Promise<{name:string, wahl:string|null}|null>}
+ */
+export function frageNameUndWahl({ titel, label, wert = '', vorschlaege = [], okText, abbrechenText, fehlerLeer, maxLaenge = 80, auswahl = null }) {
   const dialog = document.getElementById('dialog-name');
   beendeLaufende(dialog);
-  const eingabe = dialog.querySelector('input');
+  const eingabe = dialog.querySelector('input[type="text"]');
   const fehler = dialog.querySelector('[data-rolle="fehler"]');
   const vorschlagListe = dialog.querySelector('[data-rolle="vorschlaege"]');
   const ok = dialog.querySelector('[data-rolle="ok"]');
   const abbrechen = dialog.querySelector('[data-rolle="abbrechen"]');
+  const gruppe = dialog.querySelector('[data-rolle="auswahl"]');
+  const gruppeFehler = dialog.querySelector('[data-rolle="auswahl-fehler"]');
+
+  gruppe.hidden = !auswahl;
+  gruppeFehler.hidden = true;
+  gruppeFehler.textContent = '';
+  if (auswahl) {
+    gruppe.querySelector('legend').textContent = auswahl.legende;
+    fuelleOptionen(gruppe, 'dialog-name-auswahl', auswahl.optionen, null);
+  }
 
   dialog.querySelector('[data-rolle="titel"]').textContent = titel;
-  dialog.querySelector('label').textContent = label;
+  dialog.querySelector('label[for="dialog-name-eingabe"]').textContent = label;
   ok.textContent = okText;
   abbrechen.textContent = abbrechenText;
   eingabe.value = wert;
@@ -176,7 +219,14 @@ export function frageName({ titel, label, wert = '', vorschlaege = [], okText, a
         eingabe.focus();
         return;
       }
-      fertig(name);
+      const wahl = auswahl ? gewaehlt(gruppe) : null;
+      if (auswahl && wahl === null) {
+        gruppeFehler.textContent = auswahl.fehlerText;
+        gruppeFehler.hidden = false;
+        gruppe.querySelector('input[type="radio"]')?.focus();
+        return;
+      }
+      fertig({ name, wahl });
     };
     const beiAbbrechen = (e) => {
       e?.preventDefault?.();
@@ -196,5 +246,51 @@ export function frageName({ titel, label, wert = '', vorschlaege = [], okText, a
     eingabe.addEventListener('keydown', beiTaste);
     oeffne(dialog);
     eingabe.focus();
+  });
+}
+
+/**
+ * Auswahl aus mehreren Möglichkeiten (Dialog #dialog-auswahl), z. B. „Probe wechseln“.
+ * @param {{titel:string, frage:string, legende:string, optionen:{wert:string,text:string}[], vorauswahl?:string|null, okText:string, abbrechenText:string}} optionen
+ * @returns {Promise<string|null>} gewählter Wert oder null bei Abbruch
+ */
+export function waehle({ titel, frage, legende, optionen, vorauswahl = null, okText, abbrechenText }) {
+  const dialog = document.getElementById('dialog-auswahl');
+  beendeLaufende(dialog);
+  const ok = dialog.querySelector('[data-rolle="ok"]');
+  const abbrechen = dialog.querySelector('[data-rolle="abbrechen"]');
+  const gruppe = dialog.querySelector('[data-rolle="auswahl"]');
+  dialog.querySelector('[data-rolle="titel"]').textContent = titel;
+  dialog.querySelector('[data-rolle="text"]').textContent = frage;
+  gruppe.querySelector('legend').textContent = legende;
+  fuelleOptionen(gruppe, 'dialog-auswahl-wert', optionen, vorauswahl);
+  ok.textContent = okText;
+  abbrechen.textContent = abbrechenText;
+
+  return new Promise((aufloesen) => {
+    const fertig = (ergebnis) => {
+      laufend.delete(dialog);
+      ok.removeEventListener('click', beiOk);
+      abbrechen.removeEventListener('click', beiAbbrechen);
+      dialog.removeEventListener('cancel', beiAbbrechen);
+      dialog.removeEventListener('close', beiSchliessen);
+      if (dialog.open) dialog.close();
+      aufloesen(ergebnis);
+    };
+    const beiOk = () => fertig(gewaehlt(gruppe));
+    const beiAbbrechen = (e) => {
+      e?.preventDefault?.();
+      fertig(null);
+    };
+    const beiSchliessen = () => {
+      if (!dialog.open) fertig(null);
+    };
+    laufend.set(dialog, () => fertig(null));
+    ok.addEventListener('click', beiOk);
+    abbrechen.addEventListener('click', beiAbbrechen);
+    dialog.addEventListener('cancel', beiAbbrechen);
+    dialog.addEventListener('close', beiSchliessen);
+    oeffne(dialog);
+    (gruppe.querySelector('input:checked') ?? gruppe.querySelector('input'))?.focus();
   });
 }

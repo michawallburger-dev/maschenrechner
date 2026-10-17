@@ -86,6 +86,7 @@ export function zeige(ctx, route, wurzel) {
         datum,
         projekte: anzahlText(ctx.t, 'projekt', zusammenfassung.projekte),
         stuecke: anzahlText(ctx.t, 'stueck', zusammenfassung.strickstuecke),
+        proben: anzahlText(ctx.t, 'probe', zusammenfassung.proben),
       }),
       okText: ctx.t('dialog.import.ok'),
       abbrechenText: ctx.t('dialog.abbrechen'),

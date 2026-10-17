@@ -1,0 +1,232 @@
+// Tests für den Zu-/Abnahmeplan (US-13, US-16) – Architektur Sprint 3, Abschnitt 4.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { berechnePlan, verteile, erlaubteReihen, planAusTexten, planEingabenAusTexten, MAX_EREIGNISSE } from '../js/plan.js';
+
+const PROBE = { maschen: { anzahl: 25, bezugCm: 10 }, reihen: { anzahl: 37, bezugCm: 10 } };
+const REF = { anfangCm: 20, endCm: 34, laengeCm: 45, proEreignis: 2 };
+const reihenVon = (r) => r.ereignisse.map((e) => e.reihe);
+
+// ---------------------------------------------------------------- Referenzfall (Backlog „Referenzwerte für Sprint 3“)
+
+test('Referenz: Grundwerte 50 → 85 M, 167 Reihen; Differenz 35 nicht teilbar → Auswahl', () => {
+  const r = berechnePlan(REF, PROBE);
+  assert.equal(r.anfang, 50);
+  assert.equal(r.ende, 85);
+  assert.equal(r.reihen, 167);
+  assert.equal(r.status, 'auswahl');
+  assert.equal(r.richtung, 'zu');
+  assert.deepEqual(
+    r.optionen.map((o) => [o.wahl, o.endMaschen, Number(o.endCm.toFixed(2)), o.ereignisse]),
+    [['weniger', 84, 33.6, 17], ['mehr', 86, 34.4, 18]],
+  );
+  assert.equal(r.ereignisse, undefined, 'ohne Auswahl kein Plan');
+});
+
+test('Referenz: Wahl „weniger“ → 84 M, 17 Zunahmen, alle 9–10 Reihen', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.ende, 84);
+  assert.equal(r.gewaehlt, 'weniger');
+  assert.deepEqual(reihenVon(r), [10, 19, 28, 37, 47, 56, 65, 74, 84, 93, 102, 111, 120, 130, 139, 148, 157]);
+  assert.ok(r.ereignisse.every((e) => e.maschen === 2));
+  assert.equal(r.abstandMin, 9);
+  assert.equal(r.abstandMax, 10);
+});
+
+test('Referenz: Wahl „mehr“ → 86 M, 18 Zunahmen, alle 8–9 Reihen', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'mehr' }, PROBE);
+  assert.equal(r.ende, 86);
+  assert.deepEqual(reihenVon(r), [9, 18, 27, 35, 44, 53, 62, 70, 79, 88, 97, 105, 114, 123, 132, 140, 149, 158]);
+  assert.equal(r.abstandMin, 8);
+  assert.equal(r.abstandMax, 9);
+});
+
+test('Referenz: „nur jede 2. Reihe“ mit 17 Zunahmen → nur ungerade Reihen', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger', jedeZweite: true }, PROBE);
+  assert.deepEqual(reihenVon(r), [9, 19, 27, 37, 47, 55, 65, 73, 83, 93, 101, 111, 119, 129, 139, 147, 157]);
+  assert.equal(r.abstandMin, 8);
+  assert.equal(r.abstandMax, 10);
+});
+
+// ---------------------------------------------------------------- Richtung, Teilbarkeit, Anpassungen
+
+test('Abnahme: Breiten vertauscht → Richtung „ab“, negative Maschenzahl', () => {
+  const r = berechnePlan({ anfangCm: 34, endCm: 20, laengeCm: 45, proEreignis: 2, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.richtung, 'ab');
+  assert.equal(r.ende, 51); // 85 − 17·2
+  assert.equal(r.ereignisse.length, 17);
+  assert.ok(r.ereignisse.every((e) => e.maschen === -2));
+});
+
+test('Differenz 0 → keine Änderung, kein Plan', () => {
+  const r = berechnePlan({ anfangCm: 20, endCm: 20, laengeCm: 45, proEreignis: 2 }, PROBE);
+  assert.equal(r.status, 'keineAenderung');
+  assert.equal(r.ereignisse, undefined);
+});
+
+test('Teilbare Differenz braucht keine Auswahl; eine gespeicherte Wahl wird ignoriert', () => {
+  // 50 → 86 M = 36 = 18 × 2
+  const r = berechnePlan({ anfangCm: 20, endCm: 34.4, laengeCm: 45, proEreignis: 2, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.ereignisse.length, 18);
+  assert.equal(r.gewaehlt, null);
+});
+
+test('1 M pro Ereignis: jede Differenz ist teilbar', () => {
+  const r = berechnePlan({ ...REF, proEreignis: 1 }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.ereignisse.length, 35);
+});
+
+test('US-16: Anpassung der Endmaschen macht die Differenz teilbar (ersetzt die Auswahl)', () => {
+  const r = berechnePlan({ ...REF, anpassung: { ende: 1 } }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.ende, 86);
+  assert.equal(r.ereignisse.length, 18);
+});
+
+test('US-16: Anpassungen von Anfang und Reihen; tatsächliche cm', () => {
+  const r = berechnePlan({ ...REF, anpassung: { anfang: -2, reihen: 3 }, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.anfang, 48);
+  assert.equal(r.reihen, 170);
+  assert.equal(r.anfangCm.toFixed(2), '19.20');
+  assert.equal(r.laengeCm.toFixed(2), '45.95');
+  // Differenz 37 → 18 (weniger) → Ende 84
+  assert.equal(r.ende, 84);
+  assert.equal(r.anfangGerundet, 50);
+  assert.equal(r.reihenGerundet, 167);
+});
+
+test('US-16: Anpassung mit Ergebnis < 1 → Fehler mit Feld', () => {
+  assert.deepEqual(
+    ['anfang', 'ende', 'reihen'].map((feld) => berechnePlan({ ...REF, anpassung: { [feld]: -500 } }, PROBE)).map((r) => [r.status, r.fehler, r.feld]),
+    [['fehler', 'ERGEBNIS_ZU_KLEIN', 'anfang'], ['fehler', 'ERGEBNIS_ZU_KLEIN', 'ende'], ['fehler', 'ERGEBNIS_ZU_KLEIN', 'reihen']],
+  );
+});
+
+test('Abnahme: Option mit Endmaschen < 1 entfällt', () => {
+  // 3 M → 0,x M (gerundet 1): Differenz −2 bei 3 M pro Ereignis → „weniger“ hätte 0 Ereignisse, „mehr“ −1 M
+  const p = { maschen: { anzahl: 10, bezugCm: 10 }, reihen: { anzahl: 10, bezugCm: 10 } };
+  const r = berechnePlan({ anfangCm: 3, endCm: 1, laengeCm: 10, proEreignis: 3 }, p);
+  assert.equal(r.status, 'auswahl');
+  assert.deepEqual(r.optionen, []);
+});
+
+// ---------------------------------------------------------------- Zu wenig Platz, zu viele Ereignisse
+
+test('ZU_WENIG_REIHEN: 3 Reihen, 2 Ereignisse (nur Reihe 2 frei)', () => {
+  const p = { maschen: { anzahl: 10, bezugCm: 10 }, reihen: { anzahl: 10, bezugCm: 10 } };
+  const r = berechnePlan({ anfangCm: 2, endCm: 6, laengeCm: 3, proEreignis: 2 }, p);
+  assert.equal(r.fehler, 'ZU_WENIG_REIHEN');
+  assert.equal(r.moeglich, 1);
+});
+
+test('ZU_WENIG_REIHEN: „jede 2.“ mit 4 Reihen erlaubt nur Reihe 3', () => {
+  const p = { maschen: { anzahl: 10, bezugCm: 10 }, reihen: { anzahl: 10, bezugCm: 10 } };
+  const ok = berechnePlan({ anfangCm: 2, endCm: 4, laengeCm: 4, proEreignis: 2, jedeZweite: true }, p);
+  assert.deepEqual(reihenVon(ok), [3]);
+  const zuViel = berechnePlan({ anfangCm: 2, endCm: 6, laengeCm: 4, proEreignis: 2, jedeZweite: true }, p);
+  assert.equal(zuViel.fehler, 'ZU_WENIG_REIHEN');
+  assert.equal(zuViel.moeglich, 1);
+});
+
+test('ZU_VIELE_EREIGNISSE: 9999 erlaubt, 10 000 nicht', () => {
+  // 2 M/cm: 0,5 cm = 1 M; 5000 cm = 10 000 M → 9999 Zunahmen zu je 1 M
+  const p = { maschen: { anzahl: 20, bezugCm: 10 }, reihen: { anzahl: 100, bezugCm: 10 } };
+  const grenze = berechnePlan({ anfangCm: 0.5, endCm: 5000, laengeCm: 9999, proEreignis: 1 }, p);
+  assert.equal(grenze.status, 'plan');
+  assert.equal(grenze.ereignisse.length, MAX_EREIGNISSE);
+  const zuViel = berechnePlan({ anfangCm: 0.5, endCm: 5000.5, laengeCm: 9999, proEreignis: 1 }, p); // 10 000 Zunahmen
+  assert.equal(zuViel.fehler, 'ZU_VIELE_EREIGNISSE');
+});
+
+test('Sehr lange Teile: Millionen Reihen ohne große Listen', () => {
+  const p = { maschen: { anzahl: 10, bezugCm: 10 }, reihen: { anzahl: 999, bezugCm: 0.01 } };
+  const r = berechnePlan({ anfangCm: 10, endCm: 20, laengeCm: 9999, proEreignis: 2 }, p);
+  assert.equal(r.status, 'plan');
+  assert.ok(r.reihen > 900_000_000);
+  assert.equal(r.ereignisse.length, 5);
+  assert.ok(r.ereignisse.every((e) => e.reihe > 1 && e.reihe < r.reihen));
+});
+
+// ---------------------------------------------------------------- Eigenschaftstests (Definition of Done)
+
+test('Eigenschaften: Anzahl, keine Doppelten, Randreihen frei, „jede 2.“ ungerade ≥ 3, Abstände ±1/±2', () => {
+  let faelle = 0;
+  for (let reihen = 1; reihen <= 250; reihen++) {
+    for (const jedeZweite of [false, true]) {
+      const erlaubt = erlaubteReihen(reihen, jedeZweite);
+      for (let e = 1; e <= erlaubt.anzahl; e++) {
+        const liste = verteile(e, erlaubt.anzahl).map(erlaubt.reihe);
+        faelle++;
+        assert.equal(liste.length, e);
+        assert.equal(new Set(liste).size, e, `doppelt bei R=${reihen} E=${e}`);
+        for (let i = 0; i < liste.length; i++) {
+          assert.ok(liste[i] >= 2 && liste[i] <= reihen - 1, `Randreihe bei R=${reihen} E=${e}`);
+          if (i > 0) assert.ok(liste[i] > liste[i - 1], 'aufsteigend');
+          if (jedeZweite) assert.ok(liste[i] % 2 === 1 && liste[i] >= 3, `gerade Reihe bei R=${reihen} E=${e}`);
+        }
+        if (liste.length > 1) {
+          const abstaende = liste.slice(1).map((x, i) => x - liste[i]);
+          assert.ok(Math.max(...abstaende) - Math.min(...abstaende) <= (jedeZweite ? 2 : 1), `Abstände bei R=${reihen} E=${e}`);
+        }
+      }
+    }
+  }
+  assert.ok(faelle > 30000);
+});
+
+test('Eigenschaften: Summe der Maschen = Differenz; gleiche Eingaben → gleicher Plan', () => {
+  for (let ende = 21; ende <= 60; ende += 0.7) {
+    for (const pro of [1, 2, 3, 4]) {
+      for (const wahl of ['weniger', 'mehr']) {
+        const e = { anfangCm: 20, endCm: ende, laengeCm: 45, proEreignis: pro, ereignisWahl: wahl };
+        const r = berechnePlan(e, PROBE);
+        if (r.status !== 'plan') continue;
+        assert.equal(r.ereignisse.reduce((s, x) => s + x.maschen, 0), r.ende - r.anfang);
+        assert.deepEqual(berechnePlan(e, PROBE), r);
+      }
+    }
+  }
+});
+
+test('erlaubteReihen: Randfälle', () => {
+  assert.equal(erlaubteReihen(1, false).anzahl, 0);
+  assert.equal(erlaubteReihen(2, false).anzahl, 0);
+  assert.equal(erlaubteReihen(3, false).anzahl, 1);
+  assert.equal(erlaubteReihen(3, true).anzahl, 0);
+  assert.equal(erlaubteReihen(4, true).anzahl, 1);
+  assert.equal(erlaubteReihen(5, true).anzahl, 1);
+  assert.equal(erlaubteReihen(6, true).anzahl, 2);
+});
+
+// ---------------------------------------------------------------- Aus gespeicherten Texten
+
+const TEXTE = {
+  anfangBreite: '20', endBreite: '34', laenge: '45', maschenProEreignis: '2',
+  arbeitsweise: 'runden', jedeZweite: false, ereignisWahl: 'weniger',
+  anpassung: { anfang: '0', ende: '0', reihen: '0' },
+};
+const EIGEN = { maschenAnzahl: '25', maschenBezug: '10', reihenAnzahl: '37', reihenBezug: '10' };
+
+test('planAusTexten: rechnet wie berechnePlan, Komma und Tausenderpunkt', () => {
+  const r = planAusTexten({ ...TEXTE, laenge: '45,0' }, EIGEN, 'cm');
+  assert.equal(r.status, 'plan');
+  assert.equal(r.runden, true);
+  assert.equal(r.ereignisse.length, 17);
+});
+
+test('planAusTexten: ungültige Eingaben oder Probe → null', () => {
+  assert.equal(planAusTexten(null, EIGEN, 'cm'), null);
+  assert.equal(planAusTexten({ ...TEXTE, laenge: '' }, EIGEN, 'cm'), null);
+  assert.equal(planAusTexten({ ...TEXTE, maschenProEreignis: '0' }, EIGEN, 'cm'), null);
+  assert.equal(planAusTexten({ ...TEXTE, maschenProEreignis: '1,5' }, EIGEN, 'cm'), null);
+  assert.equal(planAusTexten({ ...TEXTE, anpassung: { anfang: 'x' } }, EIGEN, 'cm'), null);
+  assert.equal(planAusTexten(TEXTE, { ...EIGEN, reihenAnzahl: '' }, 'cm'), null);
+});
+
+test('planEingabenAusTexten: leere Anpassung = 0', () => {
+  const e = planEingabenAusTexten({ ...TEXTE, anpassung: {} }, 'cm');
+  assert.deepEqual(e.anpassung, { anfang: 0, ende: 0, reihen: 0 });
+});

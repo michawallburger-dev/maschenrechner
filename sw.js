@@ -9,7 +9,7 @@
  * Nutzerinnen weiterhin die alte Version.
  */
 
-const CACHE_NAME = 'maschenrechner-v0.2.0';
+const CACHE_NAME = 'maschenrechner-v0.3.0';
 
 // Alle Dateien der App, relativ zum Speicherort dieses Service Workers
 // (Der Test tests/sw-liste.test.js prüft, dass keine Datei fehlt.)
@@ -29,6 +29,8 @@ const APP_DATEIEN = [
   './js/migration.js',
   './js/sicherung.js',
   './js/zaehler.js',
+  './js/plan.js',
+  './js/ziel.js',
   './js/geraet.js',
   './js/router.js',
   './js/dom.js',
@@ -36,6 +38,7 @@ const APP_DATEIEN = [
   './js/ansichten/projektliste.js',
   './js/ansichten/projekt.js',
   './js/ansichten/strickstueck.js',
+  './js/ansichten/plankarte.js',
   './js/ansichten/zaehler.js',
   './js/ansichten/einstellungen.js',
   './icons/icon.svg',

@@ -1,11 +1,14 @@
 /**
- * Übernahme der Daten aus Version 0.1 (Schema 1) in Schema 2 (US-27).
+ * Übernahme älterer Daten in das aktuelle Schema 3:
+ * - aus Version 0.1 (Schema 1, US-27) und
+ * - aus Version 0.2 (Schema 2, US-32 AK8).
  *
  * Reine Funktionen. Das Lesen und Schreiben des Speichers erledigt speicher.js.
  * Der alte Datenstand wird dabei nie verändert.
  */
 
-import { leereDaten, leereProbe, leereRechner, RECHNER_NAMEN, GRENZEN, pruefeDaten } from './modell.js';
+import { leereDaten, leereProbe, leereRechner, RECHNER_NAMEN, GRENZEN, pruefeDaten, ERSTE_PROBE_ID } from './modell.js';
+import { text as uiText } from './texte.js';
 
 /** Speicherschlüssel von Version 0.1. */
 export const SCHLUESSEL_V1 = 'maschenrechner.zustand';
@@ -67,7 +70,45 @@ export function hatInhalt(v1) {
 }
 
 /**
- * Wandelt einen Zustand aus 0.1 in Schema 2 um: ein Projekt mit einem Strickstück.
+ * Wandelt Daten aus 0.2 (Schema 2) in Schema 3 um (US-32 AK8):
+ * Die bisherige Probe jedes Projekts wird zu „Probe 1“ mit der bisherigen
+ * Nadelstärke des Projekts; alle Strickstücke werden ihr zugeordnet.
+ * Alles Übrige prüft und repariert danach pruefeDaten (Schema 3).
+ * @param {unknown} roh  gelesene (geparste) Daten aus 0.2
+ * @returns {object|null} Daten in Schema 3 oder null, wenn es keine Daten aus 0.2 sind
+ */
+export function vonSchema2(roh) {
+  if (!istObjekt(roh) || roh.schemaVersion !== 2 || !Array.isArray(roh.projekte)) return null;
+  const sprache = istObjekt(roh.einstellungen) ? roh.einstellungen.sprache : undefined;
+  const entwurf = {
+    ...roh,
+    schemaVersion: 3,
+    projekte: roh.projekte.filter(istObjekt).map((p) => ({
+      ...p,
+      proben: [
+        {
+          id: ERSTE_PROBE_ID,
+          name: uiText(sprache, 'probe.standardname', { n: 1 }),
+          nadelstaerkeMm: p.nadelstaerkeMm,
+          anleitung: p.probeAnleitung,
+          eigen: p.probeEigen,
+        },
+      ],
+      strickstuecke: (Array.isArray(p.strickstuecke) ? p.strickstuecke : []).filter(istObjekt).map((s) => ({
+        ...s,
+        probeId: ERSTE_PROBE_ID,
+        zielQuelle: null,
+        plan: null,
+      })),
+    })),
+  };
+  const geprueft = pruefeDaten(entwurf);
+  return geprueft.gueltig ? geprueft.daten : null;
+}
+
+/**
+ * Wandelt einen Zustand aus 0.1 in das aktuelle Schema um: ein Projekt mit einem Strickstück.
+ * (Zwischenschritt über Schema 2, damit dieselbe Übernahme wie für 0.2 gilt.)
  * @param {unknown} roh            gelesener (geparster) Zustand aus 0.1
  * @param {{projektId:string, stueckId:string, jetzt:string, projektName:string, stueckName:string}} optionen
  * @returns {{daten:object, projektId:string}|null} null, wenn nichts zu übernehmen ist
@@ -79,6 +120,7 @@ export function vonSchema1(roh, { projektId, stueckId, jetzt, projektName, stuec
   const basis = leereDaten(v1.einstellungen);
   const entwurf = {
     ...basis,
+    schemaVersion: 2,
     projekte: [
       {
         id: projektId,
@@ -96,7 +138,7 @@ export function vonSchema1(roh, { projektId, stueckId, jetzt, projektName, stuec
       },
     ],
   };
-  // Zur Sicherheit durch dieselbe Prüfung wie beim Laden
-  const geprueft = pruefeDaten(entwurf);
-  return geprueft.gueltig ? { daten: geprueft.daten, projektId } : null;
+  // Weiter wie bei Daten aus 0.2 (inklusive Prüfung wie beim Laden)
+  const daten = vonSchema2(entwurf);
+  return daten ? { daten, projektId } : null;
 }

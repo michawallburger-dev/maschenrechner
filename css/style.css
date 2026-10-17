@@ -25,6 +25,9 @@
   --erfolg-hell: #e4f2e6;
   --erfolg-text: #1d4d26;
   --fokus: #1f5fbf;
+  --jetzt-hg: #ffd54f;          /* Hinweis „Jetzt“ (US-15 AK5): Text darauf ca. 12:1 */
+  --jetzt-text: #3d2a00;
+  --feld-rahmen: #7a2e4a;       /* Rahmen des Zählerfelds (US-33): ca. 8:1 zum Hintergrund */
 
   --radius: 14px;
   --abstand: 16px;
@@ -53,11 +56,17 @@
     --erfolg-hell: #1f3323;
     --erfolg-text: #b5e6bf;
     --fokus: #8ab4ff;
+    --jetzt-hg: #f5c542;
+    --jetzt-text: #1d1a19;
+    --feld-rahmen: #f19bb8;
   }
 }
 
 /* … oder wenn „Dunkel“ ausdrücklich gewählt wurde */
 :root[data-farbschema="dunkel"] {
+  --jetzt-hg: #f5c542;
+  --jetzt-text: #1d1a19;
+  --feld-rahmen: #f19bb8;
   color-scheme: dark;
   --hintergrund: #1d1a19;
   --flaeche: #282423;
@@ -322,6 +331,156 @@ body > .hinweis {
   margin: 0 0 4px;
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
+}
+
+/* Mehrere Proben pro Projekt (US-32) */
+.proben-liste {
+  display: grid;
+  gap: var(--abstand);
+  margin-bottom: 12px;
+}
+
+.probenpaar {
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.probenpaar-titel {
+  margin: 0;
+  font-size: 1.125rem;
+  overflow-wrap: anywhere;
+}
+
+.probenpaar > .knopf {
+  justify-self: start;
+}
+
+.proben-kurz h2 {
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------- Zu-/Abnahmeplan (US-13) --- */
+
+.plan-inhalt {
+  display: grid;
+  gap: 12px;
+}
+
+.plan-felder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+}
+
+.segment-zwei .segment-optionen {
+  grid-template-columns: 1fr 1fr;
+}
+
+.segment-zwei legend {
+  font-size: 1rem;
+}
+
+.schalter-feld {
+  display: grid;
+  gap: 2px;
+}
+
+.schalter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch);
+  cursor: pointer;
+}
+
+.schalter input,
+.option input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--akzent);
+}
+
+.plan-werte {
+  display: grid;
+  gap: 12px;
+}
+
+.plan-wert {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--flaeche-ruhig);
+  border: 1px solid var(--linie);
+}
+
+.plan-wert .hauptergebnis output {
+  font-size: 1.75rem;
+}
+
+.plan-wert .anpassung {
+  margin: 8px 0 0;
+}
+
+.plan-auswahl,
+.dialog-auswahl {
+  margin: 0;
+  padding: 12px;
+  border: 2px solid var(--akzent);
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.plan-auswahl legend,
+.dialog-auswahl legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.dialog-auswahl {
+  margin-top: 12px;
+  border-color: var(--linie);
+}
+
+.optionen {
+  display: grid;
+  gap: 4px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch);
+  font-weight: 600;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-zusammenfassung {
+  margin: 0;
+  font-weight: 700;
+}
+
+.plan-zusammenfassung output {
+  font-size: 1.25rem;
+  color: var(--akzent);
+}
+
+.plan-liste {
+  margin: 8px 0 0;
+  padding-left: 1.6em;
+  font-variant-numeric: tabular-nums;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.plan-liste li {
+  padding: 2px 0;
 }
 
 /* ------------------------------------------------------------ Felder --- */
@@ -684,8 +843,15 @@ input[aria-invalid="true"] {
 
 .ansicht-zaehler {
   min-height: calc(100dvh - 120px);
-  grid-template-rows: auto auto 1fr auto auto;
-  align-content: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Im Zähler zählt jeder Pixel: weniger Abstand unten (360 × 640 px ohne Scrollen, Architektur R9) */
+body[data-ansicht="zaehlen"] main {
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .zaehler-oben {
@@ -717,24 +883,151 @@ input[aria-invalid="true"] {
   gap: 4px;
 }
 
+/* Reihenzahl mit dauerhaft sichtbarem Rahmen und Stift (US-33, Variante a) */
+.zaehler-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.zaehler-feld {
+  position: relative;
+  display: block;
+  font-weight: 400;
+  cursor: text;
+}
+
 input.zaehler-wert {
-  width: min(100%, 320px);
+  width: min(62vw, 240px);
   min-height: 96px;
-  font-size: 4.5rem;
+  padding: 8px 40px 8px 12px;
+  font-size: 4rem;
   font-weight: 800;
   line-height: 1;
   text-align: center;
-  border-color: transparent;
-  background: transparent;
+  border: 2px solid var(--feld-rahmen);
+  border-radius: 14px;
+  background: var(--flaeche);
+}
+
+input.zaehler-wert:hover {
+  border-color: var(--feld-rahmen);
 }
 
 input.zaehler-wert:focus-visible {
   border-color: var(--fokus);
+  outline: 3px solid var(--fokus);
+  outline-offset: 2px;
 }
 
-/* +1 groß, untere Hälfte (US-11, AK2) */
+.zaehler-stift {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--feld-rahmen);
+  pointer-events: none;
+}
+
+.zaehler-von {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-leise);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.zaehler-laenge,
+.zaehler-ziel-erreicht {
+  margin: 0;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.zaehler-ziel-erreicht {
+  font-weight: 700;
+  color: var(--erfolg-text);
+  background: var(--erfolg-hell);
+  padding: 2px 12px;
+  border-radius: 999px;
+}
+
+.zaehler-quelle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.zaehler-quelle select {
+  min-height: var(--touch);
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 2px solid var(--linie);
+  border-radius: 10px;
+  max-width: 100%;
+}
+
+/* Letzte, nächste, übernächste Zu-/Abnahme (US-15) */
+.zaehler-ereignisse {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+  padding: 2px 12px;
+}
+
+.ereignis-liste {
+  margin: 0;
+  display: grid;
+}
+
+.ereignis-liste > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1px 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.ereignis-liste dt {
+  color: var(--text-leise);
+}
+
+.ereignis-liste dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Hinweis in der Zu-/Abnahmereihe: Text, Symbol und Farbe (US-15 AK5) */
+.zaehler-jetzt {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--jetzt-text);
+  background: var(--jetzt-hg);
+  border: 2px solid var(--jetzt-text);
+  border-radius: 12px;
+}
+
+/* +1 groß, füllt den restlichen Platz unten (US-11, AK2: mindestens 96 × 96 px) */
 .zaehler-plus {
-  min-height: max(96px, 38dvh);
+  flex: 1 1 auto;
+  min-height: 96px;
   width: 100%;
   font-size: 3rem;
   font-weight: 800;
@@ -750,7 +1043,7 @@ input.zaehler-wert:focus-visible {
 }
 
 .zaehler-null {
-  justify-self: center;
+  align-self: center;
 }
 
 /* ------------------------------------------------------------- Fokus --- */
@@ -812,6 +1105,21 @@ dialog p {
   .proben-raster,
   .rechner-raster {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .plan-felder {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .plan-werte {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Sehr schmale Geräte: Planfelder untereinander */
+@media (max-width: 359px) {
+  .plan-felder {
+    grid-template-columns: 1fr;
   }
 }
 

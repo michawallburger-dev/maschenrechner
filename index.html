@@ -79,23 +79,40 @@
           <label for="projekt-garn" data-text="projekt.garn">Garn (optional)</label>
           <input id="projekt-garn" type="text" autocomplete="off" maxlength="80" data-projektfeld="garn">
         </div>
-        <div class="feld">
-          <label for="projekt-nadel" data-text="projekt.nadel">Nadelstärke in mm (optional)</label>
-          <input id="projekt-nadel" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-projektfeld="nadelstaerkeMm" data-regel="nadel" aria-describedby="fehler-projekt-nadel">
-          <p class="fehler" id="fehler-projekt-nadel" hidden></p>
-        </div>
       </section>
 
       <section class="karte" aria-labelledby="titel-proben" id="proben">
         <h2 id="titel-proben" data-text="proben.titel">Maschenproben</h2>
-        <div class="proben-raster" data-rolle="proben"></div>
+        <div class="proben-liste" data-rolle="proben"></div>
+        <button type="button" class="knopf knopf-zweitrangig knopf-breit" data-rolle="probe-neu" data-text="probe.hinzufuegen">Probe hinzufügen</button>
       </section>
 
       <button type="button" class="knopf knopf-gefahr-rand knopf-breit" data-rolle="loeschen" data-text="projekt.loeschen">Projekt löschen</button>
     </div>
   </template>
 
-  <!-- Eine Maschenprobe (zweimal je Projekt: Anleitung und eigene) -->
+  <!-- Eine Probe des Projekts: Name, Nadel, Anleitungs- und eigene Probe (US-32) -->
+  <template id="tpl-probenpaar">
+    <section class="probenpaar">
+      <h3 class="probenpaar-titel" data-rolle="titel">Probe</h3>
+      <div class="probe-zeile">
+        <div class="feld">
+          <label data-rolle="l-name" data-text="probe.name">Name der Probe</label>
+          <input type="text" autocomplete="off" maxlength="40" data-paarfeld="name">
+          <p class="fehler" data-rolle="f-name" hidden></p>
+        </div>
+        <div class="feld">
+          <label data-rolle="l-nadelstaerkeMm" data-text="probe.nadel">Nadelstärke in mm (optional)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-paarfeld="nadelstaerkeMm" data-regel="nadel">
+          <p class="fehler" data-rolle="f-nadelstaerkeMm" hidden></p>
+        </div>
+      </div>
+      <div class="proben-raster" data-rolle="proben"></div>
+      <button type="button" class="knopf knopf-gefahr-rand" data-rolle="probe-loeschen" data-text="probe.loeschen">Probe löschen</button>
+    </section>
+  </template>
+
+  <!-- Eine Maschenprobe (je Probe zweimal: Anleitung und eigene) -->
   <template id="tpl-probe">
     <fieldset class="probe">
       <legend data-rolle="legende">Probe</legend>
@@ -137,13 +154,19 @@
       </a>
 
       <section class="karte proben-kurz" aria-labelledby="titel-proben-kurz">
-        <h2 id="titel-proben-kurz" data-text="stueck.proben">Maschenproben des Projekts</h2>
+        <h2 id="titel-proben-kurz" data-rolle="probe-titel">Probe</h2>
+        <p data-rolle="probe-nadel" hidden></p>
         <p data-rolle="probe-anleitung">–</p>
         <p data-rolle="probe-eigen">–</p>
-        <a class="link" data-rolle="proben-link" href="#/" data-text="stueck.probenAendern">Proben ändern</a>
+        <div class="knopf-reihe">
+          <button type="button" class="knopf knopf-zweitrangig" data-rolle="probe-wechseln" data-text="stueck.probeWechseln" hidden>Probe wechseln</button>
+          <a class="link" data-rolle="proben-link" href="#/" data-text="stueck.probenAendern">Proben ändern</a>
+        </div>
       </section>
 
       <div class="rechner-raster" data-rolle="rechner"></div>
+
+      <div data-rolle="plan"></div>
 
       <div class="knopf-reihe">
         <button type="button" class="knopf knopf-zweitrangig" data-rolle="umbenennen" data-text="stueck.umbenennen">Umbenennen</button>
@@ -196,7 +219,95 @@
     </section>
   </template>
 
-  <!-- Reihenzähler (US-11) -->
+  <!-- Zu- und Abnahmen eines Strickstücks (US-13, US-14, US-16) -->
+  <template id="tpl-plankarte">
+    <section class="karte plan" aria-labelledby="titel-plan">
+      <h2 id="titel-plan" data-text="plan.titel">Zu- und Abnahmen</h2>
+      <div data-rolle="ohne-plan">
+        <p class="beschreibung" data-text="plan.leer">Für Teile, deren Breite sich ändert.</p>
+        <button type="button" class="knopf knopf-primaer knopf-breit" data-rolle="anlegen" data-text="plan.anlegen">Plan anlegen</button>
+      </div>
+      <div class="plan-inhalt" data-rolle="mit-plan" hidden>
+        <p class="feldhinweis" data-text="plan.richtungHinweis">In Strickrichtung: Anfang ist dort, wo du anschlägst.</p>
+        <div class="plan-felder">
+          <div class="feld">
+            <label for="plan-anfangBreite" data-text="plan.anfangBreite">Breite am Anfang</label>
+            <input id="plan-anfangBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="anfangBreite" data-regel="laenge" aria-describedby="fehler-plan-anfangBreite">
+            <p class="fehler" id="fehler-plan-anfangBreite" hidden></p>
+          </div>
+          <div class="feld">
+            <label for="plan-endBreite" data-text="plan.endBreite">Breite am Ende</label>
+            <input id="plan-endBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="endBreite" data-regel="laenge" aria-describedby="fehler-plan-endBreite">
+            <p class="fehler" id="fehler-plan-endBreite" hidden></p>
+          </div>
+          <div class="feld">
+            <label for="plan-laenge" data-text="plan.laenge">Länge</label>
+            <input id="plan-laenge" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="laenge" data-regel="laenge" aria-describedby="fehler-plan-laenge">
+            <p class="fehler" id="fehler-plan-laenge" hidden></p>
+          </div>
+          <div class="feld">
+            <label for="plan-maschenProEreignis" data-text="plan.proEreignis">Maschen pro Zu-/Abnahme</label>
+            <input id="plan-maschenProEreignis" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="maschenProEreignis" data-regel="proEreignis" aria-describedby="fehler-plan-maschenProEreignis">
+            <p class="fehler" id="fehler-plan-maschenProEreignis" hidden></p>
+          </div>
+        </div>
+        <fieldset class="segment segment-zwei">
+          <legend data-text="plan.arbeitsweise">Arbeitsweise</legend>
+          <div class="segment-optionen">
+            <label><input type="radio" name="plan-arbeitsweise" value="reihen"><span data-text="plan.reihen">In Reihen (gewendet)</span></label>
+            <label><input type="radio" name="plan-arbeitsweise" value="runden"><span data-text="plan.runden">In Runden</span></label>
+          </div>
+        </fieldset>
+        <div class="schalter-feld">
+          <label class="schalter"><input type="checkbox" data-planfeld="jedeZweite" aria-describedby="plan-jedeZweite-hinweis"><span data-text="plan.jedeZweite">Nur jede 2. Reihe/Runde</span></label>
+          <p class="feldhinweis" id="plan-jedeZweite-hinweis" data-text="plan.jedeZweiteHinweis">Dann nur in ungeraden Reihen bzw. Runden, ab Reihe 3.</p>
+        </div>
+
+        <div class="hinweis" data-rolle="probe-fehlt" hidden>
+          <p data-text="plan.probeFehlt">Bitte zuerst die eigene Probe vollständig ausfüllen.</p>
+          <a class="link" data-rolle="probe-link" href="#/" data-text="hinweis.probenLink">Zu den Maschenproben</a>
+        </div>
+
+        <div class="plan-werte" data-rolle="werte"></div>
+
+        <fieldset class="plan-auswahl" data-rolle="auswahl" hidden>
+          <legend data-rolle="auswahl-frage"></legend>
+          <div class="optionen" data-rolle="optionen"></div>
+        </fieldset>
+
+        <div class="ergebnis plan-ergebnis">
+          <p class="plan-zusammenfassung"><output aria-live="polite" data-rolle="zusammenfassung">–</output></p>
+          <p class="hinweis hinweis-warnung" data-rolle="status" hidden></p>
+          <h3 class="visuell-versteckt" data-text="plan.listeTitel">Plan</h3>
+          <ol class="plan-liste" data-rolle="liste"></ol>
+        </div>
+
+        <div class="knopf-reihe">
+          <button type="button" class="knopf knopf-zweitrangig" data-rolle="anpassungen-zuruecksetzen" data-text="plan.anpassungenZuruecksetzen">Anpassungen zurücksetzen</button>
+          <button type="button" class="knopf knopf-gefahr-rand" data-rolle="plan-loeschen" data-text="plan.loeschen">Plan löschen</button>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- Ein Ergebnis im Plan mit Anpassung (Anfangsmaschen, Endmaschen, Reihen gesamt) -->
+  <template id="tpl-planwert">
+    <div class="plan-wert">
+      <p class="hauptergebnis"><span data-rolle="titel"></span> <output data-rolle="endgueltig">–</output></p>
+      <p class="feldhinweis" data-rolle="info"></p>
+      <div class="feld anpassung">
+        <label data-rolle="anpassung-label"></label>
+        <div class="stepper">
+          <button type="button" class="stepper-knopf" data-schritt="-1" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+          <input type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-rolle="anpassung">
+          <button type="button" class="stepper-knopf" data-schritt="1" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        </div>
+        <p class="fehler" data-rolle="fehler" hidden></p>
+      </div>
+    </div>
+  </template>
+
+  <!-- Reihenzähler (US-11, US-15, US-30, US-33) -->
   <template id="tpl-zaehler">
     <div class="ansicht ansicht-zaehler">
       <p class="hinweis" data-rolle="wach-hinweis" hidden></p>
@@ -204,10 +315,34 @@
         <p class="zaehler-projekt" data-rolle="projektname"></p>
         <button type="button" class="knopf zaehler-minus" data-rolle="minus" data-text-aria-label="zaehler.minusLabel" aria-label="Eine Reihe zurück"><span aria-hidden="true" data-text="zaehler.minus">−1</span></button>
       </div>
+      <section class="zaehler-ereignisse" data-rolle="ereignisse" aria-labelledby="titel-ereignisse" hidden>
+        <h2 id="titel-ereignisse" class="visuell-versteckt" data-text="zaehler.ereignisse">Zu- und Abnahmen</h2>
+        <dl class="ereignis-liste">
+          <div><dt data-text="zaehler.letzte">Letzte</dt><dd data-ereignis="letzte">–</dd></div>
+          <div><dt data-text="zaehler.naechste">Nächste</dt><dd data-ereignis="naechste">–</dd></div>
+          <div><dt data-text="zaehler.uebernaechste">Übernächste</dt><dd data-ereignis="uebernaechste">–</dd></div>
+        </dl>
+      </section>
+      <p class="zaehler-jetzt" data-rolle="jetzt" hidden>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/></svg>
+        <span data-rolle="jetzt-text"></span>
+      </p>
       <div class="zaehler-mitte">
-        <label class="visuell-versteckt" for="zaehler-wert" data-text="zaehler.eingabeLabel">Aktuelle Reihe</label>
-        <input id="zaehler-wert" class="zaehler-wert" type="text" inputmode="numeric" autocomplete="off" maxlength="6" aria-describedby="zaehler-fehler">
+        <div class="zaehler-zeile">
+          <label class="zaehler-feld" for="zaehler-wert">
+            <span class="visuell-versteckt" data-text="zaehler.reiheEingeben">Reihe eingeben</span>
+            <input id="zaehler-wert" class="zaehler-wert" type="text" inputmode="numeric" autocomplete="off" maxlength="6" aria-describedby="zaehler-von zaehler-fehler">
+            <svg class="zaehler-stift" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41l-2.33-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.82-1.83z"/></svg>
+          </label>
+          <span class="zaehler-von" id="zaehler-von" data-rolle="von" hidden></span>
+        </div>
         <p class="fehler" id="zaehler-fehler" hidden></p>
+        <p class="zaehler-laenge" data-rolle="laenge" hidden></p>
+        <p class="zaehler-ziel-erreicht" data-rolle="ziel-erreicht" hidden><span aria-hidden="true">✓ </span><span data-text="zaehler.zielErreicht">Ziel erreicht</span></p>
+        <div class="zaehler-quelle" data-rolle="quelle" hidden>
+          <label for="zaehler-quelle" data-text="zaehler.zielAus">Ziel aus</label>
+          <select id="zaehler-quelle"></select>
+        </div>
         <p class="visuell-versteckt" aria-live="polite" data-rolle="ansage"></p>
       </div>
       <button type="button" class="knopf zaehler-plus" data-rolle="plus" data-text-aria-label="zaehler.plusLabel" aria-label="Eine Reihe weiter"><span aria-hidden="true" data-text="zaehler.plus">+1</span></button>
@@ -267,6 +402,24 @@
       <p class="fehler" id="dialog-name-fehler" data-rolle="fehler" hidden></p>
     </div>
     <ul class="chips" data-rolle="vorschlaege" hidden></ul>
+    <fieldset class="dialog-auswahl" data-rolle="auswahl" aria-describedby="dialog-name-auswahl-fehler" hidden>
+      <legend>Auswahl</legend>
+      <div class="optionen" data-rolle="optionen"></div>
+      <p class="fehler" id="dialog-name-auswahl-fehler" data-rolle="auswahl-fehler" hidden></p>
+    </fieldset>
+    <div class="dialog-knoepfe">
+      <button type="button" class="knopf knopf-zweitrangig" data-rolle="abbrechen">Abbrechen</button>
+      <button type="button" class="knopf knopf-primaer" data-rolle="ok">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="dialog-auswahl" aria-labelledby="dialog-auswahl-titel" aria-describedby="dialog-auswahl-text">
+    <h2 id="dialog-auswahl-titel" data-rolle="titel"></h2>
+    <p id="dialog-auswahl-text" data-rolle="text"></p>
+    <fieldset class="dialog-auswahl" data-rolle="auswahl">
+      <legend>Auswahl</legend>
+      <div class="optionen" data-rolle="optionen"></div>
+    </fieldset>
     <div class="dialog-knoepfe">
       <button type="button" class="knopf knopf-zweitrangig" data-rolle="abbrechen">Abbrechen</button>
       <button type="button" class="knopf knopf-primaer" data-rolle="ok">OK</button>
