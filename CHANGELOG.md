@@ -1,6 +1,6 @@
 # Änderungsprotokoll
 
-## 0.3.0 – (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“, noch nicht veröffentlicht)
+## 0.3.0 – 17.10.2026 (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“)
 
 ### Neu
 - Mehrere Maschenproben pro Projekt, je mit Name und Nadelstärke; jedes Strickstück nutzt genau eine Probe, „Probe wechseln“ in der Strickstück-Ansicht (US-32)
