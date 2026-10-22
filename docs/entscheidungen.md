@@ -37,33 +37,32 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E21 | Ziel im Zähler | Zielreihen = „Deine Reihen" (endgültige Reihenzahl) aus dem Rechner des Strickstücks, Ziellänge = „Tatsächliche Höhe (cm)". Die gestrickte Länge wird mit der eigenen Reihenprobe des Strickstücks berechnet. |
 | E22 | Zu-/Abnahme im Zähler | Angezeigt werden letzte, nächste und übernächste Zu-/Abnahmereihe aus dem berechneten Plan, je mit Maschenzahl des Ereignisses (z. B. −2). In der Ereignisreihe selbst erscheint ein Hinweis mit Text und Farbe; die Darstellung kann sich nach dem Praxistest ändern. Die Zählerfeld-Variante a) (sichtbarer Rahmen + Stift) wird erprobt. |
 | E23 | Zielquelle | Ist nur einer der Rechner „Reihen aus Anleitung" (US-04) und „Länge in Reihen" (US-06) gültig ausgefüllt, liefert er das Ziel. Sind beide gültig, wählt die Nutzerin im Zähler einmal, welcher gilt. |
-| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Vorläufig** – wird mit der Enduserin geklärt und kann im Sprint noch geändert werden. In der Planung von Sprint 4 erneut prüfen. |
-| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3** (also ebenfalls ungerade Nummern). In der Planung von Sprint 4 erneut prüfen. |
+| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Am 22.10.2026 bestätigt** und damit nicht mehr vorläufig: Der Praxistest von 0.3.0 hat die Regel nicht beanstandet. |
+| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3** (also ebenfalls ungerade Nummern). **Weiterhin vorläufig** – wird mit der Enduserin geklärt, siehe MAS-61. |
 | E26 | Plan als Zielquelle | Ein Strickstück mit Plan bietet den Plan (Reihen gesamt, Länge) als **dritte** wählbare Zielquelle im Zähler an, zusätzlich zu den beiden Rechnern aus E23. |
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
+| E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), US-38 (Kacheln zusammenklappen) und US-25 (Proben einklappen). US-25 kommt mit hinein, weil sie denselben Mechanismus braucht wie US-38. |
+| E30 | Klapp-Mechanismus | US-25 und US-38 bekommen **einen gemeinsamen** Mechanismus, bleiben aber zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. |
 
 ## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
 
+- **E24 ist bestätigt** und nicht mehr vorläufig.
 - **Zählerfeld-Variante a** (Teil von E22) **bleibt.** Der sichtbare Rahmen mit Stift stört beim
   Zählen nicht; US-33 AK5 ist erfüllt, eine Folgestory für Variante b entfällt.
 - **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht) wurde nicht
   beanstandet und bleibt.
+- **US-25 und US-38** sind mit E30 geklärt: gemeinsamer Mechanismus, zwei Stories, beide in
+  Sprint 4.
 
-## Offene Punkte für die Planung von Sprint 4
+## Noch offen
 
-- **E24 bestätigen oder ändern:** Reicht je eine Randreihe ohne Zu-/Abnahme? Ausdrücklich als
-  vorläufig markiert. Der Praxistest hat die Regel nicht beanstandet, das Backlog v2.6 verlangt
-  die Bestätigung aber unabhängig davon.
-- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2.". Ebenso
-  ausdrücklich zur erneuten Prüfung vorgesehen.
-- **US-25 (MAS-29)** Proben einklappen: nach E27 zurückgestellt. Durch die neue US-38 (MAS-59,
-  Kacheln der Strickstück-Ansicht zusammenklappen) ist zu entscheiden, ob beide einen gemeinsamen
-  Mechanismus bekommen oder US-25 darin aufgeht.
+- **E25** bleibt vorläufig und wird mit der Enduserin geklärt. Eigener Vorgang: **MAS-61**. Das
+  blockiert Sprint 4 nicht, weil keiner seiner vier Vorgänge die Verteilungsformel berührt.
 
 ## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E29**) und wird hier eingetragen,
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E31**) und wird hier eingetragen,
   sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.

@@ -6,30 +6,34 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version 0.3.0 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** 3 **abgeschlossen** – Praxistest MAS-56 am 21.10.2026 bestanden, Epic MAS-3
   geschlossen
-- **Rolle:** Product Owner, Sprint 4 – neue Anforderungen aufgenommen, Umfang noch offen
-- **Letzte Freigabe:** Merge der Projektunterlagen nach `main`; Sprint 3 schließen (22.10.2026)
+- **Rolle:** Product Owner **abgeschlossen** – Sprint-4-Umfang steht (Epic MAS-60). Als Nächstes
+  ist der Architekt dran.
+- **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
+  US-38 gemeinsam planen (22.10.2026)
 - **Tests:** 224 Tests, alle grün (Node.js 22.16); CI läuft bei jedem Push
 - **Jira-Releases:** 0.1.0 (16.10.), 0.2.0 (16.10.), 0.3.0 (17.10.) angelegt; alle 40 erledigten
   Vorgänge zugeordnet
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
-**Umfang von Sprint 4 festlegen.** Dazu braucht der Product Owner Prioritäten und die Antworten
-auf die offenen Punkte in `docs/entscheidungen.md` (E24, E25, Verhältnis von US-25 zu US-38).
-Erst danach übernimmt der Architekt und legt `docs/architektur/sprint-4-architektur.md` an.
+**Rolle Architekt:** `docs/architektur/sprint-4-architektur.md` anlegen, aufbauend auf Sprint 3
+(v3.1). Zu entwerfen sind die Maschenzahl je Ereignis als reine Funktion, der gemeinsame
+Klapp-Mechanismus für beide Ansichten (E30) samt Speicherung und Datensicherung, und die Frage,
+wie die zusätzlichen Zahlen in die Zähleransicht passen, ohne Risiko R9 zu verletzen.
 
-## Aus dem Praxistest vom 21.10.2026
-Bestanden, keiner der sechs Prüfpunkte beanstandet. Drei neue Vorgänge daraus:
+## Sprint 4 „Überblick beim Stricken" – Epic MAS-60, Ziel Version 0.4.0
+Alle Punkte stammen aus dem Praxistest von 0.3.0 am 21.10.2026 (MAS-56, bestanden).
 
-| Jira | Was |
-|---|---|
-| MAS-57 | **P3-01** Kartentitel „Breite in Maschen" und „Länge in Reihen" sind irreführend – die Enduserin hat dort Maschen statt Zentimeter eingegeben. Priorität hoch. |
-| MAS-58 | **US-37** Plan und Reihenzähler zeigen die Maschenzahl nach jedem Zu-/Abnahmeereignis |
-| MAS-59 | **US-38** Kacheln der Strickstück-Ansicht zusammenklappen |
+| # | Jira | Was | Priorität |
+|---|---|---|---|
+| 1 | MAS-57 | **P3-01** Kartentitel „Breite in Maschen" und „Länge in Reihen" berichtigen – dort werden Zentimeter eingegeben, die Enduserin hat Maschen eingetragen | Muss |
+| 2 | MAS-58 | **US-37** Plan und Reihenzähler zeigen die Maschenzahl nach jedem Zu-/Abnahmeereignis | Muss |
+| 3 | MAS-59 | **US-38** Kacheln der Strickstück-Ansicht auf Wunsch zusammenklappen | Soll |
+| 4 | MAS-29 | **US-25** Maschenproben in der Projektansicht automatisch einklappen | Soll |
+| – | MAS-61 | Entscheidung **E25** mit der Enduserin klären (blockiert den Sprint nicht) | – |
 
-Alle drei hängen vorläufig an Epic MAS-4 „Spätere Ausbaustufen" und wandern in das Sprint-4-Epic,
-sobald der Umfang steht. Das Kürzel **P3** bezeichnet Befunde aus dem Praxistest von Sprint 3, in
-Abgrenzung zu den QA-Befunden S3-01 bis S3-06.
+Das Kürzel **P3** bezeichnet Befunde aus dem Praxistest von Sprint 3, in Abgrenzung zu den
+QA-Befunden S3-01 bis S3-06. Die Definition of Done steht in der Beschreibung von MAS-60.
 
 ## Unterlagen
 Am 22.10.2026 vollständig aus dem Claude-Projekt „Stricken und Häckeln" übernommen: die drei
@@ -45,8 +49,7 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 ## Offen
 - **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
   Einziger offener Fehler.
-- **19 offene Jira-Vorgänge** (16 aus dem Backlog plus die drei neuen aus dem Praxistest).
-- **Vorläufige Entscheidungen** E24 und E25 – gehören in den nächsten Product-Owner-Durchgang,
-  siehe Ende von `docs/entscheidungen.md`. Die Zählerfeld-Variante a aus E22 ist durch den
-  Praxistest bestätigt.
+- **21 offene Jira-Vorgänge**, davon 5 in Sprint 4 und 16 im Backlog für später.
+- **E25 ist die letzte vorläufige Entscheidung** – zu klären mit der Enduserin, Vorgang MAS-61.
+  E24 und die Zählerfeld-Variante a aus E22 sind bestätigt.
 - **Tags:** v0.2.0 und v0.3.0 fehlen (wird später nachgezogen).
