@@ -60,6 +60,10 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 ## Offener Jira-Abgleich (22.10.2026)
 
 Die Atlassian-Verbindung lief in Zeitüberschreitungen: Lesezugriffe gingen, Schreibzugriffe nicht.
+Ein Neustart von Claude Desktop hat das **nicht** behoben – danach schlugen auch Lesezugriffe fehl
+(„Connection closed", dann wieder Zeitüberschreitung), während der Konnektor sich durchgehend als
+„connected" meldete. Deshalb greift auch das Reconnect-Werkzeug nicht, das nur bei Status „failed"
+arbeitet. Nächster Versuch: `/mcp` in der Sitzung, dort Reconnect bzw. Anmeldung erneuern.
 Am Zeitstempel von MAS-62 (13:38:49, meine Tippfehler-Korrektur) ist belegt, dass die späteren
 Schreibvorgänge **nicht** angekommen sind. **Die Entscheidungen stehen und sind hier dokumentiert;
 nur Jira ist noch nicht nachgezogen.** Nachzuholen ist genau das:
