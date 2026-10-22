@@ -43,17 +43,23 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
 
+## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
+
+- **Zählerfeld-Variante a** (Teil von E22) **bleibt.** Der sichtbare Rahmen mit Stift stört beim
+  Zählen nicht; US-33 AK5 ist erfüllt, eine Folgestory für Variante b entfällt.
+- **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht) wurde nicht
+  beanstandet und bleibt.
+
 ## Offene Punkte für die Planung von Sprint 4
 
-Aus dem Backlog v2.6 und dem Praxistest MAS-56:
-
 - **E24 bestätigen oder ändern:** Reicht je eine Randreihe ohne Zu-/Abnahme? Ausdrücklich als
-  vorläufig markiert. Praxistest MAS-56 Prüfpunkt 3.
-- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2.".
-- **Zählerfeld-Variante a bestätigen oder zurücknehmen** (Teil von E22): Stört der Rahmen beim
-  Zählen? MAS-56 Prüfpunkt 4; bei Ablehnung Folgestory „Variante b" (US-33 AK5).
-- **US-25 (MAS-29)** Proben einklappen: nach E27 zurückgestellt, Diskussionsbedarf.
-- **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht): MAS-56 Prüfpunkt 5.
+  vorläufig markiert. Der Praxistest hat die Regel nicht beanstandet, das Backlog v2.6 verlangt
+  die Bestätigung aber unabhängig davon.
+- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2.". Ebenso
+  ausdrücklich zur erneuten Prüfung vorgesehen.
+- **US-25 (MAS-29)** Proben einklappen: nach E27 zurückgestellt. Durch die neue US-38 (MAS-59,
+  Kacheln der Strickstück-Ansicht zusammenklappen) ist zu entscheiden, ob beide einen gemeinsamen
+  Mechanismus bekommen oder US-25 darin aufgeht.
 
 ## Regeln für neue Entscheidungen
 
