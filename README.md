@@ -21,12 +21,14 @@ ES-Module und Service Worker funktionieren nicht über `file://`, deshalb die Ap
 
 ```bash
 cd maschenrechner
-python3 -m http.server 8000
+py -m http.server 8000
 ```
-Danach `http://localhost:8000` im Browser öffnen.
+Danach `http://localhost:8000` im Browser öffnen. Den Server nach dem Testen wieder stoppen.
+
+Auf dem Desktop-PC heißt der Python-Starter `py`; unter macOS und Linux stattdessen `python3`.
 
 ## Tests
-Nötig ist Node.js ab Version 18. Es muss nichts installiert werden:
+Entwickelt und geprüft mit **Node.js 22** (ältere Versionen sind nicht geprüft). Es muss nichts installiert werden:
 
 ```bash
 npm test
@@ -34,10 +36,12 @@ npm test
 node --test
 ```
 
-## Auf GitHub Pages veröffentlichen
-1. Neues Repository anlegen (z. B. `maschenrechner`) und alle Dateien aus diesem Ordner hochladen. Die Datei `.nojekyll` gehört dazu.
-2. Unter **Settings → Pages** als Quelle *Deploy from a branch* wählen, Branch `main`, Ordner `/ (root)`.
-3. Nach ein bis zwei Minuten ist die App unter `https://<benutzername>.github.io/maschenrechner/` erreichbar.
+## Veröffentlichung
+GitHub Pages liefert den Branch `main` aus (Quelle *Deploy from a branch*, Ordner `/ (root)`, die Datei `.nojekyll` gehört dazu):
+
+**https://michawallburger-dev.github.io/maschenrechner/**
+
+Gearbeitet wird nie direkt auf `main`, sondern auf einem Arbeitsbranch je Sprint (`sprint-N`) oder Thema (`setup/…`). Der Merge nach `main` ist die Freigabe und veröffentlicht damit zugleich.
 
 ### Neue Version ausliefern
 In `sw.js` den Wert `CACHE_NAME` erhöhen, z. B. von `maschenrechner-v0.2.0` auf `maschenrechner-v0.3.0`. Sonst zeigen bereits installierte Apps weiter die alte Version.
@@ -55,6 +59,14 @@ Neue Dateien müssen außerdem in die Liste `APP_DATEIEN` in `sw.js` eingetragen
 - Eine Content Security Policy verhindert technisch, dass Daten an fremde Adressen gehen
 - Löschen über „Projekt löschen“ bzw. „Strickstück löschen“ oder über die Websitedaten im Browser
 - Die Sicherungsdatei verlässt das Gerät nur, wenn die Nutzerin sie selbst teilt
+
+## Projektunterlagen
+- **Backlog, Stories und Fehler:** Jira-Projekt [Masche (MAS)](https://wallburgermicha.atlassian.net/browse/MAS) – das ist die verbindliche Quelle, nicht das Repo
+- **Produktentscheidungen:** `docs/entscheidungen.md` (E1 bis E28)
+- **Architektur:** `docs/architektur.md`
+- **Stand der Arbeit:** `docs/STATUS.md`
+- **Arbeitsweise und Rollen:** `CLAUDE.md`
+- **Was in welcher Version steckt:** `CHANGELOG.md`
 
 ## Aufbau
 ```

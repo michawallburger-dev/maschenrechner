@@ -1,0 +1,26 @@
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Claude Code (maschinenlokal, nicht teilen)
+.claude/settings.local.json
+
+# Niemals ins öffentliche Repo: Aufnahmen und Daten der Enduserin
+*.ogg
+*.m4a
+*.mp3
+*.wav
+*.xlsx
+sicherung*.json
