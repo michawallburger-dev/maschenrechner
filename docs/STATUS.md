@@ -30,7 +30,7 @@ Alle Punkte stammen aus dem Praxistest von 0.3.0 am 21.10.2026 (MAS-56, bestande
 | 2 | MAS-58 | **US-37** Plan und Reihenzähler zeigen die Maschenzahl nach jedem Zu-/Abnahmeereignis | Muss |
 | 3 | MAS-59 | **US-38** Kacheln der Strickstück-Ansicht auf Wunsch zusammenklappen | Soll |
 | 4 | MAS-29 | **US-25** Maschenproben in der Projektansicht automatisch einklappen | Soll |
-| – | MAS-61 | Entscheidung **E25** mit der Enduserin klären (blockiert den Sprint nicht) | – |
+| – | MAS-61 | Entscheidung **E25** mit der Enduserin klären – **erledigt** am 22.10.2026 | – |
 
 Das Kürzel **P3** bezeichnet Befunde aus dem Praxistest von Sprint 3, in Abgrenzung zu den
 QA-Befunden S3-01 bis S3-06. Die Definition of Done steht in der Beschreibung von MAS-60.
@@ -50,6 +50,13 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 - **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
   Einziger offener Fehler.
 - **21 offene Jira-Vorgänge**, davon 5 in Sprint 4 und 16 im Backlog für später.
-- **E25 ist die letzte vorläufige Entscheidung** – zu klären mit der Enduserin, Vorgang MAS-61.
-  E24 und die Zählerfeld-Variante a aus E22 sind bestätigt.
+- **US-39 (MAS-62) ist zu terminieren.** Die Enduserin möchte die Startreihe der Zu-/Abnahmen
+  selbst festlegen und lehnt damit die feste Regel aus E25 ab. Die Story liegt ausformuliert im
+  Backlog; offen ist, ob sie in Sprint 4 kommt oder später. Sie berührt mit `js/plan.js` denselben
+  Bereich wie US-37, eine gemeinsame Umsetzung wäre günstiger.
+- **E24 hängt an US-39:** Wird sie umgesetzt, ist „erste Reihe bleibt frei" nur noch eine
+  Vorbelegung. Die Zählerfeld-Variante a aus E22 ist unverändert bestätigt.
+- **Offene Lesart:** Der Wunsch „selbst entscheiden, ob in jeder zweiten Reihe abgenommen wird"
+  ist seit Sprint 3 umgesetzt (Schalter in der Plan-Karte). Ob sie ihn nicht gefunden hat oder
+  einen frei wählbaren Abstand meint, ist zu klären.
 - **Tags:** v0.2.0 und v0.3.0 fehlen (wird später nachgezogen).

@@ -37,8 +37,8 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E21 | Ziel im Zähler | Zielreihen = „Deine Reihen" (endgültige Reihenzahl) aus dem Rechner des Strickstücks, Ziellänge = „Tatsächliche Höhe (cm)". Die gestrickte Länge wird mit der eigenen Reihenprobe des Strickstücks berechnet. |
 | E22 | Zu-/Abnahme im Zähler | Angezeigt werden letzte, nächste und übernächste Zu-/Abnahmereihe aus dem berechneten Plan, je mit Maschenzahl des Ereignisses (z. B. −2). In der Ereignisreihe selbst erscheint ein Hinweis mit Text und Farbe; die Darstellung kann sich nach dem Praxistest ändern. Die Zählerfeld-Variante a) (sichtbarer Rahmen + Stift) wird erprobt. |
 | E23 | Zielquelle | Ist nur einer der Rechner „Reihen aus Anleitung" (US-04) und „Länge in Reihen" (US-06) gültig ausgefüllt, liefert er das Ziel. Sind beide gültig, wählt die Nutzerin im Zähler einmal, welcher gilt. |
-| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Am 22.10.2026 bestätigt** und damit nicht mehr vorläufig: Der Praxistest von 0.3.0 hat die Regel nicht beanstandet. |
-| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3** (also ebenfalls ungerade Nummern). **Weiterhin vorläufig** – wird mit der Enduserin geklärt, siehe MAS-61. |
+| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Am 22.10.2026 bestätigt** und damit nicht mehr vorläufig: Der Praxistest von 0.3.0 hat die Regel nicht beanstandet. ⚠️ **Wird durch US-39 (MAS-62) berührt:** Legt die Nutzerin die Startreihe selbst fest, wird die erste Hälfte dieser Regel zur Vorbelegung. Die letzte Reihe bleibt frei. |
+| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3**. **Die Enduserin hat das am 22.10.2026 abgelehnt** (MAS-61): Sie möchte die Startreihe selbst festlegen, statt einer festen Regel zu folgen. Die Umsetzung ist als US-39 (MAS-62) aufgenommen; ob und wann sie kommt, entscheidet der Auftraggeber. Bis dahin gilt die Regel unverändert. |
 | E26 | Plan als Zielquelle | Ein Strickstück mit Plan bietet den Plan (Reihen gesamt, Länge) als **dritte** wählbare Zielquelle im Zähler an, zusätzlich zu den beiden Rechnern aus E23. |
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
@@ -57,8 +57,17 @@ Datei gepflegt**, nicht der Schnappschuss.
 
 ## Noch offen
 
-- **E25** bleibt vorläufig und wird mit der Enduserin geklärt. Eigener Vorgang: **MAS-61**. Das
-  blockiert Sprint 4 nicht, weil keiner seiner vier Vorgänge die Verteilungsformel berührt.
+- **E25 ist beantwortet, aber nicht entschieden.** Die Enduserin möchte die Startreihe der
+  Zu-/Abnahmen selbst festlegen (MAS-61, abgeschlossen). Die Umsetzung steht als **US-39
+  (MAS-62)** im Backlog. Offen ist, ob sie in Sprint 4 oder später kommt. Solange sie nicht
+  umgesetzt ist, gilt E25 unverändert.
+- **E24 hängt daran.** Kommt US-39, wird „erste Reihe bleibt frei" von einer festen Regel zur
+  Vorbelegung. Das ist beim Umsetzen in E24 nachzutragen.
+- **Eine Lesart ist noch unklar:** Die Enduserin wünscht sich zu entscheiden, „ob in jeder
+  zweiten Reihe abgenommen werden soll". Diesen Schalter **gibt es bereits** seit Sprint 3
+  (US-13 AK1). Entweder hat sie ihn nicht gefunden – dann ist das ein Bedienbarkeitsbefund wie
+  P3-01 –, oder sie meint einen frei wählbaren Abstand (jede 3., jede 4. Reihe). Das gehört
+  geklärt, bevor US-39 umgesetzt wird.
 
 ## Regeln für neue Entscheidungen
 
