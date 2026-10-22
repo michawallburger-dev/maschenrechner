@@ -42,8 +42,8 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E26 | Plan als Zielquelle | Ein Strickstück mit Plan bietet den Plan (Reihen gesamt, Länge) als **dritte** wählbare Zielquelle im Zähler an, zusätzlich zu den beiden Rechnern aus E23. |
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
-| E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), US-38 (Kacheln zusammenklappen) und US-25 (Proben einklappen). US-25 kommt mit hinein, weil sie denselben Mechanismus braucht wie US-38. |
-| E30 | Klapp-Mechanismus | US-25 und US-38 bekommen **einen gemeinsamen** Mechanismus, bleiben aber zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. |
+| E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), **US-39 (Startreihe selbst festlegen)** und US-38 (Kacheln zusammenklappen). **Noch am 22.10.2026 getauscht:** US-39 kam hinzu, US-25 ging dafür zurück in den Backlog. Begründung: US-39 ist ein fachlicher Wunsch der Enduserin, US-25 nur Bequemlichkeit – und so wird `js/plan.js` nur einmal angefasst statt zweimal. |
+| E30 | Klapp-Mechanismus | US-25 und US-38 nutzen **einen gemeinsamen** Mechanismus und bleiben zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. Nach dem Tausch in E29 baut **US-38 den Mechanismus so, dass US-25 ihn später ohne Umbau nutzen kann**; US-25 liegt bis dahin im Backlog. |
 
 ## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
 
@@ -63,11 +63,10 @@ Datei gepflegt**, nicht der Schnappschuss.
   umgesetzt ist, gilt E25 unverändert.
 - **E24 hängt daran.** Kommt US-39, wird „erste Reihe bleibt frei" von einer festen Regel zur
   Vorbelegung. Das ist beim Umsetzen in E24 nachzutragen.
-- **Eine Lesart ist noch unklar:** Die Enduserin wünscht sich zu entscheiden, „ob in jeder
-  zweiten Reihe abgenommen werden soll". Diesen Schalter **gibt es bereits** seit Sprint 3
-  (US-13 AK1). Entweder hat sie ihn nicht gefunden – dann ist das ein Bedienbarkeitsbefund wie
-  P3-01 –, oder sie meint einen frei wählbaren Abstand (jede 3., jede 4. Reihe). Das gehört
-  geklärt, bevor US-39 umgesetzt wird.
+- *(Geklärt am 22.10.2026)* Die Enduserin möchte **nur** die Startreihe selbst festlegen, **nicht**
+  den Abstand zwischen den Zu-/Abnahmen – den zu berechnen ist gerade die Aufgabe der App. Ihr
+  Wunsch „selbst entscheiden, ob in jeder zweiten Reihe abgenommen wird" meint den vorhandenen
+  Schalter aus US-13 AK1. Daran ist also nichts zu bauen.
 
 ## Regeln für neue Entscheidungen
 
