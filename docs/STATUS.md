@@ -8,7 +8,10 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Rolle:** keine (Setup-Arbeit, kein Sprint-Schritt)
 - **Letzte Freigabe:** Projektunterlagen ins Repo holen, Jira-Releases nutzen, alte Branches
   aufräumen, Tests in CI (22.10.2026)
-- **Tests:** 224 Tests, alle grün (Node.js 22.16)
+- **Tests:** 224 Tests, alle grün (Node.js 22.16); CI läuft bei jedem Push
+- **Jira-Releases:** 0.1.0 (veröffentlicht 16.10.), 0.2.0 (entwickelt, nie ausgeliefert),
+  0.3.0 (veröffentlicht 17.10.) angelegt; alle 40 erledigten Vorgänge zugeordnet
+- **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 **Praxistest MAS-56** – Version 0.3.0 am iPhone mit der Enduserin, 6 Prüfpunkte. Er ist Teil der

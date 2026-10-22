@@ -24,6 +24,11 @@ Die Spalte „Quelle" ist kein Schmuck: Wo „erschlossen" steht, ist der Wortla
 Rekonstruktion**, nicht die ursprüngliche Festlegung. Diese Zeilen gehören beim nächsten
 Durchgang mit der Auftraggeberseite bestätigt.
 
+> **Unstimmigkeit:** MAS-48 (US-33, Zählerfeld) verweist auf „Entscheidung E19 (Variante a als
+> Test)". Nach der Entscheidungstabelle im Chatverlauf ist das aber **E18**; E19 betrifft die
+> Vergrößerung von Sprint 3. In dieser Datei gilt die Tabelle. Beim nächsten Durchgang sollte
+> der Verweis in MAS-48 auf E18 berichtigt werden.
+
 > **Lücke: E9 ist nicht mehr auffindbar.** Weder in Jira noch in den beiden geteilten
 > Chatverläufen kommt E9 vor. Falls das Original-Backlog noch erreichbar ist, bitte nachtragen.
 
