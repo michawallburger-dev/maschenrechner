@@ -1,98 +1,65 @@
 # Produktentscheidungen E1 bis E28
 
-Fachliche Festlegungen der Auftraggeberseite. Sie begründen, **warum** die App etwas so tut,
-und sind damit die Grundlage für jede Weiterentwicklung. Jira sagt, *was* gebaut wird; diese
-Datei sagt, *warum*.
+Fachliche Festlegungen der Auftraggeberseite. Sie begründen, **warum** die App etwas so tut, und
+sind damit die Grundlage für jede Weiterentwicklung. Jira sagt, *was* gebaut wird; diese Datei
+sagt, *warum*.
 
-## Herkunft und Verlässlichkeit
+**Quelle:** Entscheidungstabelle aus `anforderungen/product-backlog.md` Version 2.6 (17.10.2026)
+des Claude-Projekts „Stricken und Häckeln", am 22.10.2026 unverändert übernommen. Der vollständige
+Backlog liegt als eingefrorener Schnappschuss unter
+[docs/anforderungen/product-backlog.md](anforderungen/product-backlog.md). **Ab hier wird diese
+Datei gepflegt**, nicht der Schnappschuss.
 
-Die Entscheidungen entstanden im Claude-Projekt „Stricken und Häckeln" und wurden dort in
-`anforderungen/product-backlog.md` geführt (letzter bekannter Stand: Version 2.5). **Diese Datei
-ist nicht im Repo und war beim Teilen der Chatverläufe ausgeblendet** („Dateien beim Teilen
-ausgeblendet"). Die Tabelle unten ist daher am 22.10.2026 aus drei erreichbaren Quellen
-rekonstruiert:
+## Entscheidungen
 
-| Quelle | Kürzel |
-|---|---|
-| Jira-Epic MAS-1 „Sprint 1 – Excel ersetzen", Abschnitt „Getroffene Entscheidungen" | **J:MAS-1** |
-| Jira-Epic MAS-3 „Sprint 3 – Zu- und Abnahmeplan", Abschnitt „Entscheidung E7" | **J:MAS-3** |
-| Geteilter Chatverlauf Sprint 1+2 (`claude.ai/share/55d43ccd…`) | **C1** |
-| Geteilter Chatverlauf Sprint 3 (`claude.ai/share/a7d72671…`) | **C2** |
-| Aus Story-Beschreibungen erschlossen, Wortlaut nicht belegt | **erschlossen** |
-
-Die Spalte „Quelle" ist kein Schmuck: Wo „erschlossen" steht, ist der Wortlaut **meine
-Rekonstruktion**, nicht die ursprüngliche Festlegung. Diese Zeilen gehören beim nächsten
-Durchgang mit der Auftraggeberseite bestätigt.
-
-> **Unstimmigkeit:** MAS-48 (US-33, Zählerfeld) verweist auf „Entscheidung E19 (Variante a als
-> Test)". Nach der Entscheidungstabelle im Chatverlauf ist das aber **E18**; E19 betrifft die
-> Vergrößerung von Sprint 3. In dieser Datei gilt die Tabelle. Beim nächsten Durchgang sollte
-> der Verweis in MAS-48 auf E18 berichtigt werden.
-
-> **Lücke: E9 ist nicht mehr auffindbar.** Weder in Jira noch in den beiden geteilten
-> Chatverläufen kommt E9 vor. Falls das Original-Backlog noch erreichbar ist, bitte nachtragen.
-
-## Sprint 1 – Excel ersetzen (Version 0.1.0)
-
-| # | Entscheidung | Quelle |
+| # | Thema | Entscheidung |
 |---|---|---|
-| E1 | Nur Stricken; eine Häkelversion kommt eventuell später. | J:MAS-1 |
-| E2 | Frei wählbare Bezugsmaße der Maschenprobe (Standard 10 × 10 cm). Gerechnet wird immer über die Dichte pro cm. | J:MAS-1 |
-| E3 | Für eine Breite oder Länge werden beide Werte gezeigt: nach Anleitung und nach eigener Probe. | J:MAS-1 |
-| E4 | Kaufmännische Rundung auf ganze Maschen/Reihen plus manuelles Anpassungsfeld. | J:MAS-1 |
-| E5 | cm mit 2 Nachkommastellen, Nadelstärke in mm, Komma und Punkt als Eingabe. | J:MAS-1 |
-| E6 | Nur lokale Speicherung, keine Synchronisierung. | J:MAS-1 |
-| E7 | Zu-/Abnahmen: Maschen pro Ereignis legt die Nutzerin fest (Standard 2). Arbeitsweise wählbar in Reihen (gewendet) oder in Runden. Option „nur jede 2. Reihe/Runde". Strickrichtung von unten nach oben und von oben nach unten. | J:MAS-3 |
-| E8 | Excel-Zeilen 41–49 werden ignoriert. | J:MAS-1 |
-| **E9** | **Nicht mehr auffindbar.** | — |
+| E1 | Technik | Nur Stricken. Eine Häkelversion kommt eventuell später. |
+| E2 | Maschenprobe | Die Bezugsmaße sind frei wählbar (z. B. 22 M auf 8 cm). Vorbelegt ist 10 × 10 cm. Gerechnet wird immer über die Dichte pro cm, nie über das reine Verhältnis der Maschenzahlen. |
+| E3 | Umrechnung | Für eine Breite oder Länge in cm werden **beide** Werte gezeigt: Maschen bzw. Reihen nach Anleitung **und** nach eigener Probe. |
+| E4 | Rundung | Kaufmännisch auf ganze Maschen/Reihen (x,5 wird aufgerundet). Dazu kommt ein manuelles Anpassungsfeld wie in der Excel. Gerade Zahlen und Rapporte folgen später. |
+| E5 | Einheiten | cm (Ausgabe mit 2 Nachkommastellen), Nadelstärke in mm. Eingaben akzeptieren Komma und Punkt. |
+| E6 | Speicherung | Nur lokal auf dem Gerät, keine Synchronisierung. |
+| E7 | Zu-/Abnahmen | Maschen pro Ereignis legt die Nutzerin fest (Standard: 2). Sie wählt, ob das Teil gewendet (Reihen) oder in Runden gestrickt wird und ob Zu-/Abnahmen nur in jeder 2. Reihe/Runde erfolgen. Strickrichtung von unten nach oben oder von oben nach unten. |
+| E8 | Excel Z. 41–49 | Wird ignoriert (gehört zu einem einzelnen Projekt). |
+| E9 | Sprache & Maßeinheit | Sprache (z. B. Englisch) und Längeneinheit (z. B. Zoll) sollen später **unabhängig voneinander** einstellbar sein. Sprint 1 bereitet das technisch vor, liefert aber nur Deutsch und cm. |
+| E10 | Einstellungen | Die Einstellungen liegen hinter einem Zahnrad in der Kopfzeile: Farbschema, später auch Sprache und Einheit. |
+| E11 | Projekte | Jeder Rechner gehört zu einem Projekt. Einen „Schnellrechner" ohne Projekt gibt es nicht. Die Maschenproben gehören zum Projekt, die vier Rechner und der Reihenzähler zum einzelnen Strickstück. **Ab Sprint 3 ergänzt durch E16–E18.** |
+| E12 | Reihenzähler | Es gibt **einen** Zähler pro Strickstück. Beim Zählen bleibt der Bildschirm an. |
+| E13 | Tausenderpunkt (MAS-30) | In Feldern für **ganze Zahlen** (Maschen/Reihen laut Anleitung, Anpassung, Reihenzähler) wird ein Punkt vor genau drei Ziffern als Tausendertrenner gelesen: „1.000" = 1000, „12.500" = 12500. In Dezimalfeldern (cm, Probe) bleibt der Punkt ein Dezimaltrenner. |
+| E14 | Plausibilität (MAS-34) | Wird nicht umgesetzt. Die App zeigt keine Hinweise bei ungewöhnlichen Proben. |
+| E15 | Datensicherung | Die Sicherung ist eine Datei, die über das Teilen-Menü des iPhones gespeichert oder verschickt wird (Dateien, Mail, AirDrop) und sich wieder einlesen lässt. |
+| E16 | Mehrere Proben | Eine Probe ist immer ein **Paar** aus Anleitungsprobe und eigener Probe. Ein Projekt kann mehrere Paare haben. Mehrere eigene Proben zu einer Anleitung werden zurückgestellt; die Nutzerin bildet das über weitere Paare ab. |
+| E17 | Zuordnung | Jedes Strickstück nutzt genau eine Probe seines Projekts. Gibt es nur eine Probe, wird sie neuen Strickstücken automatisch zugeordnet; gibt es mehrere, fragt die App beim Anlegen. |
+| E18 | Nadelstärke | Die Nadelstärke gehört ab Sprint 3 zur **Probe** (die eigene Probe wurde mit dieser Nadel gestrickt). Das Strickstück zeigt die Nadel seiner Probe an. Ersetzt US-09 AK2 (Nadel am Projekt). |
+| E19 | Sprint 3 | Darf größer werden; US-32 und US-33 kommen hinzu, US-30 wird Muss. |
+| E20 | Probe löschen | Eine Probe, die noch einem Strickstück zugeordnet ist, kann nicht gelöscht werden; die App gibt einen Hinweis. Eine einstellbare Alternative ist als US-34 im Backlog. |
+| E21 | Ziel im Zähler | Zielreihen = „Deine Reihen" (endgültige Reihenzahl) aus dem Rechner des Strickstücks, Ziellänge = „Tatsächliche Höhe (cm)". Die gestrickte Länge wird mit der eigenen Reihenprobe des Strickstücks berechnet. |
+| E22 | Zu-/Abnahme im Zähler | Angezeigt werden letzte, nächste und übernächste Zu-/Abnahmereihe aus dem berechneten Plan, je mit Maschenzahl des Ereignisses (z. B. −2). In der Ereignisreihe selbst erscheint ein Hinweis mit Text und Farbe; die Darstellung kann sich nach dem Praxistest ändern. Die Zählerfeld-Variante a) (sichtbarer Rahmen + Stift) wird erprobt. |
+| E23 | Zielquelle | Ist nur einer der Rechner „Reihen aus Anleitung" (US-04) und „Länge in Reihen" (US-06) gültig ausgefüllt, liefert er das Ziel. Sind beide gültig, wählt die Nutzerin im Zähler einmal, welcher gilt. |
+| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Vorläufig** – wird mit der Enduserin geklärt und kann im Sprint noch geändert werden. In der Planung von Sprint 4 erneut prüfen. |
+| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3** (also ebenfalls ungerade Nummern). In der Planung von Sprint 4 erneut prüfen. |
+| E26 | Plan als Zielquelle | Ein Strickstück mit Plan bietet den Plan (Reihen gesamt, Länge) als **dritte** wählbare Zielquelle im Zähler an, zusätzlich zu den beiden Rechnern aus E23. |
+| E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
+| E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
 
-## Sprint 2 – Projekte & Reihenzähler (Version 0.2.0)
+## Offene Punkte für die Planung von Sprint 4
 
-| # | Entscheidung | Quelle |
-|---|---|---|
-| E10 | Die Einstellungen liegen hinter einem Zahnrad in der Kopfzeile. Dort finden später auch Sprache und Einheit Platz. | C1 |
-| E11 | Jeder Rechner gehört zu einem Projekt. Die Maschenproben gehören zum Projekt, die Rechner und der Reihenzähler zum einzelnen Strickstück. | C1 |
-| E12 | Es gibt einen Zähler pro Strickstück, und beim Zählen bleibt der Bildschirm an. | C1 |
-| E13 | „1.000" heißt in Maschen- und Reihenfeldern tausend. In cm-Feldern bleibt der Punkt ein Dezimaltrenner. | C1 |
-| E14 | Ungewöhnliche Maschenproben lösen keinen Hinweis aus. MAS-34 ist geschlossen. | C1 |
-| E15 | Die Datensicherung läuft über das Teilen-Menü (Dateien, Mail, AirDrop). | C1 |
+Aus dem Backlog v2.6 und dem Praxistest MAS-56:
 
-## Sprint 3 – Zu-/Abnahmeplan & Proben je Strickstück (Version 0.3.0)
-
-| # | Entscheidung | Quelle |
-|---|---|---|
-| E16 | Eine Probe ist immer ein Paar aus Anleitungsprobe und eigener Probe. Ein Projekt kann mehrere Paare haben. Mehrere eigene Proben zu einer Anleitung werden zurückgestellt und lassen sich über weitere Paare abbilden. | C2 |
-| E17 | Hat ein Projekt nur eine Probe, wird sie neuen Strickstücken automatisch zugeordnet. Gibt es mehrere, fragt die App beim Anlegen, welche gelten soll. | C2 |
-| E18 | Zählerfeld: Variante a) wird erprobt – sichtbarer Rahmen und Stift-Symbol. Der Praxistest am iPhone entscheidet, ob sie bleibt. | C2 |
-| E19 | Sprint 3 darf größer werden. US-32 und US-33 kommen dazu. | C2 |
-| E20 | Die Nadelstärke gehört zur Probe, nicht mehr zum Projekt. | erschlossen (MAS-47, CHANGELOG 0.3.0) |
-| E21 | Der Reihenzähler zeigt das Ziel („39 von 80") und die gestrickte Länge in cm. | erschlossen (MAS-39) |
-| E22 | Der Zähler zeigt letzte, nächste und übernächste Zu-/Abnahme; in der Ereignisreihe erscheint der Hinweis „Jetzt: 2 M zunehmen". | erschlossen (MAS-19, MAS-56) |
-| E23 | Zielquelle: Ist das Ziel aus mehreren Quellen bestimmbar, ist die Quelle wählbar. | C2 (Kurzform), Ausgestaltung in MAS-39 AK2 |
-| E24 | Je eine Randreihe am Anfang und am Ende bleibt ohne Zu- oder Abnahme. **Vorläufig** – kommt in Sprint 4 erneut auf den Tisch. | C2 |
-| E25 | Bei „nur jede 2. Reihe" wird nur in ungeraden Reihen bzw. ab Runde 3 zu- oder abgenommen. **Kommt in Sprint 4 erneut auf den Tisch.** | C2 |
-| E26 | Der Plan ist im Zähler als dritte Zielquelle wählbar. | C2 |
-| E27 | US-25 (Proben automatisch einklappen) ist aus Sprint 3 herausgenommen. | C2 |
-| E28 | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, gibt es zusätzlich die Option „keine Zu-/Abnahme". Die getroffene Auswahl bleibt sichtbar und lässt sich ändern. | C2 |
-
-## Offene Punkte, die eine Entscheidung brauchen
-
-Diese Punkte sind in Sprint 3 bewusst offen geblieben und gehören auf die Tagesordnung des
-nächsten Product-Owner-Durchgangs:
-
-- **E24 bestätigen oder ändern:** Reicht je eine Randreihe ohne Zu-/Abnahme? Der Praxistest
-  MAS-56 Punkt 3 prüft das.
-- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2. Reihe".
-- **E18 bestätigen oder zurücknehmen:** Stört der Rahmen um das Zählerfeld beim Zählen?
-  MAS-56 Punkt 4; bei Ablehnung Folgestory „Variante b".
-- **US-25 (MAS-29):** laut E27 zurückgestellt, Diskussionsbedarf vermerkt.
-- **E9 nachtragen**, falls das Original-Backlog noch erreichbar ist.
+- **E24 bestätigen oder ändern:** Reicht je eine Randreihe ohne Zu-/Abnahme? Ausdrücklich als
+  vorläufig markiert. Praxistest MAS-56 Prüfpunkt 3.
+- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2.".
+- **Zählerfeld-Variante a bestätigen oder zurücknehmen** (Teil von E22): Stört der Rahmen beim
+  Zählen? MAS-56 Prüfpunkt 4; bei Ablehnung Folgestory „Variante b" (US-33 AK5).
+- **US-25 (MAS-29)** Proben einklappen: nach E27 zurückgestellt, Diskussionsbedarf.
+- **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht): MAS-56 Prüfpunkt 5.
 
 ## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E29**) und wird hier
-  eingetragen, sobald sie gefallen ist – nicht erst am Sprintende.
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E29**) und wird hier eingetragen,
+  sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.
-- Stories in Jira verweisen auf die Nummern, nicht umgekehrt. Diese Datei ist die Quelle für
+- Jira-Vorgänge verweisen auf die Nummern, nicht umgekehrt. Diese Datei ist die Quelle für
   Entscheidungen, Jira die Quelle für Stories.

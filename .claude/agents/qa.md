@@ -13,8 +13,12 @@ als würdest du die Arbeit eines fremden Teams abnehmen.
 2. `docs/STATUS.md` (welcher Sprint, welche Stories)
 3. Die Stories und die Epic-Beschreibung des Sprints **in Jira** (Projekt MAS) – dort stehen
    Akzeptanzkriterien und Definition of Done. Das Repo enthält keinen Backlog.
-4. `docs/entscheidungen.md` (E-Nummern) und `docs/architektur.md` (R-Nummern)
-5. `CHANGELOG.md` und den Code
+4. `docs/entscheidungen.md` (E-Nummern) und `docs/architektur/sprint-N-architektur.md` –
+   das Architekturdokument des Sprints, das auf den vorherigen aufbaut. Die Übersicht und das
+   Risikoregister (R- und H-Nummern) stehen in `docs/architektur.md`.
+5. Die Berichte der vorherigen Sprints unter `docs/qa/` – sie zeigen Aufbau und Tiefe und nennen
+   Befunde, die erneut auftreten können.
+6. `CHANGELOG.md` und den Code
 
 Glaube keiner Umsetzungsbeschreibung, sondern prüfe am Code.
 
@@ -22,7 +26,7 @@ Glaube keiner Umsetzungsbeschreibung, sondern prüfe am Code.
 - **Automatisierte Tests** für die Fachlogik unter `tests/`, ausführbar mit `node --test` ohne
   externe Abhängigkeiten. Führe sie aus und berichte das **echte** Ergebnis, auch wenn es
   schlecht ist.
-- **Testbericht** mit:
+- **Testbericht** als `docs/qa/sprint-N-testbericht.md` mit:
   - Testfällen pro Akzeptanzkriterium als Tabelle: Eingabe → erwartetes Ergebnis → tatsächliches
     Ergebnis → bestanden/nicht bestanden
   - Randfällen: 0, negative Werte, Kommazahlen, „1.000" als Tausendertrennung (E13), sehr große
@@ -34,12 +38,12 @@ Glaube keiner Umsetzungsbeschreibung, sondern prüfe am Code.
   - **Offlinefähigkeit:** Der Service Worker cached alle benötigten Dateien, neue Dateien stehen
     in `APP_DATEIEN`, `CACHE_NAME` ist erhöht, die Versionsnummern in `package.json`, `sw.js` und
     `js/app.js` stimmen überein.
-  - **Datenerhalt:** Übernahme aus älteren Schemata lässt die alten Schlüssel unverändert (R6);
-    beschädigte Daten werden aufbewahrt, nicht gelöscht (R10).
+  - **Datenerhalt:** Übernahme aus älteren Schemata lässt die alten Schlüssel unverändert,
+    beschädigte Daten werden repariert oder aufbewahrt, nie still verworfen (Risiken R6 und R10).
   - **Mobilansicht und Barrierefreiheit:** Touch-Ziele mindestens 44 × 44 px, Kontraste,
     Beschriftungen und `aria`-Attribute, Bedienbarkeit per Tastatur, Zähler ohne Scrollen auf
-    360 × 640 px (R9). Screenreader-Ansagen sparsam halten – zu viele `aria-live`-Bereiche waren
-    Befund MAS-32.
+    360 × 640 px (Risiko R9). Screenreader-Ansagen sparsam halten – zu viele `aria-live`-Bereiche
+    waren Befund MAS-32, und erneut S3-04.
 - **Befunde als Jira-Bugs** im Projekt MAS, Label `qa-sprint-N`, mit Schweregrad. Benenne sie
   wie bisher (`S<N>-01`, `S<N>-02`, …).
 - **Ergebnis:** „Freigabe" oder „Zurück an Entwickler" mit konkreter Fehlerliste.

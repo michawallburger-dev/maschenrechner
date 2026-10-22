@@ -9,22 +9,32 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Letzte Freigabe:** Projektunterlagen ins Repo holen, Jira-Releases nutzen, alte Branches
   aufräumen, Tests in CI (22.10.2026)
 - **Tests:** 224 Tests, alle grün (Node.js 22.16); CI läuft bei jedem Push
-- **Jira-Releases:** 0.1.0 (veröffentlicht 16.10.), 0.2.0 (entwickelt, nie ausgeliefert),
-  0.3.0 (veröffentlicht 17.10.) angelegt; alle 40 erledigten Vorgänge zugeordnet
+- **Jira-Releases:** 0.1.0 (16.10.), 0.2.0 (16.10.), 0.3.0 (17.10.) angelegt; alle 40 erledigten
+  Vorgänge zugeordnet
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 **Praxistest MAS-56** – Version 0.3.0 am iPhone mit der Enduserin, 6 Prüfpunkte. Er ist Teil der
-Definition of Done von Sprint 3; 0.3.0 wurde ohne ihn veröffentlicht. Danach Epic MAS-3
-schließen, dann Sprint 4 mit der Rolle Product Owner beginnen.
+Definition of Done von Sprint 3; 0.3.0 wurde ohne ihn veröffentlicht. Danach Epic MAS-3 schließen,
+dann Sprint 4 mit der Rolle Product Owner beginnen.
+
+## Unterlagen
+Am 22.10.2026 aus dem Claude-Projekt „Stricken und Häckeln" übernommen: die drei
+Architekturdokumente (`docs/architektur/`), die drei QA-Testberichte (`docs/qa/`) und der Backlog
+v2.6 als eingefrorener Schnappschuss (`docs/anforderungen/`). Die Entscheidungen E1–E28 stehen
+vollständig in `docs/entscheidungen.md`.
+
+**Noch nicht im Repo:** `anforderung-enduserin.md`, `excel-formeln.md` und die Ausgangs-Excel
+`Maschenrechner.xlsx`. Die Excel enthält echte Projektdaten und gehört **nicht** in das öffentliche
+Repo; die Referenzwerte daraus stehen bereits im Backlog-Schnappschuss und in den
+Architekturdokumenten.
 
 ## Offen
-- **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange
-  Ersatz-ID. Einziger offener Fehler.
-- **17 weitere offene Jira-Vorgänge**, darunter 14 Stories für Sprint 4 und später.
-- **Vorläufige Entscheidungen** E18, E24, E25 – gehören in den nächsten
-  Product-Owner-Durchgang, siehe Ende von `docs/entscheidungen.md`.
-- **Verlorene Unterlagen:** Entscheidung E9 und die Architekturregeln R1–R5, R8 sind nicht mehr
-  auffindbar. Falls das Claude-Projekt „Stricken und Häckeln" noch erreichbar ist, kann
-  `anforderungen/product-backlog.md` sie nachliefern.
+- **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
+  Einziger offener Fehler.
+- **16 weitere offene Jira-Vorgänge**, darunter 14 Stories für Sprint 4 und später.
+- **Vorläufige Entscheidungen** E24, E25 und die Zählerfeld-Variante a aus E22 – gehören in den
+  nächsten Product-Owner-Durchgang, siehe Ende von `docs/entscheidungen.md`.
+- **Zwei Sprachnachrichten der Enduserin** vom 21.10.2026 sind noch nicht ausgewertet. Sie liegen
+  außerhalb des Repos und müssen angehört und als Text nach Jira gebracht werden.
 - **Tags:** v0.2.0 und v0.3.0 fehlen (wird später nachgezogen).

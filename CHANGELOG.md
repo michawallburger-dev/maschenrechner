@@ -22,7 +22,7 @@
 - Die Nadelstärke gehört jetzt zur Probe, nicht mehr zum Projekt
 - Daten und Sicherungen aus 0.2 werden automatisch übernommen: Die bisherige Probe wird „Probe 1“; die Daten aus 0.2 bleiben unter dem alten Schlüssel unverändert
 
-## 0.2.0 – (Sprint 2 „Projekte & Reihenzähler“, noch nicht veröffentlicht)
+## 0.2.0 – 16.10.2026 (Sprint 2 „Projekte & Reihenzähler“)
 
 ### Neu
 - Projekte mit Name, Beschreibung, Garn, Nadelstärke und den beiden Maschenproben; Liste „Meine Projekte“, neueste zuerst (US-09)

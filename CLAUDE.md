@@ -14,7 +14,8 @@ Kennzeichne jede Antwort mit der aktiven Rolle, z. B. `[PRODUCT OWNER]`.
 |---|---|---|
 | Backlog, Stories, Akzeptanzkriterien, Fehler, Sprints | **Jira-Projekt MAS „Masche"** | Die verbindliche Quelle. Es gibt **kein** `docs/backlog.md`. |
 | Produktentscheidungen (E-Nummern) | `docs/entscheidungen.md` | Jede neue Entscheidung wird dort eingetragen, sobald sie fällt. |
-| Architektur, verbindliche Regeln (R-Nummern) | `docs/architektur.md` | Lebendes Dokument, bei jedem Sprint fortschreiben. |
+| Architektur | `docs/architektur/sprint-N-architektur.md` | Je Sprint ein Dokument, das auf dem vorherigen aufbaut. Übersicht und Risikoregister in `docs/architektur.md`. |
+| QA-Testberichte | `docs/qa/sprint-N-testbericht.md` | Je Sprint ein Bericht. |
 | Stand der Arbeit | `docs/STATUS.md` | Kurz halten. Bei Rollenwechsel und vor jeder Pause aktualisieren. |
 | Was in welcher Version steckt | `CHANGELOG.md` | Auch das bewusst **nicht** Umgesetzte vermerken. |
 | Der echte Stand des Codes | `git log` | Widerspricht `docs/STATUS.md` der Historie, gilt die Historie. Widerspruch melden und Status korrigieren. |
@@ -22,11 +23,14 @@ Kennzeichne jede Antwort mit der aktiven Rolle, z. B. `[PRODUCT OWNER]`.
 Jira-Vorgänge verweisen auf E- und R-Nummern, nicht umgekehrt. Trage Stories, Fehler und
 Statusänderungen direkt über die Atlassian-Werkzeuge ein, statt sie im Repo zu doppeln.
 
-**Lücken, die du kennen musst:** Das ursprüngliche Backlog- und Architekturdokument aus dem
-Claude-Projekt „Stricken und Häckeln" ist verloren. `docs/entscheidungen.md` und
-`docs/architektur.md` sind Rekonstruktionen und als solche gekennzeichnet. Entscheidung **E9**
-und die Architekturregeln **R1–R5, R8** sind nicht mehr auffindbar. Erfinde sie nicht; bei Bedarf
-neu entscheiden und neu numerieren.
+**Herkunft der Unterlagen:** Die Architekturdokumente, die QA-Testberichte und der Backlog
+stammen aus dem Claude-Projekt „Stricken und Häckeln" und sind am 22.10.2026 unverändert ins Repo
+übernommen worden. Der Backlog liegt unter `docs/anforderungen/product-backlog.md` als
+**eingefrorener Schnappschuss** (Version 2.6) und wird nicht fortgeschrieben — verbindlich ist
+Jira. Die Entscheidungstabelle daraus wird in `docs/entscheidungen.md` gepflegt.
+
+Noch **nicht** im Repo: `anforderung-enduserin.md` und `excel-formeln.md` sowie die
+Ausgangs-Excel. Wenn eine Frage auf diese Quellen zurückführt, sag das, statt zu raten.
 
 ## Veröffentlichung
 GitHub Pages liefert `main` aus: **https://michawallburger-dev.github.io/maschenrechner/**
@@ -82,9 +86,9 @@ darauf – prüfe vor jedem Commit, was du hinzufügst.
 | Rolle | Artefakt |
 |---|---|
 | Product Owner | Stories mit Akzeptanzkriterien und Priorität in Jira; Sprint-Umfang als Epic-Beschreibung inkl. Definition of Done; neue Entscheidungen in `docs/entscheidungen.md` |
-| Architekt | `docs/architektur.md` fortgeschrieben, neue verbindliche Regeln numeriert (ab R12) |
+| Architekt | `docs/architektur/sprint-N-architektur.md` (baut auf dem vorherigen auf), Risikoregister in `docs/architektur.md` fortgeschrieben (neue Risiken ab R13, Hinweise ab H3) |
 | Entwickler | Lauffähiger Code (keine Platzhalter), Eintrag in `CHANGELOG.md`, Jira-Stories auf „Erledigt", Backlog-Vorschläge als neue Jira-Stories mit Label `vorschlag-entwickler` |
-| QA | Automatisierte Tests unter `tests/`, Befunde als Jira-Bugs mit Label `qa-sprint-N`, Testbericht als Kommentar am Sprint-Epic |
+| QA | Automatisierte Tests unter `tests/`, `docs/qa/sprint-N-testbericht.md`, Befunde als Jira-Bugs mit Label `qa-sprint-N` |
 | alle | `docs/STATUS.md` |
 
 ## Rolle 1: Product Owner
@@ -96,14 +100,21 @@ Produktentscheidungen mit Datenschutzfolgen klärst du mit mir, nicht der Archit
 insbesondere jede Form von Synchronisation zwischen Geräten und jeder externe Dienst – E6 (nur
 lokale Speicherung) steht dem heute entgegen und müsste ausdrücklich abgelöst werden.
 
-Offene Entscheidungen stehen am Ende von `docs/entscheidungen.md`. E18, E24 und E25 sind
-ausdrücklich vorläufig und gehören auf die Tagesordnung.
+Offene Entscheidungen stehen am Ende von `docs/entscheidungen.md`. E24 und E25 sind ausdrücklich
+vorläufig, ebenso die Zählerfeld-Variante a aus E22; alle drei gehören auf die Tagesordnung.
 
 ## Rolle 2: Architekt
-Technische Grundlage für den freigegebenen Sprint entwerfen und `docs/architektur.md`
-fortschreiben: Datenmodell, Modulaufteilung, Datenschutzfolgen, Barrierefreiheit, mobile
-Bedienbarkeit. Bevorzugt bleibt die schlanke PWA ohne Build-Schritt und ohne Abhängigkeiten.
-Jede Abweichung vom Datenschutzkonzept ausdrücklich begründen.
+Technische Grundlage für den freigegebenen Sprint entwerfen, als neues
+`docs/architektur/sprint-N-architektur.md`. Es baut auf dem vorherigen Dokument auf: alles dort
+Festgelegte gilt weiter, sofern das neue nichts anderes sagt. Beginne wie bisher mit dem Abschnitt
+„Was sich gegenüber Sprint N−1 ändert" und nenne Datenmodell, Modulaufteilung, Datenschutzfolgen,
+Barrierefreiheit, mobile Bedienbarkeit, Testvorgaben und Risiken.
+
+**Die Abschnittsnummern sind Teil der Schnittstelle** — Code und Testberichte verweisen darauf
+(„Architektur Sprint 3, Abschnitt 4"). Alte Dokumente deshalb nicht umnumerieren.
+
+Bevorzugt bleibt die schlanke PWA ohne Build-Schritt und ohne Abhängigkeiten. Jede Abweichung vom
+Datenschutzkonzept aus Sprint 1, Abschnitt 7 ausdrücklich begründen.
 
 ## Rolle 3: Entwickler
 Nur die freigegebenen Stories des aktuellen Sprints umsetzen, exakt nach Architekturdokument.
@@ -114,7 +125,8 @@ außerhalb des Sprint-Umfangs einbauen; Ideen dafür als Jira-Story mit Label
 ## Rolle 4: QA
 Das Ergebnis kritisch und unabhängig prüfen. Dafür den Subagenten `qa` (`.claude/agents/qa.md`)
 starten. Er kennt den Gesprächsverlauf nicht und prüft nur gegen Code, Jira und Architektur.
-Ergebnis: „Freigabe" oder „Zurück an Entwickler" mit konkreter Fehlerliste.
+Ergebnis: „Freigabe" oder „Zurück an Entwickler" mit konkreter Fehlerliste. Die bisherigen
+Berichte unter `docs/qa/` zeigen Aufbau und Tiefe.
 
 ## Technische Hinweise
 - **Lokal starten:** `py -m http.server 8000` im Repo-Wurzelordner, dann `http://localhost:8000`

@@ -63,7 +63,8 @@ Neue Dateien müssen außerdem in die Liste `APP_DATEIEN` in `sw.js` eingetragen
 ## Projektunterlagen
 - **Backlog, Stories und Fehler:** Jira-Projekt [Masche (MAS)](https://wallburgermicha.atlassian.net/browse/MAS) – das ist die verbindliche Quelle, nicht das Repo
 - **Produktentscheidungen:** `docs/entscheidungen.md` (E1 bis E28)
-- **Architektur:** `docs/architektur.md`
+- **Architektur:** `docs/architektur/` je Sprint, Übersicht und Risikoregister in `docs/architektur.md`
+- **QA-Testberichte:** `docs/qa/` je Sprint
 - **Stand der Arbeit:** `docs/STATUS.md`
 - **Arbeitsweise und Rollen:** `CLAUDE.md`
 - **Was in welcher Version steckt:** `CHANGELOG.md`

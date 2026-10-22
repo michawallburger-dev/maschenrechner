@@ -1,128 +1,87 @@
-# Architektur Maschenrechner
+# Architektur Maschenrechner – Übersicht
 
-Lebendes Dokument. Es beschreibt den Stand nach Version 0.3.0 und wird bei jedem Sprint
-fortgeschrieben.
+Diese Datei ist der Wegweiser. Die verbindliche Architektur steht in den Sprint-Dokumenten unter
+[docs/architektur/](architektur/); jedes baut auf dem vorherigen auf („Alles dort Festgelegte gilt
+weiter, sofern hier nichts anderes steht"). **Der Code verweist auf deren Abschnittsnummern**, zum
+Beispiel „Architektur Sprint 3, Abschnitt 4" in `js/plan.js` — deshalb werden die Dokumente nicht
+umgeschrieben, sondern je Sprint fortgeschrieben.
 
-## Herkunft und Verlässlichkeit
-
-Das ursprüngliche Architekturdokument lag im Claude-Projekt „Stricken und Häckeln" und ist
-**nicht mehr auffindbar**. Der Code verweist an 13 Stellen darauf – auf numerierte Regeln
-(R6, R7, R9, R10, R11), einen Hinweis (H1) und Abschnittsnummern („Architektur Sprint 3,
-Abschnitt 4"). Diese Datei ist am 22.10.2026 aus dem Code, der README und diesen Verweisen
-rekonstruiert. Sie beschreibt damit **das, was tatsächlich gebaut ist** – nicht zwingend den
-ursprünglichen Wortlaut der Entwurfsentscheidung.
-
-Die rekonstruierten Regeln stehen unten im Abschnitt „Verbindliche Regeln". Wo der Code auf
-eine Regel verweist, bleibt die Nummer erhalten, damit die Kommentare im Code weiter stimmen.
-
-## Technologiewahl
-
-Schlanke PWA aus HTML, CSS und Vanilla-JavaScript mit ES-Modulen. **Kein Build-Schritt**, keine
-Abhängigkeiten, keine externen Ressourcen. Begründung: Die App muss auf GitHub Pages
-auslieferbar, offline nutzbar und ohne Werkzeugkette wartbar sein; die Nutzung findet am Handy
-neben dem Strickzeug statt.
-
-- **Tests** laufen mit `node --test`, ebenfalls ohne Abhängigkeiten (geprüft mit Node.js 22).
-- **Kein Framework.** Die Oberfläche entsteht aus `<template>`-Elementen in `index.html`.
-
-## Aufteilung: Fachlogik getrennt von Oberfläche
-
-Die zentrale Regel des Projekts. Fachlogik ist in **reinen Funktionen** umgesetzt: kein DOM, kein
-Speicherzugriff, keine Ausnahmen, Eingaben werden nicht verändert. IDs und Zeitstempel übergibt
-der Aufrufer. Das macht die Logik ohne Browser testbar – daher 224 Tests ohne Testframework.
-
-| Schicht | Dateien | Eigenschaft |
+| Dokument | Version | Stand |
 |---|---|---|
-| Fachlogik (rein) | `rechner.js`, `eingabe.js`, `format.js`, `einheiten.js`, `modell.js`, `migration.js`, `sicherung.js`, `zaehler.js`, `plan.js`, `ziel.js`, `texte.js` | kein DOM, kein Speicher |
-| Technikrand | `speicher.js` (Speicher als Parameter), `geraet.js` (Browser-Fähigkeiten), `router.js` | gekapselt, dadurch mit Attrappen testbar |
-| Oberfläche | `dom.js`, `ansichten/*.js`, `app.js` | kennt die Fachlogik, nicht umgekehrt |
+| [sprint-1-architektur.md](architektur/sprint-1-architektur.md) | 1.2 | Grundlage: Technologiewahl, Rechenlogik, Eingabeprüfung, Datenschutzkonzept, Offline |
+| [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
+| [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **aktueller Stand** |
 
-`app.js` startet die App und stellt den Ansichten einen Kontext bereit. Die Navigation läuft über
-Hash-Routen (`#/p/<id>/s/<id>`), damit Pages ohne Serverkonfiguration auskommt.
+Der nächste Sprint bekommt `architektur/sprint-4-architektur.md`.
 
-## Datenmodell und Speicherung
+## Was auf jeden Fall gilt
 
-Schema 3: **Projekt → Proben und Strickstücke**. Ein Projekt hat eine Liste von Proben (je ein
-Paar aus Anleitungs- und eigener Probe, mit Name und Nadelstärke, E16/E20). Jedes Strickstück
-verweist über `probeId` auf genau eine Probe seines Projekts (E17) und hat höchstens einen
-Zu-/Abnahmeplan.
+Die Festlegungen, die über alle Sprints tragen — Einzelheiten jeweils im genannten Dokument:
 
-Eingaben in Proben, Rechnern und Plan bleiben **Text**, damit halbfertige Eingaben erhalten
-bleiben. Nur der Reihenzähler ist eine Zahl.
+- **Schlanke PWA**, HTML/CSS/Vanilla-JavaScript mit ES-Modulen, **kein Build-Schritt**, keine
+  Abhängigkeiten, keine externen Ressourcen. Hosting auf GitHub Pages. (Sprint 1, Abschnitt 1)
+- **Fachlogik strikt von der Oberfläche getrennt**, als reine Funktionen: kein DOM, kein
+  Speicherzugriff, keine Ausnahmen, Eingaben werden nicht verändert; IDs und Zeitstempel übergibt
+  der Aufrufer. Deshalb sind 224 Tests ohne Testframework und ohne Browser möglich.
+  (Sprint 1, Abschnitt 3.1)
+- **Kaufmännische Rundung** als verbindliche Regel, gegen Gleitkommafehler abgesichert.
+  (Sprint 1, Abschnitt 3.2)
+- **Datenschutz nach DSGVO:** kein Backend, keine Konten, keine Cookies, keine Tracker, keine
+  externen Schriften oder Bibliotheken, keine Analytics. Eine Content Security Policy erzwingt das
+  technisch. Abweichungen sind ausdrücklich zu begründen; derzeit gibt es keine.
+  (Sprint 1, Abschnitt 7)
+- **Offline:** Der Service Worker legt alle App-Dateien bei der Installation vorab ab. Bei jeder
+  Version `CACHE_NAME` in `sw.js` erhöhen und neue Dateien in `APP_DATEIEN` eintragen;
+  `tests/sw-liste.test.js` erzwingt beides und prüft, dass die Versionsnummern in `package.json`,
+  `sw.js` und `js/app.js` übereinstimmen. (Sprint 1, Abschnitt 6)
+- **Datenerhalt beim Schemawechsel:** Ältere Daten werden in einen **neuen** Schlüssel übernommen,
+  die alten bleiben unverändert; Beschädigtes wird repariert oder aufbewahrt, nie still verworfen;
+  vor jedem Import eine Sicherheitskopie. (Sprint 2, Abschnitt 3; Sprint 3, Abschnitte 6.1–6.4)
+- **Barrierefreiheit nach WCAG 2.1 AA** und mobile Bedienbarkeit: Touch-Ziele mindestens
+  44 × 44 px, Zähler ohne Scrollen auf 360 × 640 px, Screenreader-Ansagen sparsam.
+  (Sprint 1, Abschnitte 5.3 und 5.4)
 
-Gespeichert wird in `localStorage`:
+Gespeichert wird in `localStorage` unter `maschenrechner.daten.v3`; die Stände aus 0.2
+(`maschenrechner.daten.v2`) und 0.1 (`maschenrechner.zustand`) bleiben unverändert liegen, dazu
+`…v3.defekt` und `…v3.vorImport`.
 
-| Schlüssel | Inhalt |
-|---|---|
-| `maschenrechner.daten.v3` | aktueller Stand (Schema 3) |
-| `maschenrechner.daten.v2` | Stand aus 0.2, bleibt unverändert |
-| `maschenrechner.zustand` | Stand aus 0.1, bleibt unverändert |
-| `maschenrechner.daten.v3.defekt` | beschädigte Daten, vor dem Neustart aufbewahrt |
-| `maschenrechner.daten.v3.vorImport` | Kopie vor jedem Import |
+## Risikoregister
 
-## Datenschutzkonzept
+**R-Nummern sind Risiken, keine Regeln** — der Code verweist darauf, weil er die jeweilige
+Gegenmaßnahme umsetzt. H-Nummern sind Hinweise an den Product Owner. R1 wird in allen drei Sprints
+mitgeführt.
 
-Daten bleiben ausschließlich auf dem Gerät. Kein Backend, keine Konten, keine Cookies, keine
-Tracker, keine externen Schriften oder Bibliotheken, keine Analytics. Eine Content Security
-Policy in `index.html` erzwingt das technisch (`default-src 'self'`, `connect-src 'self'`,
-`base-uri 'none'`, `form-action 'none'`, `object-src 'none'`).
+| # | Risiko / Hinweis | Umgang | Quelle |
+|---|---|---|---|
+| R1 | Safari löscht die Daten nach 7 Tagen ohne Nutzung, wenn die App nicht installiert ist. | Empfehlung in der README, die App zu installieren und regelmäßig zu sichern (US-12). | Sprint 1–3 |
+| R2 | Gleitkommafehler beim Runden | Verbindliche Regel aus Sprint 1, Abschnitt 3.2, plus Pflicht-Testfall. | Sprint 1 |
+| R3 | Datenschutzhinweis bei öffentlicher Nutzung | Als Vorschlag im Backlog. | Sprint 1 |
+| R4 | Beim Einheitenwechsel (US-24) müssen gespeicherte Längen umgerechnet werden. | Wird mit US-24 umgesetzt. | Sprint 1 |
+| R5 | Wake Lock funktioniert in Home-Bildschirm-Apps erst ab iOS 18.4 (WebKit-Bug 254545). | Einmaliger Hinweis (US-11 AK5). | Sprint 2 |
+| R6 | Das Datenmodell wächst, damit steigt das Risiko, beim Laden Daten zu verlieren. | Neuer Schlüssel statt Überschreiben, alter bleibt, Sicherheitskopie vor jedem Import; `pruefeDaten` verwirft nie still ganze Projekte, ein ungültiges Strickstück wird repariert statt gelöscht. | Sprint 2 |
+| R7 | `app.js` aus Sprint 1 wird in Ansichten zerlegt (Umbau). | Rechenwege nicht verändern; die Browser-Tests der QA aus Sprint 1 laufen erneut. | Sprint 2 |
+| R8 | Teilen wird abgebrochen oder ist im Browser nicht verfügbar. | `AbortError` wird still behandelt, ersatzweise wird heruntergeladen. | Sprint 2 |
+| R9 | Platz in der Zähleransicht bei 360 × 640 px | Kompakte Zeilen (18 px), Auswahlfeld nur bei mindestens 2 Zielquellen; QA misst nach. | Sprint 3 |
+| R10 | Schemawechsel v2 → v3 | Neuer Schlüssel, alte bleiben, Reparatur statt Verwerfen, Tests für gespeicherte Daten und Sicherungen. | Sprint 3 |
+| R11 | Bedeutung des Zählerstands: Die App behandelt ihn als „Reihe, in der ich bin" (US-11). Der Hinweis „Jetzt" erscheint also, wenn der Zähler auf der Ereignisreihe steht. | Vom Product Owner bestätigt (17.10.2026), zusätzlich im Praxistest zu prüfen. | Sprint 3 |
+| R12 | Der Plan rechnet bei Änderung von Probe oder Eingaben sofort neu (US-13 AK9) — auch während des Strickens verschieben sich dann die Ereignisreihen. | So gewollt; im Praxistest beobachten. | Sprint 3 |
+| H1 | Technische Grenze `ZU_VIELE_EREIGNISSE` | Vom Product Owner bestätigt, Grenze 9999. Die Plan-Liste wird ab 500 Einträgen mit 300 ms Verzögerung und ohne Live-Region aufgebaut. | Sprint 3 |
+| H2 | Der Referenzfall im Zähler (−1/−2/−3) kann aus einem US-13-Plan nicht entstehen (gleiche Maschenzahl je Ereignis). | Wird über die reine Funktion `ereignisseUm` getestet; kein Fehler in der Anforderung. | Sprint 3 |
 
-Der Service Worker fragt **keine fremden Adressen** an. Die Sicherungsdatei verlässt das Gerät
-nur, wenn die Nutzerin sie selbst über das Teilen-Menü weitergibt (E15).
-
-**Abweichungen von diesem Grundsatz gibt es derzeit keine.** Jede künftige Abweichung ist hier
-mit Begründung einzutragen, bevor sie umgesetzt wird.
-
-## Offlinefähigkeit
-
-Der Service Worker legt alle App-Dateien bei der Installation vorab im Cache ab und beantwortet
-Anfragen an die eigene Adresse zuerst daraus. Zwei Pflichten bei jeder Änderung:
-
-1. `CACHE_NAME` in `sw.js` erhöhen – sonst zeigen installierte Apps weiter die alte Version.
-2. Neue Dateien in `APP_DATEIEN` in `sw.js` eintragen.
-
-`tests/sw-liste.test.js` erzwingt beides und prüft zusätzlich, dass die Versionsnummern in
-`package.json`, `sw.js` und `js/app.js` übereinstimmen. Dieser Test ist die wichtigste
-Absicherung des Deployments.
-
-## Barrierefreiheit und mobile Bedienbarkeit
-
-Mobil zuerst. Der Reihenzähler muss mit einer Hand und nassen bzw. beschäftigten Händen
-bedienbar sein: große `+1`-Fläche, `−1` mit Abstand davon, Direkteingabe der Reihenzahl.
-Farbschema wählbar (Wie System / Hell / Dunkel, E10). Ansagen für Screenreader sind bewusst
-sparsam gehalten – zu viele `aria-live`-Bereiche waren Befund MAS-32.
-
-## Verbindliche Regeln
-
-Numerierung aus dem verlorenen Originaldokument, Inhalt aus der Implementierung rekonstruiert.
-
-| Regel | Inhalt | Belegt in |
-|---|---|---|
-| R6 | Ältere Daten werden in einen **neuen** Schlüssel übernommen; die alten Schlüssel bleiben unverändert. | `js/speicher.js` |
-| R7 | Die Rechenwege aus Sprint 1 bleiben unverändert; spätere Sprints bauen darauf auf, statt sie zu ersetzen. | `js/ansichten/strickstueck.js` |
-| R9 | Der Zähler passt ohne Scrollen auf 360 × 640 px. | `css/style.css` |
-| R10 | Beschädigte Daten werden unter `.defekt` aufbewahrt, nicht gelöscht; vor jedem Import wird unter `.vorImport` kopiert. | `js/speicher.js`, `js/modell.js` |
-| R11 | Der Zählerstand bedeutet „die Reihe, in der ich gerade bin". | `js/zaehler.js`, `js/ziel.js`, `js/ansichten/zaehler.js` |
-| H1 | Lange Pläne dürfen nicht bremsen: höchstens 9999 Ereignisse (`MAX_EREIGNISSE`), Listen ab 500 Einträgen verzögert aufgebaut (300 ms). | `js/plan.js`, `js/ansichten/plankarte.js` |
-
-> **Lücke:** R1 bis R5 und R8 werden im Code nicht referenziert. Ihr Inhalt ist nicht
-> rekonstruierbar. Die Nummern bleiben frei; neue Regeln beginnen bei **R12**.
+Neue Risiken beginnen bei **R13**, neue Hinweise bei **H3**.
 
 ## Verteilung der Zu- und Abnahmen
 
-Die Kernformel des Plans, weil sie fachlich am leichtesten falsch wird (Architektur Sprint 3,
-Abschnitt 4):
+Die Kernformel, weil sie fachlich am leichtesten falsch wird — vollständig in
+[Sprint 3, Abschnitt 4](architektur/sprint-3-architektur.md):
 
 - Erste und letzte Reihe bleiben frei (E24, **vorläufig**).
 - „Nur jede 2. Reihe/Runde": nur ungerade Reihen bzw. Runden ab 3 (E25).
 - Ereignis *i* (0 … E−1) liegt auf dem Platz `floor((i+1)·(n+1)/(E+1)) − 1` der *n* erlaubten
-  Reihen. Nur Ganzzahl-Arithmetik, keine Liste der Länge *n* – damit kosten auch sehr lange
-  Teile keinen Speicher.
-
-Zielquellen im Zähler, in dieser Reihenfolge: `plan`, `laengeZuReihen`, `reihenAusAnleitung`
-(E23, E26).
+  Reihen. Nur Ganzzahl-Arithmetik, keine Liste der Länge *n* — damit kosten auch sehr lange Teile
+  keinen Speicher.
 
 ## Offene Befunde
 
-- **MAS-46** (S2-09): Doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange
-  Ersatz-ID. Einziger offener Fehler.
+- **MAS-46** (S2-09): Doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
+  Einziger offener Fehler.
