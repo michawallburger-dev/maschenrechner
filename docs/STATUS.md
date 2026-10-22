@@ -19,15 +19,15 @@ Definition of Done von Sprint 3; 0.3.0 wurde ohne ihn veröffentlicht. Danach Ep
 dann Sprint 4 mit der Rolle Product Owner beginnen.
 
 ## Unterlagen
-Am 22.10.2026 aus dem Claude-Projekt „Stricken und Häckeln" übernommen: die drei
-Architekturdokumente (`docs/architektur/`), die drei QA-Testberichte (`docs/qa/`) und der Backlog
-v2.6 als eingefrorener Schnappschuss (`docs/anforderungen/`). Die Entscheidungen E1–E28 stehen
-vollständig in `docs/entscheidungen.md`.
+Am 22.10.2026 vollständig aus dem Claude-Projekt „Stricken und Häckeln" übernommen: die drei
+Architekturdokumente (`docs/architektur/`), die drei QA-Testberichte (`docs/qa/`), der Backlog v2.6
+als eingefrorener Schnappschuss sowie die Anforderungsbeschreibung der Enduserin und die
+Excel-Formeln (`docs/anforderungen/`). Die Entscheidungen E1–E28 stehen vollständig in
+`docs/entscheidungen.md`. **Es fehlt nichts mehr.**
 
-**Noch nicht im Repo:** `anforderung-enduserin.md`, `excel-formeln.md` und die Ausgangs-Excel
-`Maschenrechner.xlsx`. Die Excel enthält echte Projektdaten und gehört **nicht** in das öffentliche
-Repo; die Referenzwerte daraus stehen bereits im Backlog-Schnappschuss und in den
-Architekturdokumenten.
+**Absichtlich nicht im Repo:** die Ausgangs-Excel `Maschenrechner.xlsx`. Sie trägt in ihren
+Dokumenteigenschaften den Namen der Enduserin, und das Repo ist öffentlich. Fachlich wird sie nicht
+gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel-formeln.md`.
 
 ## Offen
 - **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.

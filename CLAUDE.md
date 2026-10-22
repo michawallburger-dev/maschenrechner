@@ -29,8 +29,15 @@ stammen aus dem Claude-Projekt „Stricken und Häckeln" und sind am 22.10.2026 
 **eingefrorener Schnappschuss** (Version 2.6) und wird nicht fortgeschrieben — verbindlich ist
 Jira. Die Entscheidungstabelle daraus wird in `docs/entscheidungen.md` gepflegt.
 
-Noch **nicht** im Repo: `anforderung-enduserin.md` und `excel-formeln.md` sowie die
-Ausgangs-Excel. Wenn eine Frage auf diese Quellen zurückführt, sag das, statt zu raten.
+Die Ausgangsquellen liegen ebenfalls unter `docs/anforderungen/`: die Anforderungsbeschreibung
+der Enduserin (`anforderung-enduserin.md`, Version 1.0) und die Formeln ihrer Excel
+(`excel-formeln.md`). Beide werden nicht fortgeschrieben, sondern belegen, wo die Anforderungen
+herkommen.
+
+**Die Ausgangs-Excel `Maschenrechner.xlsx` gehört nicht ins Repo.** Sie trägt in ihren
+Dokumenteigenschaften den Namen der Enduserin, und das Repo ist öffentlich. `.gitignore` sperrt
+`*.xlsx`; entferne diese Sperre nicht. Fachlich wird die Datei nicht gebraucht: Formeln und
+Referenzwerte stehen in `excel-formeln.md`.
 
 ## Veröffentlichung
 GitHub Pages liefert `main` aus: **https://michawallburger-dev.github.io/maschenrechner/**
