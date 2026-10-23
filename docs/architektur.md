@@ -10,9 +10,15 @@ umgeschrieben, sondern je Sprint fortgeschrieben.
 |---|---|---|
 | [sprint-1-architektur.md](architektur/sprint-1-architektur.md) | 1.2 | Grundlage: Technologiewahl, Rechenlogik, Eingabeprüfung, Datenschutzkonzept, Offline |
 | [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
-| [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **aktueller Stand** |
+| [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **ausgeliefert als 0.3.0** |
+| [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.0 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **entworfen, noch nicht gebaut** |
 
-Der nächste Sprint bekommt `architektur/sprint-4-architektur.md`.
+Der nächste Sprint bekommt `architektur/sprint-5-architektur.md`.
+
+Was unten unter „Was auf jeden Fall gilt" steht, beschreibt den **ausgelieferten** Stand 0.3.0.
+Sprint 4 ändert davon zwei Dinge, sobald er gebaut ist: Die Startreihe des Plans wird einstellbar
+(dann ist „erste Reihe bleibt frei" nur noch eine Vorbelegung), und Schema 3 bekommt zwei
+optionale Felder, ohne Schemawechsel.
 
 ## Was auf jeden Fall gilt
 
@@ -68,7 +74,18 @@ mitgeführt.
 | H1 | Technische Grenze `ZU_VIELE_EREIGNISSE` | Vom Product Owner bestätigt, Grenze 9999. Die Plan-Liste wird ab 500 Einträgen mit 300 ms Verzögerung und ohne Live-Region aufgebaut. | Sprint 3 |
 | H2 | Der Referenzfall im Zähler (−1/−2/−3) kann aus einem US-13-Plan nicht entstehen (gleiche Maschenzahl je Ereignis). | Wird über die reine Funktion `ereignisseUm` getestet; kein Fehler in der Anforderung. | Sprint 3 |
 
-Neue Risiken beginnen bei **R13**, neue Hinweise bei **H3**.
+Aus dem Entwurf von Sprint 4 (noch nicht gebaut):
+
+| # | Risiko / Hinweis | Umgang | Quelle |
+|---|---|---|---|
+| R13 | Schema 3 wird erweitert statt ersetzt. Eine noch installierte 0.3.0 liest Daten, die 0.4.0 geschrieben hat. | Additive, optionale Felder, kein neuer Schlüssel, keine Migration. **Berichtigt nach Befund S4-06:** 0.3.0 liest fehlerfrei, verliert die neuen Felder aber beim nächsten Speichern. Bewusst hingenommen (MAS-68). | Sprint 4, Abschnitt 3 |
+| R14 | Die einstellbare Startreihe ändert `erlaubteReihen` und damit die Kernformel der Verteilung. | Leeres Feld bedeutet „automatisch" und ergibt bitgleiches Verhalten; alle Referenzwerte aus Sprint 1 bis 3 als Regressionstests. | Sprint 4, Abschnitt 4.1 |
+| R15 | Mehr Inhalt in der Zähleransicht bei 360 × 640 px – Fortführung von R9. | Maschenzahl in derselben Zeile, kompakt als „→ 48 M"; QA misst. | Sprint 4, Abschnitt 5.3 |
+| R16 | Eine zugeklappte Karte könnte einen Eingabefehler oder Hinweis verbergen. | Die Kurzfassung zeigt Fehler und Statusmeldungen an, solange sie bestehen; die Karte darf zugeklappt bleiben. Erste Fassung (erzwungenes Aufklappen) war Befund S4-02/S4-03. | Sprint 4, Abschnitt 5.4 |
+| H3 | MAS-62 AK1 („vorbelegt ist 2") stimmt nur ohne „jede 2. Reihe/Runde". | **Mit E31 entschieden am 23.10.2026:** Feld leer vorbelegt, leer bedeutet „automatisch". AK1 in Jira berichtigt. | Sprint 4, Abschnitt 4.1 |
+| H4 | Mit eigener Startreihe können Zu-/Abnahmen auf Rückreihen liegen, was beim gewendeten Stricken unüblich ist. | Bewusst zugelassen, weil die Enduserin um diese Kontrolle gebeten hat. | Sprint 4, Abschnitt 8 |
+
+Neue Risiken beginnen bei **R17**, neue Hinweise bei **H5**.
 
 ## Verteilung der Zu- und Abnahmen
 

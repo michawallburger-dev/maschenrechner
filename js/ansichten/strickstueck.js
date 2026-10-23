@@ -11,7 +11,7 @@ import { pruefeZahl, REGELN } from '../eingabe.js';
 import { formatZahl, formatGanzzahl, formatAbweichung, LEER_ANZEIGE } from '../format.js';
 import { zuCm, vonCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern, strickstueckLoeschen, leereRechner, RECHNER_NAMEN } from '../modell.js';
-import { vorlage, texteFuellen, bestaetigen, frageName, waehle } from '../dom.js';
+import { vorlage, texteFuellen, klappbar, bestaetigen, frageName, waehle } from '../dom.js';
 import { bauePlankarte } from './plankarte.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, probeLesen } from './gemeinsam.js';
@@ -100,6 +100,15 @@ export function zeige(ctx, route, wurzel) {
   const raster = ansicht.querySelector('[data-rolle="rechner"]');
   for (const name of RECHNER_NAMEN) raster.append(baueKarte(ctx, name, gefunden.stueck.rechner[name]));
 
+  // Karten auf Wunsch zuklappen; der Zustand liegt am Strickstück (US-38, AK1–AK3)
+  for (const karte of raster.querySelectorAll('[data-karte]')) {
+    const name = karte.dataset.karte;
+    klappbar(karte.querySelector('[data-rolle="klappe"]'), {
+      offen: gefunden.stueck.eingeklappt?.[name] !== true,
+      aufToggle: (offen) => speichereKlapp(name, !offen),
+    });
+  }
+
   const projektHash = hashFuer({ ansicht: 'projekt', projektId });
   ansicht.querySelector('[data-rolle="zaehlen"]').href = hashFuer({ ansicht: 'zaehlen', projektId, stueckId });
   ansicht.querySelector('[data-rolle="proben-link"]').href = `${projektHash}`;
@@ -139,8 +148,39 @@ export function zeige(ctx, route, wurzel) {
     karte.querySelector('[data-rolle="status-link"]').hidden = !mitLink;
   }
 
-  /** Berechnet eine Karte – Logik wie in Sprint 1. */
+  /** Text eines sichtbaren Fehlers oder Hinweises der Karte, sonst null. */
+  function problemText(karte) {
+    for (const e of karte.querySelectorAll('.fehler')) if (!e.hidden && e.textContent) return e.textContent;
+    const box = karte.querySelector('[data-rolle="status"]');
+    if (box && !box.hidden) {
+      const t = karte.querySelector('[data-rolle="status-text"]');
+      if (t && t.textContent) return t.textContent;
+    }
+    return null;
+  }
+
+  /**
+   * Berechnet eine Karte und setzt danach ihre Kurzfassung.
+   *
+   * Ein Fehler oder Hinweis geht in die Kurzfassung und ist damit auch bei
+   * zugeklappter Karte sichtbar (Befunde S4-02, S4-03). Die Karte wird dafür
+   * nicht mehr erzwungen aufgeklappt – das Zuklappen bleibt der Nutzerin.
+   */
   function berechneKarte(karte, proben) {
+    const kurz = karte.querySelector('[data-rolle="kurzfassung"]');
+    const ergebnis = berechneKarteInhalt(karte, proben);
+    const problem = problemText(karte);
+    if (problem) {
+      kurz.textContent = ctx.t('stueck.kurzfassungProblem', { text: problem });
+      kurz.dataset.problem = '';
+      return;
+    }
+    delete kurz.dataset.problem;
+    kurz.textContent = ergebnis ?? '';
+  }
+
+  /** Berechnet eine Karte – Logik wie in Sprint 1. Gibt die Kurzfassung zurück. */
+  function berechneKarteInhalt(karte, proben) {
     const name = karte.dataset.karte;
     const { richtung, art } = KARTEN[name];
     const eingabeInput = karte.querySelector('[data-rolle="eingabe"]');
@@ -186,6 +226,11 @@ export function zeige(ctx, route, wurzel) {
     setze(karte, 'endgueltig', formatGanzzahl(r.endgueltig, loc));
     setze(karte, 'tatsaechlich', formatZahl(vonCm(r.cmTatsaechlich, e), loc));
     setze(karte, 'abweichung', formatAbweichung(vonCm(r.abweichungCm, e), loc));
+    // Hauptergebnis in Kurzform, sichtbar wenn die Karte zugeklappt ist (US-38 AK5)
+    return ctx.t('stueck.kurzfassung', {
+      titel: ctx.t(`rechner.${name}.endgueltig`),
+      wert: formatGanzzahl(r.endgueltig, loc),
+    });
   }
 
   function aktualisieren() {
@@ -200,6 +245,11 @@ export function zeige(ctx, route, wurzel) {
     }
     for (const karte of raster.querySelectorAll('[data-karte]')) berechneKarte(karte, proben);
     zeigeKopfdaten();
+  }
+
+  function speichereKlapp(name, zu) {
+    const ergebnis = strickstueckAendern(ctx.daten(), projektId, stueckId, { eingeklappt: { [name]: zu } }, ctx.jetzt());
+    if (ergebnis.gueltig) ctx.aendern(ergebnis.daten);
   }
 
   function speichereFeld(input) {

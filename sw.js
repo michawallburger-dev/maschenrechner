@@ -9,7 +9,7 @@
  * Nutzerinnen weiterhin die alte Version.
  */
 
-const CACHE_NAME = 'maschenrechner-v0.3.0';
+const CACHE_NAME = 'maschenrechner-v0.4.0';
 
 // Alle Dateien der App, relativ zum Speicherort dieses Service Workers
 // (Der Test tests/sw-liste.test.js prüft, dass keine Datei fehlt.)

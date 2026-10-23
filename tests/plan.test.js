@@ -1,7 +1,7 @@
 // Tests für den Zu-/Abnahmeplan (US-13, US-16) – Architektur Sprint 3, Abschnitt 4.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { berechnePlan, verteile, erlaubteReihen, planAusTexten, planEingabenAusTexten, MAX_EREIGNISSE } from '../js/plan.js';
+import { berechnePlan, verteile, erlaubteReihen, planAusTexten, planEingabenAusTexten, standardStartReihe, MAX_EREIGNISSE } from '../js/plan.js';
 
 const PROBE = { maschen: { anzahl: 25, bezugCm: 10 }, reihen: { anzahl: 37, bezugCm: 10 } };
 const REF = { anfangCm: 20, endCm: 34, laengeCm: 45, proEreignis: 2 };
@@ -248,4 +248,146 @@ test('planAusTexten: ungültige Eingaben oder Probe → null', () => {
 test('planEingabenAusTexten: leere Anpassung = 0', () => {
   const e = planEingabenAusTexten({ ...TEXTE, anpassung: {} }, 'cm');
   assert.deepEqual(e.anpassung, { anfang: 0, ende: 0, reihen: 0 });
+});
+
+// ---------------------------------------------------------------- Maschenzahl je Ereignis (US-37, Architektur Sprint 4, Abschnitt 4.2)
+
+test('US-37 Referenz: 50 Anfangsmaschen, 17 Zunahmen → 52, 54 … 84', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  const danach = r.ereignisse.map((e) => e.maschenDanach);
+  assert.equal(danach[0], 52);
+  assert.equal(danach[1], 54);
+  assert.equal(danach.at(-1), 84, 'nach dem letzten Ereignis genau die Endmaschenzahl');
+  assert.deepEqual(danach, Array.from({ length: 17 }, (_, i) => 50 + 2 * (i + 1)));
+});
+
+test('US-37 Abnahme: Maschenzahl fällt und endet genau bei der Endmaschenzahl', () => {
+  const r = berechnePlan({ anfangCm: 34, endCm: 20, laengeCm: 45, proEreignis: 2, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.richtung, 'ab');
+  const danach = r.ereignisse.map((e) => e.maschenDanach);
+  assert.equal(danach[0], r.anfang - 2);
+  assert.equal(danach.at(-1), r.ende);
+  for (let i = 1; i < danach.length; i++) assert.ok(danach[i] < danach[i - 1], 'streng fallend');
+});
+
+test('US-37 AK5: die Anpassung der Anfangsmaschen verschiebt alle Maschenzahlen', () => {
+  const ohne = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  const mit = berechnePlan({ ...REF, ereignisWahl: 'weniger', anpassung: { anfang: 4 } }, PROBE);
+  assert.equal(mit.anfang, ohne.anfang + 4);
+  assert.equal(mit.ereignisse[0].maschenDanach, ohne.ereignisse[0].maschenDanach + 4);
+  assert.equal(mit.ereignisse.at(-1).maschenDanach, mit.ende, 'Invariante gilt auch mit Anpassung');
+});
+
+test('US-37 Eigenschaften: letzte Maschenzahl = Endmaschenzahl, Folge streng monoton', () => {
+  let faelle = 0;
+  for (let ende = 5; ende <= 60; ende += 0.7) {
+    for (const pro of [1, 2, 3, 5]) {
+      for (const jedeZweite of [false, true]) {
+        for (const wahl of ['weniger', 'mehr']) {
+          const r = berechnePlan(
+            { anfangCm: 20, endCm: ende, laengeCm: 45, proEreignis: pro, jedeZweite, ereignisWahl: wahl },
+            PROBE,
+          );
+          if (r.status !== 'plan') continue;
+          faelle++;
+          const danach = r.ereignisse.map((e) => e.maschenDanach);
+          assert.equal(danach.at(-1), r.ende, `Ende bei ende=${ende} pro=${pro}`);
+          const auf = r.richtung === 'zu';
+          for (let i = 0; i < danach.length; i++) {
+            const vorher = i === 0 ? r.anfang : danach[i - 1];
+            assert.equal(danach[i] - vorher, r.ereignisse[i].maschen, 'Schrittweite = Maschen des Ereignisses');
+            assert.ok(auf ? danach[i] > vorher : danach[i] < vorher, 'streng monoton');
+          }
+          assert.ok(danach.every((m) => m >= 1), 'nie unter 1 Masche');
+        }
+      }
+    }
+  }
+  assert.ok(faelle > 200, `zu wenige Fälle: ${faelle}`);
+});
+
+// ---------------------------------------------------------------- Startreihe (US-39, E31; Architektur Sprint 4, Abschnitt 4.1)
+
+test('US-39 E31: leere Startreihe ergibt den Standard 2 bzw. 3', () => {
+  assert.equal(standardStartReihe(false), 2);
+  assert.equal(standardStartReihe(true), 3);
+  assert.equal(erlaubteReihen(100, false, null).start, 2);
+  assert.equal(erlaubteReihen(100, true, null).start, 3);
+});
+
+test('US-39 AK9 Regressionsschutz: ohne Startreihe rechnet erlaubteReihen wie in Sprint 3', () => {
+  // Die Formeln aus Sprint 3, hier absichtlich noch einmal ausgeschrieben
+  const altAnzahl = (reihen, jedeZweite) => {
+    if (!jedeZweite) return Math.max(0, reihen - 2);
+    const letzte = reihen - 1;
+    return letzte >= 3 ? Math.floor((letzte - 3) / 2) + 1 : 0;
+  };
+  const altReihe = (jedeZweite) => (platz) => (jedeZweite ? 3 + 2 * platz : platz + 2);
+  for (let reihen = 1; reihen <= 400; reihen++) {
+    for (const jedeZweite of [false, true]) {
+      const neu = erlaubteReihen(reihen, jedeZweite, null);
+      assert.equal(neu.anzahl, altAnzahl(reihen, jedeZweite), `Anzahl bei R=${reihen} jz=${jedeZweite}`);
+      for (let platz = 0; platz < neu.anzahl; platz++) {
+        assert.equal(neu.reihe(platz), altReihe(jedeZweite)(platz), `Reihe bei R=${reihen} platz=${platz}`);
+      }
+    }
+  }
+});
+
+test('US-39: eigene Startreihe verschiebt die erlaubten Reihen', () => {
+  const a = erlaubteReihen(20, false, 5);
+  assert.equal(a.anzahl, 15, 'Reihen 5 … 19');
+  assert.equal(a.reihe(0), 5);
+  assert.equal(a.reihe(14), 19);
+
+  const b = erlaubteReihen(20, true, 4);
+  assert.deepEqual(Array.from({ length: b.anzahl }, (_, i) => b.reihe(i)), [4, 6, 8, 10, 12, 14, 16, 18]);
+});
+
+test('US-39: Startreihe 1 erlaubt die erste Reihe, Startreihe ab „reihen“ keine', () => {
+  assert.equal(erlaubteReihen(10, false, 1).reihe(0), 1);
+  assert.equal(erlaubteReihen(10, false, 9).anzahl, 1, 'nur die vorletzte Reihe');
+  assert.equal(erlaubteReihen(10, false, 10).anzahl, 0, 'die letzte Reihe bleibt frei');
+  assert.equal(erlaubteReihen(10, false, 99).anzahl, 0);
+  assert.equal(erlaubteReihen(10, true, 10).anzahl, 0);
+});
+
+test('US-39 AK4: mit „jede 2.“ und gerader Startreihe liegen alle Ereignisse auf geraden Reihen', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger', jedeZweite: true, startReihe: 4 }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.ok(r.ereignisse.every((e) => e.reihe % 2 === 0), 'Parität folgt der Wahl, nicht einer festen Regel');
+  // Die Startreihe ist die früheste erlaubte Reihe, nicht die des ersten Ereignisses:
+  // verteilt wird gleichmäßig über alle erlaubten Reihen.
+  assert.ok(r.ereignisse.every((e) => e.reihe >= 4), 'kein Ereignis vor der Startreihe');
+  assert.ok(r.ereignisse.at(-1).reihe <= r.reihen - 1, 'letzte Reihe bleibt frei');
+});
+
+test('US-39 AK3: zu große Startreihe → ZU_WENIG_REIHEN mit moeglich 0', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger', startReihe: 200 }, PROBE);
+  assert.equal(r.status, 'fehler');
+  assert.equal(r.fehler, 'ZU_WENIG_REIHEN');
+  assert.equal(r.moeglich, 0);
+});
+
+test('US-39 AK9: der Referenzfall bleibt mit leerer Startreihe unverändert', () => {
+  const ohneFeld = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  const mitLeer = berechnePlan({ ...REF, ereignisWahl: 'weniger', startReihe: null }, PROBE);
+  assert.deepEqual(mitLeer, ohneFeld);
+  assert.deepEqual(reihenVon(mitLeer), [10, 19, 28, 37, 47, 56, 65, 74, 84, 93, 102, 111, 120, 130, 139, 148, 157]);
+  assert.equal(mitLeer.startReihe, null);
+  assert.equal(mitLeer.startReiheWirksam, 2, 'die wirksame Reihe steht im Ergebnis');
+});
+
+test('US-39 AK7: planEingabenAusTexten liest die Startreihe; leer bedeutet automatisch', () => {
+  const basis = { ...TEXTE, startReihe: '' };
+  assert.equal(planEingabenAusTexten(basis, 'cm').startReihe, null, 'leer = automatisch');
+  assert.equal(planEingabenAusTexten({ ...basis, startReihe: '7' }, 'cm').startReihe, 7);
+  assert.equal(planEingabenAusTexten({ ...basis, startReihe: '1.000' }, 'cm').startReihe, 1000, 'Tausenderpunkt nach E13');
+  assert.equal(planEingabenAusTexten({ ...basis, startReihe: '0' }, 'cm'), null, '0 ist ungültig');
+  assert.equal(planEingabenAusTexten({ ...basis, startReihe: '2,5' }, 'cm'), null, 'keine Ganzzahl');
+  // Ein Plan aus 0.3 kennt das Feld gar nicht – das muss sich wie leer verhalten
+  const ohne = { ...TEXTE };
+  delete ohne.startReihe;
+  assert.equal(planEingabenAusTexten(ohne, 'cm').startReihe, null, 'fehlendes Feld = leeres Feld');
 });

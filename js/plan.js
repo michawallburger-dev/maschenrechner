@@ -6,11 +6,20 @@
  * { anzahl, bezugCm } übergeben (wie in rechner.js).
  *
  * Verbindliche Regeln (Architektur Sprint 3, Abschnitt 4):
- * - Erste und letzte Reihe bleiben frei (E24, vorläufig).
- * - „Nur jede 2. Reihe/Runde“: nur ungerade Reihen bzw. Runden ab 3 (E25).
+ * - Die letzte Reihe bleibt frei.
+ * - Die erste Reihe mit Zu-/Abnahme legt die Nutzerin fest (US-39, E31). Leer
+ *   bedeutet „automatisch“: Reihe 2, mit „nur jede 2.“ Reihe 3 – das ist das
+ *   Verhalten aus Sprint 3 (E24 erste Hälfte, E25).
+ * - „Nur jede 2. Reihe/Runde“: ab der Startreihe jede zweite. Die Parität folgt
+ *   damit der Wahl der Nutzerin und ist nicht mehr fest (E31).
+ * - Diese Startreihe bleibt frei, wenn sie > 1 ist (E24, zweite Hälfte bleibt fest).
  * - Ereignis i (0 … E−1) liegt auf dem Platz floor((i+1)·(n+1)/(E+1)) − 1
  *   der n erlaubten Reihen. Nur Ganzzahl-Arithmetik, keine Listen der Länge n,
  *   damit auch sehr lange Teile keinen Speicher kosten.
+ *
+ * Seit Sprint 4 (Architektur Sprint 4, Abschnitt 4.2):
+ * - Jedes Ereignis nennt zusätzlich „maschenDanach“ – die Maschenzahl, mit der
+ *   danach weitergestrickt wird (US-37).
  */
 
 import { runden, cmZuAnzahl, anzahlZuCm } from './rechner.js';
@@ -29,21 +38,33 @@ export const EREIGNIS_WAHLEN = Object.freeze(['weniger', 'mehr']);
 // ---------------------------------------------------------------- Erlaubte Reihen
 
 /**
+ * Standard-Startreihe, wenn die Nutzerin keine angegeben hat (E31).
+ * Ergibt genau das Verhalten aus Sprint 3.
+ * @param {boolean} jedeZweite
+ * @returns {number} 2, bzw. 3 mit „nur jede 2.“
+ */
+export function standardStartReihe(jedeZweite) {
+  return jedeZweite ? 3 : 2;
+}
+
+/**
  * Beschreibt die Reihen, in denen zu- oder abgenommen werden darf.
  * Statt einer Liste wird nur die Anzahl und eine Abbildung Platz → Reihe geliefert.
  * @param {number} reihen       Reihen gesamt (ganze Zahl ≥ 1)
- * @param {boolean} jedeZweite  nur ungerade Reihen/Runden ab 3
- * @returns {{anzahl:number, reihe:(platz:number)=>number}}
+ * @param {boolean} jedeZweite  ab der Startreihe nur jede zweite Reihe/Runde
+ * @param {number|null} [startReihe]  erste erlaubte Reihe; null = automatisch (E31)
+ * @returns {{anzahl:number, reihe:(platz:number)=>number, start:number}}
  */
-export function erlaubteReihen(reihen, jedeZweite) {
-  if (!jedeZweite) {
-    // Reihen 2 … reihen−1
-    return { anzahl: Math.max(0, reihen - 2), reihe: (platz) => platz + 2 };
-  }
-  // Ungerade Reihen 3, 5, 7 … ≤ reihen−1
+export function erlaubteReihen(reihen, jedeZweite, startReihe = null) {
+  const start = startReihe ?? standardStartReihe(jedeZweite);
   const letzte = reihen - 1;
-  const anzahl = letzte >= 3 ? Math.floor((letzte - 3) / 2) + 1 : 0;
-  return { anzahl, reihe: (platz) => 3 + 2 * platz };
+  if (!jedeZweite) {
+    // Reihen start … reihen−1
+    return { anzahl: Math.max(0, letzte - start + 1), reihe: (platz) => start + platz, start };
+  }
+  // start, start+2, start+4 … ≤ reihen−1
+  const anzahl = letzte >= start ? Math.floor((letzte - start) / 2) + 1 : 0;
+  return { anzahl, reihe: (platz) => start + 2 * platz, start };
 }
 
 /**
@@ -66,6 +87,7 @@ export function verteile(e, n) {
  * @param {{
  *   anfangCm:number, endCm:number, laengeCm:number,
  *   proEreignis:number, runden?:boolean, jedeZweite?:boolean,
+ *   startReihe?:(number|null),
  *   ereignisWahl?:('weniger'|'mehr'|null),
  *   anpassung?:{anfang?:number, ende?:number, reihen?:number}
  * }} e  bereits geprüfte Zahlen
@@ -104,6 +126,8 @@ export function berechnePlan(e, probe) {
     laengeCm: reihen >= 1 ? anzahlZuCm(reihen, probe.reihen) : null,
     proEreignis: e.proEreignis,
     runden: e.runden === true,
+    startReihe: e.startReihe ?? null,
+    startReiheWirksam: e.startReihe ?? standardStartReihe(e.jedeZweite === true),
   };
 
   for (const [feld, wert] of [['anfang', anfang], ['ende', endeBerechnet], ['reihen', reihen]]) {
@@ -148,15 +172,19 @@ export function berechnePlan(e, probe) {
   if (ereignisse > MAX_EREIGNISSE) return { ...mitWahl, status: 'fehler', fehler: 'ZU_VIELE_EREIGNISSE', grenze: MAX_EREIGNISSE };
 
   // 5./6. Erlaubte Reihen und genug Platz (AK5, AK7)
-  const erlaubt = erlaubteReihen(reihen, e.jedeZweite === true);
+  const erlaubt = erlaubteReihen(reihen, e.jedeZweite === true, e.startReihe ?? null);
   if (ereignisse > erlaubt.anzahl) {
     return { ...mitWahl, status: 'fehler', fehler: 'ZU_WENIG_REIHEN', moeglich: erlaubt.anzahl };
   }
 
   // 8. Verteilung (AK6)
-  const liste = verteile(ereignisse, erlaubt.anzahl).map((platz) => ({
+  // „maschenDanach“ ist die Maschenzahl nach diesem Ereignis (US-37). Bezug ist
+  // „anfang“, also der Wert nach der Anpassung aus US-16. Nach dem letzten
+  // Ereignis ist der Wert genau „ende“, weil ereignisse · proEreignis = |ende − anfang|.
+  const liste = verteile(ereignisse, erlaubt.anzahl).map((platz, i) => ({
     reihe: erlaubt.reihe(platz),
     maschen: vorzeichen * e.proEreignis,
+    maschenDanach: anfang + vorzeichen * e.proEreignis * (i + 1),
   }));
   let abstandMin = null;
   let abstandMax = null;
@@ -199,9 +227,10 @@ export function planEingabenAusTexten(planTexte, einheit) {
   const ende = zahl(planTexte.endBreite, 'laenge');
   const laenge = zahl(planTexte.laenge, 'laenge');
   const pro = zahl(planTexte.maschenProEreignis, 'proEreignis');
+  const start = zahl(planTexte.startReihe, 'startReihe');
   const a = planTexte.anpassung ?? {};
   const anp = ['anfang', 'ende', 'reihen'].map((k) => zahl(a[k], 'anpassung'));
-  if (![anfang, ende, laenge, pro, ...anp].every((r) => r.gueltig)) return null;
+  if (![anfang, ende, laenge, pro, start, ...anp].every((r) => r.gueltig)) return null;
   return {
     anfangCm: zuCm(anfang.wert, einheit),
     endCm: zuCm(ende.wert, einheit),
@@ -209,6 +238,7 @@ export function planEingabenAusTexten(planTexte, einheit) {
     proEreignis: pro.wert,
     runden: planTexte.arbeitsweise === 'runden',
     jedeZweite: planTexte.jedeZweite === true,
+    startReihe: start.wert,
     ereignisWahl: planTexte.ereignisWahl ?? null,
     anpassung: { anfang: anp[0].wert, ende: anp[1].wert, reihen: anp[2].wert },
   };

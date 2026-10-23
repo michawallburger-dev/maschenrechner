@@ -51,3 +51,35 @@ test('Sicherung mit unbekanntem Schema oder kaputten Daten wird abgelehnt', () =
     assert.equal(leseSicherung(huelle(d)).fehler, 'DATEN_UNGUELTIG');
   }
 });
+
+// ---------------------------------------------------------------- Neue Felder aus 0.4 (US-39 AK7, US-38 AK3)
+
+test('Rundreise 0.4: Startreihe und Klapp-Zustand bleiben erhalten', () => {
+  let d = daten();
+  d = strickstueckAendern(d, 'p1', 's1', { plan: { startReihe: '7' }, eingeklappt: { plan: true, breiteZuMaschen: true } }, ZEIT2).daten;
+  const { inhalt } = erzeugeSicherung(d, new Date(2026, 9, 23), '0.4.0');
+  const r = leseSicherung(inhalt);
+  assert.equal(r.gueltig, true);
+  assert.deepEqual(r.daten, d);
+  const stueck = finde(r.daten, 'p1', 's1').stueck;
+  assert.equal(stueck.plan.startReihe, '7');
+  assert.deepEqual(stueck.eingeklappt, { plan: true, breiteZuMaschen: true });
+});
+
+test('Sicherung aus 0.3 ohne die neuen Felder: Startreihe leer, alle Karten offen', () => {
+  // Eine echte 0.3-Sicherung kennt startReihe und eingeklappt nicht
+  const d = daten();
+  const { inhalt } = erzeugeSicherung(d, new Date(2026, 9, 17), '0.3.0');
+  const roh = JSON.parse(inhalt);
+  for (const s of roh.daten.projekte[0].strickstuecke) {
+    delete s.eingeklappt;
+    delete s.plan.startReihe;
+  }
+  const r = leseSicherung(JSON.stringify(roh));
+  assert.equal(r.gueltig, true);
+  const stueck = finde(r.daten, 'p1', 's1').stueck;
+  assert.equal(stueck.plan.startReihe, '', 'fehlendes Feld wird zum leeren Text – also „automatisch“');
+  assert.deepEqual(stueck.eingeklappt, {});
+  // Der Plan rechnet damit genauso wie vorher
+  assert.deepEqual(r.daten, d);
+});

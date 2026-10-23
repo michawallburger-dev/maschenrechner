@@ -53,8 +53,9 @@ export const SPRACHEN = Object.freeze({
       'rechner.reihenAusAnleitung.tatsaechlich': 'Tatsächliche Höhe ({einheit})',
       'rechner.reihenAusAnleitung.abweichung': 'Abweichung zur Anleitung ({einheit})',
 
-      // Rechner 3: Breite in Maschen (US-05)
-      'rechner.breiteZuMaschen.titel': 'Breite in Maschen',
+      // Rechner 3: aus einer Breite in cm die Maschen (US-05)
+      // Titel nennt die Eingabe, nicht das Ergebnis (MAS-57, P3-01)
+      'rechner.breiteZuMaschen.titel': 'Aus Breite ({einheit}) → Maschen',
       'rechner.breiteZuMaschen.beschreibung': 'Wie viele Maschen brauchst du für eine bestimmte Breite?',
       'rechner.breiteZuMaschen.eingabe': 'Gewünschte Breite ({einheit})',
       'rechner.breiteZuMaschen.anleitungGerundet': 'Maschen laut Anleitung, gerundet',
@@ -63,8 +64,9 @@ export const SPRACHEN = Object.freeze({
       'rechner.breiteZuMaschen.tatsaechlich': 'Tatsächliche Breite ({einheit})',
       'rechner.breiteZuMaschen.abweichung': 'Abweichung zur gewünschten Breite ({einheit})',
 
-      // Rechner 4: Länge in Reihen (US-06)
-      'rechner.laengeZuReihen.titel': 'Länge in Reihen',
+      // Rechner 4: aus einer Länge in cm die Reihen (US-06)
+      // Titel nennt die Eingabe, nicht das Ergebnis (MAS-57, P3-01)
+      'rechner.laengeZuReihen.titel': 'Aus Länge ({einheit}) → Reihen',
       'rechner.laengeZuReihen.beschreibung': 'Wie viele Reihen brauchst du für eine bestimmte Länge?',
       'rechner.laengeZuReihen.eingabe': 'Gewünschte Länge ({einheit})',
       'rechner.laengeZuReihen.anleitungGerundet': 'Reihen laut Anleitung, gerundet',
@@ -169,6 +171,10 @@ export const SPRACHEN = Object.freeze({
 
       // Strickstück (US-10)
       'stueck.zaehlen': 'Reihen zählen',
+      // Kurzfassung einer zugeklappten Karte (US-38 AK5)
+      'stueck.kurzfassung': '{titel}: {wert}',
+      // Hinweis oder Fehler einer zugeklappten Karte (Befunde S4-02, S4-03)
+      'stueck.kurzfassungProblem': 'Bitte prüfen: {text}',
       'stueck.zaehlerStand': 'Reihe {n}',
       'stueck.proben': 'Maschenproben des Projekts',
       'stueck.probeZeile': '{name}: {m} M auf {mb} {einheit} · {r} R auf {rb} {einheit}',
@@ -272,7 +278,10 @@ export const SPRACHEN = Object.freeze({
       'plan.reihen': 'In Reihen (gewendet)',
       'plan.runden': 'In Runden',
       'plan.jedeZweite': 'Nur jede 2. Reihe/Runde',
-      'plan.jedeZweiteHinweis': 'Dann nur in ungeraden Reihen bzw. Runden, ab Reihe 3.',
+      'plan.jedeZweiteHinweis': 'Dann nur jede zweite Reihe bzw. Runde ab der Startreihe.',
+      // Erste Reihe mit Zu-/Abnahme; leer bedeutet „automatisch“ (US-39, E31)
+      'plan.startReihe': 'Frühestens ab {einheitReihe}',
+      'plan.startReiheAuto': 'Vorher wird nicht zu- oder abgenommen. Leer lassen für automatisch: {einheitReihe} {reihe}.',
       'plan.anfang': 'Maschen am Anfang',
       'plan.ende': 'Maschen am Ende',
       'plan.reihenGesamt': 'Reihen gesamt',
@@ -301,8 +310,8 @@ export const SPRACHEN = Object.freeze({
       'plan.einheitRunden': 'Runden',
       'plan.einheitReihe': 'Reihe',
       'plan.einheitRunde': 'Runde',
-      'plan.zeileReihe': 'Reihe {reihe}: {pro} M {art}',
-      'plan.zeileRunde': 'Runde {reihe}: {pro} M {art}',
+      'plan.zeileReihe': 'Reihe {reihe}: {pro} M {art} → {danach} M',
+      'plan.zeileRunde': 'Runde {reihe}: {pro} M {art} → {danach} M',
       'plan.kurzinfo': '{anzahl} × {pro} M {art}',
       'plan.kurzinfoAuswahl': 'Plan: Auswahl nötig',
       'plan.listeTitel': 'Plan',
@@ -324,15 +333,16 @@ export const SPRACHEN = Object.freeze({
       'zaehler.laenge': '{ist} {einheit} gestrickt',
       'zaehler.zielAus': 'Ziel aus',
       'zaehler.quelle.plan': 'Zu-/Abnahmeplan',
-      'zaehler.quelle.laengeZuReihen': 'Länge in Reihen',
+      // Gleicher Wortlaut wie der Kartentitel, damit die Quelle wiederzufinden ist (Befund S4-05)
+      'zaehler.quelle.laengeZuReihen': 'Aus Länge ({einheit}) → Reihen',
       'zaehler.quelle.reihenAusAnleitung': 'Reihen aus der Anleitung',
       'zaehler.zielErreicht': 'Ziel erreicht',
       'zaehler.ereignisse': 'Zu- und Abnahmen',
       'zaehler.letzte': 'Letzte',
       'zaehler.naechste': 'Nächste',
       'zaehler.uebernaechste': 'Übernächste',
-      'zaehler.ereignisReihe': 'Reihe {reihe}: {maschen} M',
-      'zaehler.ereignisRunde': 'Runde {reihe}: {maschen} M',
+      'zaehler.ereignisReihe': 'Reihe {reihe}: {maschen} M → {danach} M',
+      'zaehler.ereignisRunde': 'Runde {reihe}: {maschen} M → {danach} M',
       'zaehler.jetzt': 'Jetzt: {pro} M {art}',
       'zaehler.ansageVon': 'Reihe {n} von {ziel}',
       'zaehler.ansageJetzt': 'Jetzt {pro} Maschen {art}',

@@ -196,3 +196,49 @@ test('anzahlProben zählt über alle Projekte', () => {
   d = neuesProjekt(d, { name: 'Mütze' }, 'p2', ZEIT3).daten;
   assert.equal(anzahlProben(d), 3);
 });
+
+// ---------------------------------------------------------------- Klapp-Zustand der Karten (US-38, Architektur Sprint 4, Abschnitt 3)
+
+test('US-38: ein neues Strickstück hat alle Karten offen', () => {
+  const d = referenz();
+  assert.deepEqual(finde(d, 'p1', 's1').stueck.eingeklappt, {}, 'leeres Objekt = alles offen');
+});
+
+test('US-38 AK2: zuklappen speichert, aufklappen entfernt den Eintrag', () => {
+  let d = referenz();
+  d = strickstueckAendern(d, 'p1', 's1', { eingeklappt: { breiteZuMaschen: true, plan: true } }, ZEIT2).daten;
+  assert.deepEqual(finde(d, 'p1', 's1').stueck.eingeklappt, { breiteZuMaschen: true, plan: true });
+
+  d = strickstueckAendern(d, 'p1', 's1', { eingeklappt: { plan: false } }, ZEIT3).daten;
+  assert.deepEqual(finde(d, 'p1', 's1').stueck.eingeklappt, { breiteZuMaschen: true }, 'offen wird nicht gespeichert');
+});
+
+test('US-38: unbekannte Kartennamen und falsche Typen werden nicht übernommen', () => {
+  let d = referenz();
+  d = strickstueckAendern(d, 'p1', 's1', { eingeklappt: { gibtsNicht: true, plan: 'ja' } }, ZEIT2).daten;
+  assert.deepEqual(finde(d, 'p1', 's1').stueck.eingeklappt, {});
+});
+
+test('US-38: andere Felder lassen den Klapp-Zustand unberührt', () => {
+  let d = referenz();
+  d = strickstueckAendern(d, 'p1', 's1', { eingeklappt: { plan: true } }, ZEIT2).daten;
+  d = strickstueckAendern(d, 'p1', 's1', { zaehler: 7 }, ZEIT3).daten;
+  assert.deepEqual(finde(d, 'p1', 's1').stueck.eingeklappt, { plan: true });
+});
+
+test('US-38 AK3: pruefeDaten reinigt den Klapp-Zustand und verträgt sein Fehlen', () => {
+  const roh = {
+    schemaVersion: 3,
+    projekte: [{
+      id: 'p1', name: 'P', proben: [], strickstuecke: [
+        { id: 's1', name: 'A', eingeklappt: { plan: true, laengeZuReihen: 1, unbekannt: true } },
+        { id: 's2', name: 'B' },
+        { id: 's3', name: 'C', eingeklappt: 'kaputt' },
+      ],
+    }],
+  };
+  const stuecke = pruefeDaten(roh).daten.projekte[0].strickstuecke;
+  assert.deepEqual(stuecke[0].eingeklappt, { plan: true }, 'nur bekannte Karten mit echtem true');
+  assert.deepEqual(stuecke[1].eingeklappt, {}, 'fehlendes Feld = alles offen (Daten aus 0.3)');
+  assert.deepEqual(stuecke[2].eingeklappt, {}, 'kein Objekt = alles offen');
+});

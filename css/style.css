@@ -224,6 +224,86 @@ body > .hinweis {
   line-height: 1.3;
 }
 
+/* Klappbare Karten (US-38, Architektur Sprint 4, Abschnitt 5.4).
+
+   Das Dreieck ist selbst gezeichnet, nicht das des Browsers: „display: flex“
+   auf einem <summary> entfernt den Marker in Chromium und WebKit (Befund
+   S4-01). Ein eigenes Dreieck aus Rahmen hat keinen Textinhalt, wird also von
+   Screenreadern nicht vorgelesen – den Zustand melden <details>/<summary>
+   ohnehin selbst. Es zeigt den Zustand sichtbar an, damit das nicht allein an
+   der Farbe hängt. */
+.kartenkopf {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-height: 44px;
+  padding: 2px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Marker des Browsers ausschalten, falls display je wieder list-item wird */
+.kartenkopf::-webkit-details-marker {
+  display: none;
+}
+
+.kartenkopf::before {
+  content: '';
+  flex: 0 0 auto;
+  align-self: center;
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--text-leise);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+details[open] > .kartenkopf::before {
+  transform: rotate(90deg);
+}
+
+/* Titel und Kurzfassung dürfen umbrechen, das Dreieck bleibt daneben stehen */
+.kartenkopf-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.kartenkopf h2 {
+  margin: 0;
+}
+
+/* Ohne Fokusring des Browsers wäre nicht erkennbar, wo die Tastatur steht */
+.kartenkopf:focus-visible {
+  outline: 2px solid var(--fokus);
+  outline-offset: 2px;
+}
+
+.kartenkopf .kurzfassung {
+  color: var(--text-leise);
+  font-size: 0.95rem;
+}
+
+/* Hinweis oder Fehler einer zugeklappten Karte (Befunde S4-02, S4-03).
+   Das Wort „Bitte prüfen“ im Text trägt die Aussage, nicht die Farbe. */
+.kartenkopf .kurzfassung[data-problem] {
+  color: var(--warnung-text);
+  font-weight: 600;
+}
+
+/* Zugeklappt reicht die Kurzfassung; aufgeklappt wäre sie doppelt */
+details[open] > .kartenkopf .kurzfassung {
+  display: none;
+}
+
+/* Der Abstand unter der Überschrift gehört beim Aufklappen an den Inhalt */
+details[open] > .kartenkopf {
+  margin-bottom: 8px;
+}
+
 .beschreibung {
   margin: 4px 0 12px;
   color: var(--text-leise);

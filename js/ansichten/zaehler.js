@@ -56,7 +56,11 @@ export function zeige(ctx, route, wurzel) {
   function ereignisText(l, e) {
     if (!e) return '–';
     const maschen = `${e.maschen > 0 ? '+' : '−'}${Math.abs(e.maschen)}`;
-    return ctx.t(l.runden ? 'zaehler.ereignisRunde' : 'zaehler.ereignisReihe', { reihe: formatGanzzahl(e.reihe, ctx.locale()), maschen });
+    return ctx.t(l.runden ? 'zaehler.ereignisRunde' : 'zaehler.ereignisReihe', {
+      reihe: formatGanzzahl(e.reihe, ctx.locale()),
+      maschen,
+      danach: formatGanzzahl(e.maschenDanach, ctx.locale()),
+    });
   }
 
   /** Zielquellen-Auswahl nur bei mindestens zwei gültigen Quellen (US-30 AK7). */

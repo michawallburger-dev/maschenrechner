@@ -37,27 +37,41 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E21 | Ziel im Zähler | Zielreihen = „Deine Reihen" (endgültige Reihenzahl) aus dem Rechner des Strickstücks, Ziellänge = „Tatsächliche Höhe (cm)". Die gestrickte Länge wird mit der eigenen Reihenprobe des Strickstücks berechnet. |
 | E22 | Zu-/Abnahme im Zähler | Angezeigt werden letzte, nächste und übernächste Zu-/Abnahmereihe aus dem berechneten Plan, je mit Maschenzahl des Ereignisses (z. B. −2). In der Ereignisreihe selbst erscheint ein Hinweis mit Text und Farbe; die Darstellung kann sich nach dem Praxistest ändern. Die Zählerfeld-Variante a) (sichtbarer Rahmen + Stift) wird erprobt. |
 | E23 | Zielquelle | Ist nur einer der Rechner „Reihen aus Anleitung" (US-04) und „Länge in Reihen" (US-06) gültig ausgefüllt, liefert er das Ziel. Sind beide gültig, wählt die Nutzerin im Zähler einmal, welcher gilt. |
-| E24 | Randreihen | Die erste und die letzte Reihe eines Plans bleiben ohne Zu-/Abnahme. **Vorläufig** – wird mit der Enduserin geklärt und kann im Sprint noch geändert werden. In der Planung von Sprint 4 erneut prüfen. |
-| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3** (also ebenfalls ungerade Nummern). In der Planung von Sprint 4 erneut prüfen. |
+| E24 | Randreihen | **Die letzte Reihe eines Plans bleibt ohne Zu-/Abnahme** – das ist fest und gilt unverändert. Am Anfang ist die freie Reihe seit US-39 (MAS-62, umgesetzt in 0.4.0) nur noch die **Vorbelegung**: Standard ist „frühestens ab Reihe 2", mit „nur jede 2." ab Reihe 3. Die Nutzerin kann das bis Reihe 1 herunterziehen oder beliebig nach hinten verschieben (E31). Am 22.10.2026 bestätigt, nachdem der Praxistest von 0.3.0 die Regel nicht beanstandet hatte. |
+| E25 | Nur jede 2. Reihe/Runde | Bei gewendetem Stricken nur in **ungeraden** Reihen (Hinreihen), bei Runden in jeder zweiten Runde **beginnend mit Runde 3**. **Die Enduserin hat das am 22.10.2026 abgelehnt** (MAS-61): Sie möchte die Startreihe selbst festlegen, statt einer festen Regel zu folgen. Die Umsetzung ist als US-39 (MAS-62) aufgenommen; ob und wann sie kommt, entscheidet der Auftraggeber. Bis dahin gilt die Regel unverändert. |
 | E26 | Plan als Zielquelle | Ein Strickstück mit Plan bietet den Plan (Reihen gesamt, Länge) als **dritte** wählbare Zielquelle im Zähler an, zusätzlich zu den beiden Rechnern aus E23. |
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
+| E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), **US-39 (Startreihe selbst festlegen)** und US-38 (Kacheln zusammenklappen). **Noch am 22.10.2026 getauscht:** US-39 kam hinzu, US-25 ging dafür zurück in den Backlog. Begründung: US-39 ist ein fachlicher Wunsch der Enduserin, US-25 nur Bequemlichkeit – und so wird `js/plan.js` nur einmal angefasst statt zweimal. |
+| E31 | Startreihe: Vorbelegung | Das Feld für die Startreihe der Zu-/Abnahmen ist **leer** vorbelegt, und leer bedeutet **„automatisch"**: Reihe 2 ohne „nur jede 2. Reihe/Runde", Reihe 3 mit der Option – genau das bisherige Verhalten. Setzt die Nutzerin einen eigenen Wert, gilt er unverändert, und die Parität folgt ihrer Wahl. Berichtigt AK1 von US-39 (MAS-62); Hintergrund ist der Architekturbefund H3. Abgestimmt mit der Enduserin. |
+| E30 | Klapp-Mechanismus | US-25 und US-38 nutzen **einen gemeinsamen** Mechanismus und bleiben zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. Nach dem Tausch in E29 baut **US-38 den Mechanismus so, dass US-25 ihn später ohne Umbau nutzen kann**; US-25 liegt bis dahin im Backlog. |
 
-## Offene Punkte für die Planung von Sprint 4
+## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
 
-Aus dem Backlog v2.6 und dem Praxistest MAS-56:
+- **E24 ist bestätigt** und nicht mehr vorläufig.
+- **Zählerfeld-Variante a** (Teil von E22) **bleibt.** Der sichtbare Rahmen mit Stift stört beim
+  Zählen nicht; US-33 AK5 ist erfüllt, eine Folgestory für Variante b entfällt.
+- **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht) wurde nicht
+  beanstandet und bleibt.
+- **US-25 und US-38** sind mit E30 geklärt: gemeinsamer Mechanismus, zwei Stories, beide in
+  Sprint 4.
 
-- **E24 bestätigen oder ändern:** Reicht je eine Randreihe ohne Zu-/Abnahme? Ausdrücklich als
-  vorläufig markiert. Praxistest MAS-56 Prüfpunkt 3.
-- **E25 bestätigen oder ändern:** ungerade Reihen bzw. ab Runde 3 bei „nur jede 2.".
-- **Zählerfeld-Variante a bestätigen oder zurücknehmen** (Teil von E22): Stört der Rahmen beim
-  Zählen? MAS-56 Prüfpunkt 4; bei Ablehnung Folgestory „Variante b" (US-33 AK5).
-- **US-25 (MAS-29)** Proben einklappen: nach E27 zurückgestellt, Diskussionsbedarf.
-- **Standard-Zielquelle „Plan"** (QA-Hinweis H1 aus dem Sprint-3-Testbericht): MAS-56 Prüfpunkt 5.
+## Noch offen
+
+- **E25 ist beantwortet, aber nicht entschieden.** Die Enduserin möchte die Startreihe der
+  Zu-/Abnahmen selbst festlegen (MAS-61, abgeschlossen). Die Umsetzung steht als **US-39
+  (MAS-62)** im Backlog. Offen ist, ob sie in Sprint 4 oder später kommt. Solange sie nicht
+  umgesetzt ist, gilt E25 unverändert.
+- **E24 hängt daran.** Kommt US-39, wird „erste Reihe bleibt frei" von einer festen Regel zur
+  Vorbelegung. Das ist beim Umsetzen in E24 nachzutragen.
+- *(Geklärt am 22.10.2026)* Die Enduserin möchte **nur** die Startreihe selbst festlegen, **nicht**
+  den Abstand zwischen den Zu-/Abnahmen – den zu berechnen ist gerade die Aufgabe der App. Ihr
+  Wunsch „selbst entscheiden, ob in jeder zweiten Reihe abgenommen wird" meint den vorhandenen
+  Schalter aus US-13 AK1. Daran ist also nichts zu bauen.
 
 ## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E29**) und wird hier eingetragen,
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E32**) und wird hier eingetragen,
   sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.

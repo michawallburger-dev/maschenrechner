@@ -1,5 +1,38 @@
 # Änderungsprotokoll
 
+## 0.4.0 – 23.10.2026 (Sprint 4 „Überblick beim Stricken")
+
+Von der QA am 23.10.2026 freigegeben (Nachtest zu Commit `cf49a64`). Der Praxistest mit der
+Enduserin am iPhone steht noch aus.
+Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
+
+### Neu
+- Der Zu-/Abnahmeplan und der Reihenzähler nennen bei jedem Ereignis die Maschenzahl, mit der danach weitergestrickt wird, z. B. „Reihe 12: 2 M zunehmen → 52 M" (US-37)
+- Die Reihe, ab der zu- oder abgenommen werden darf, lässt sich selbst festlegen („Frühestens ab Reihe"). Leer bedeutet automatisch: Reihe 2, mit „nur jede 2." Reihe 3 (US-39, Entscheidung E31)
+- Die Karten eines Strickstücks lassen sich einzeln zuklappen. Zugeklappt zeigt die Karte ihr Hauptergebnis in Kurzform, und der Zustand bleibt gespeichert (US-38)
+
+### Behoben
+- P3-01: Die Karten „Breite in Maschen" und „Länge in Reihen" heißen jetzt „Aus Breite (cm) → Maschen" und „Aus Länge (cm) → Reihen". Dort werden Zentimeter eingegeben; die alten Titel haben zur Eingabe von Maschen verleitet.
+
+### Geändert
+- Mit „nur jede 2. Reihe/Runde" folgt die Parität der Zu-/Abnahmen jetzt der gewählten Startreihe und ist nicht mehr fest auf ungerade Reihen gelegt (E31 ersetzt die feste Regel aus E25)
+- Entscheidung E24: Die letzte Reihe bleibt weiter ohne Zu-/Abnahme. Am Anfang ist die freie Reihe nur noch die Vorbelegung.
+
+### Technisch
+- Schema 3 bleibt. Die zwei neuen Felder sind optional; ihr Fehlen bedeutet das bisherige Verhalten. Kein neuer Speicherschlüssel, keine Migration. Eine noch installierte 0.3.0 kann Daten von 0.4.0 fehlerfrei lesen und daraus einen gültigen Plan rechnen – sie verliert die beiden neuen Felder aber beim nächsten Speichern, siehe S4-06 unter „Bewusst nicht umgesetzt“.
+- 311 automatische Tests (vorher 224), davon 307 grün und 4 als `todo` für die offenen Befunde S4-07 bis S4-10. Darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
+
+### Behoben nach der QA von Sprint 4
+- S4-01: Die klappbaren Karten zeigen wieder ein Dreieck. `display: flex` auf dem `<summary>` hatte den Marker des Browsers entfernt – ohne ihn war nicht erkennbar, dass der Kartentitel antippbar ist.
+- S4-02: Eine zugeklappte Karte verbarg Statusmeldungen wie „keine passende Reihe". Fehler und Hinweise stehen jetzt in der Kurzfassung und sind auch zugeklappt sichtbar.
+- S4-03: Eine Karte mit Fehler ließ sich wieder zuklappen und blieb zu. Durch die Kurzfassung ist das jetzt unschädlich; das Zuklappen bleibt erlaubt.
+- S4-04: Der Hinweis am Schalter „nur jede 2." sagte „ab der ersten", gemeint war die Startreihe.
+- S4-05: Die Zielquelle im Zähler hieß weiter „Länge in Reihen" – so heißt seit dieser Version keine Karte mehr. Sie trägt jetzt denselben Namen wie die Karte.
+
+### Bewusst nicht umgesetzt
+- S4-06 (MAS-68): Eine noch installierte 0.3.0 liest Daten von 0.4.0 fehlerfrei, verliert beim nächsten Speichern aber Startreihe und Klapp-Zustand. Hingenommen und in Risiko R13 dokumentiert, weil der Fall nur bei einem zweiten Gerät ohne Update eintritt.
+- S4-07 bis S4-10 aus dem QA-Nachtest: vier niedrige bzw. kosmetische Befunde, bewusst nicht mehr in 0.4.0 behoben. Der gewichtigste ist S4-07: Eine zugeklappte Plan-Karte verbirgt den eigenen Hinweis „Bitte zuerst die eigene Probe … ausfüllen“, weil die Kurzfassung nur Feldfehler und Statusmeldungen kennt. Fehler und Statusmeldungen selbst sind sichtbar (S4-02). Einzelheiten im Abschnitt „Nachtest“ von `docs/qa/sprint-4-testbericht.md`.
+
 ## 0.3.0 – 17.10.2026 (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“)
 
 ### Neu

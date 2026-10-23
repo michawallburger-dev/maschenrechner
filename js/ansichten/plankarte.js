@@ -9,8 +9,8 @@ import { pruefeZahl, REGELN } from '../eingabe.js';
 import { formatZahl, formatGanzzahl, LEER_ANZEIGE } from '../format.js';
 import { vonCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern } from '../modell.js';
-import { planAusTexten, probeAusTexten } from '../plan.js';
-import { vorlage, texteFuellen, el, leeren, bestaetigen } from '../dom.js';
+import { planAusTexten, probeAusTexten, standardStartReihe } from '../plan.js';
+import { vorlage, texteFuellen, el, leeren, klappbar, bestaetigen } from '../dom.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, planArt } from './gemeinsam.js';
 
@@ -67,6 +67,9 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   const zusammenfassung = karte.querySelector('[data-rolle="zusammenfassung"]');
   const planAnsage = karte.querySelector('[data-rolle="plan-ansage"]');
   const liste = karte.querySelector('[data-rolle="liste"]');
+  const startLabel = karte.querySelector('[data-rolle="startReihe-label"]');
+  const startHinweis = karte.querySelector('[data-rolle="startReihe-hinweis"]');
+  const kurzfassung = karte.querySelector('[data-rolle="kurzfassung"]');
   probeFehlt.querySelector('[data-rolle="probe-link"]').href = hashFuer({ ansicht: 'projekt', projektId });
 
   const beruehrt = new Set();
@@ -99,6 +102,15 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     if (ergebnis.gueltig) ctx.aendern(ergebnis.daten, { sofort });
   }
 
+  // Karte auf Wunsch zuklappen; der Zustand liegt am Strickstück (US-38)
+  klappbar(karte.querySelector('[data-rolle="klappe"]'), {
+    offen: aktuell()?.stueck.eingeklappt?.plan !== true,
+    aufToggle: (offen) => {
+      const ergebnis = strickstueckAendern(ctx.daten(), projektId, stueckId, { eingeklappt: { plan: !offen } }, ctx.jetzt());
+      if (ergebnis.gueltig) ctx.aendern(ergebnis.daten, { sofort: true });
+    },
+  });
+
   /** Eingabefelder aus dem gespeicherten Plan füllen (beim Aufbau und nach dem Zurücksetzen). */
   function fuelleFelder(plan) {
     for (const input of karte.querySelectorAll('[data-planfeld]')) {
@@ -115,6 +127,30 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     zeile.querySelector('[data-rolle="info"]').textContent = info;
   }
 
+  /** Text eines sichtbaren Fehlers oder Hinweises der Karte, sonst null. */
+  function problemText() {
+    for (const e of karte.querySelectorAll('.fehler')) if (!e.hidden && e.textContent) return e.textContent;
+    if (!status.hidden && status.textContent) return status.textContent;
+    return null;
+  }
+
+  /**
+   * Kurzfassung für den zugeklappten Zustand (US-38 AK5).
+   *
+   * Ein Fehler oder Hinweis hat Vorrang vor der Zusammenfassung und ist damit
+   * auch bei zugeklappter Karte sichtbar (Befunde S4-02, S4-03).
+   */
+  function zeigeKurzfassung(text) {
+    const problem = problemText();
+    if (problem) {
+      kurzfassung.textContent = ctx.t('stueck.kurzfassungProblem', { text: problem });
+      kurzfassung.dataset.problem = '';
+      return;
+    }
+    delete kurzfassung.dataset.problem;
+    kurzfassung.textContent = text && text !== LEER_ANZEIGE ? text : '';
+  }
+
   function zeigeStatus(text) {
     status.hidden = !text;
     status.textContent = text ?? '';
@@ -125,13 +161,14 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       reihe: formatGanzzahl(e.reihe, ctx.locale()),
       pro: Math.abs(e.maschen),
       art: planArt(ctx.t, e.maschen < 0 ? 'ab' : 'zu'),
+      danach: formatGanzzahl(e.maschenDanach, ctx.locale()),
     });
   }
 
   /** Baut die Liste nur neu, wenn sie sich geändert hat; lange Listen verzögert. */
   function zeigeListe(r) {
     const ereignisse = r?.status === 'plan' ? r.ereignisse : [];
-    const schluessel = ereignisse.length === 0 ? '' : `${r.runden}|${ereignisse.map((e) => `${e.reihe}:${e.maschen}`).join(',')}`;
+    const schluessel = ereignisse.length === 0 ? '' : `${r.runden}|${ereignisse.map((e) => `${e.reihe}:${e.maschen}:${e.maschenDanach}`).join(',')}`;
     if (schluessel === letzteListe) return;
     clearTimeout(listenTimer);
     const aufbauen = () => {
@@ -215,12 +252,21 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     const reihenTitel = werteBereich.querySelector('[data-wert="reihen"] [data-rolle="titel"]');
     reihenTitel.textContent = t(plan.arbeitsweise === 'runden' ? 'plan.rundenGesamt' : 'plan.reihenGesamt');
 
+    // Startreihe: Beschriftung und Hinweis folgen der Arbeitsweise und „nur jede 2.“ (US-39, E31)
+    const einheitReihe = t(plan.arbeitsweise === 'runden' ? 'plan.einheitRunde' : 'plan.einheitReihe');
+    startLabel.textContent = t('plan.startReihe', { einheitReihe });
+    startHinweis.textContent = t('plan.startReiheAuto', {
+      einheitReihe,
+      reihe: formatGanzzahl(standardStartReihe(plan.jedeZweite === true), loc),
+    });
+
     if (!r) {
       for (const w of WERTE) setzeWert(w.schluessel, LEER_ANZEIGE, '');
       zusammenfassung.textContent = LEER_ANZEIGE;
       zeigeStatus(null);
       zeigeAuswahl(null);
       zeigeListe(null);
+      zeigeKurzfassung(null);
       return;
     }
 
@@ -269,6 +315,8 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
         }
       }
     }
+
+    zeigeKurzfassung(zusammenfassung.textContent);
   }
 
   // ---------------------------------------------------------------- Ereignisse
