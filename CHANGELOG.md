@@ -1,8 +1,9 @@
 # Änderungsprotokoll
 
-## 0.4.0 – unveröffentlicht (Sprint 4 „Überblick beim Stricken")
+## 0.4.0 – 23.10.2026 (Sprint 4 „Überblick beim Stricken")
 
-Das Datum wird beim Veröffentlichen eingetragen. QA und Praxistest stehen noch aus.
+Von der QA am 23.10.2026 freigegeben (Nachtest zu Commit `cf49a64`). Der Praxistest mit der
+Enduserin am iPhone steht noch aus.
 Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
 
 ### Neu
@@ -18,8 +19,8 @@ Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
 - Entscheidung E24: Die letzte Reihe bleibt weiter ohne Zu-/Abnahme. Am Anfang ist die freie Reihe nur noch die Vorbelegung.
 
 ### Technisch
-- Schema 3 bleibt. Die zwei neuen Felder sind optional; ihr Fehlen bedeutet das bisherige Verhalten. Kein neuer Speicherschlüssel, keine Migration – und eine noch installierte 0.3.0 kann Daten von 0.4.0 lesen und unverändert rechnen.
-- 287 automatische Tests (vorher 224), darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
+- Schema 3 bleibt. Die zwei neuen Felder sind optional; ihr Fehlen bedeutet das bisherige Verhalten. Kein neuer Speicherschlüssel, keine Migration. Eine noch installierte 0.3.0 kann Daten von 0.4.0 fehlerfrei lesen und daraus einen gültigen Plan rechnen – sie verliert die beiden neuen Felder aber beim nächsten Speichern, siehe S4-06 unter „Bewusst nicht umgesetzt“.
+- 311 automatische Tests (vorher 224), davon 307 grün und 4 als `todo` für die offenen Befunde S4-07 bis S4-10. Darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
 
 ### Behoben nach der QA von Sprint 4
 - S4-01: Die klappbaren Karten zeigen wieder ein Dreieck. `display: flex` auf dem `<summary>` hatte den Marker des Browsers entfernt – ohne ihn war nicht erkennbar, dass der Kartentitel antippbar ist.
@@ -30,6 +31,7 @@ Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
 
 ### Bewusst nicht umgesetzt
 - S4-06 (MAS-68): Eine noch installierte 0.3.0 liest Daten von 0.4.0 fehlerfrei, verliert beim nächsten Speichern aber Startreihe und Klapp-Zustand. Hingenommen und in Risiko R13 dokumentiert, weil der Fall nur bei einem zweiten Gerät ohne Update eintritt.
+- S4-07 bis S4-10 aus dem QA-Nachtest: vier niedrige bzw. kosmetische Befunde, bewusst nicht mehr in 0.4.0 behoben. Der gewichtigste ist S4-07: Eine zugeklappte Plan-Karte verbirgt den eigenen Hinweis „Bitte zuerst die eigene Probe … ausfüllen“, weil die Kurzfassung nur Feldfehler und Statusmeldungen kennt. Fehler und Statusmeldungen selbst sind sichtbar (S4-02). Einzelheiten im Abschnitt „Nachtest“ von `docs/qa/sprint-4-testbericht.md`.
 
 ## 0.3.0 – 17.10.2026 (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“)
 
