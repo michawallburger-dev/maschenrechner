@@ -1,4 +1,8 @@
-# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.0)
+# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.1)
+
+**Änderungen in v4.1** (23.10.2026): Hinweis H3 ist entschieden – die Vorbelegung der Startreihe
+ist als **E31** festgelegt („leer bedeutet automatisch"), AK1 von MAS-62 ist in Jira berichtigt.
+Abschnitt 4.1 war damit von Anfang an der freigegebene Entwurf und bleibt unverändert.
 
 Rolle: Architekt · Grundlage: Epic MAS-60, Stories MAS-57, MAS-58, MAS-62, MAS-59; Entscheidungen E22, E24, E25, E29, E30 · Baut auf `architektur/sprint-3-architektur.md` v3.1 auf. Alles dort Festgelegte gilt weiter, sofern hier nichts anderes steht.
 
@@ -239,7 +243,7 @@ Unverändert gegenüber Sprint 1, Abschnitt 7: kein Backend, keine Konten, keine
 | R14 | Die Startreihe ändert `erlaubteReihen` und damit die Kernformel der Verteilung. | Leeres Feld bedeutet „automatisch" und ergibt bitgleiches Verhalten; alle Referenzwerte aus Sprint 1 bis 3 werden als Regressionstests mitgeführt; die Eigenschaftstests bleiben unverändert gültig. |
 | R15 | Mehr Inhalt in der Zähleransicht bei 360 × 640 px (Fortführung von R9). | Die Maschenzahl steht in derselben Zeile wie das Ereignis, kompakt als „→ 48 M"; QA misst. Reicht der Platz nicht, wandert sie in eine zweite Zeile, bevor etwas entfällt. |
 | R16 | Eine zugeklappte Karte könnte einen Eingabefehler verbergen. | Karte mit sichtbarem Fehler wird aufgeklappt, solange der Fehler besteht; der gespeicherte Zustand bleibt unberührt (Abschnitt 5.4). |
-| H3 | **MAS-62 AK1 ist zu berichtigen.** „Vorbelegt ist 2" stimmt nur ohne „jede 2. Reihe/Runde"; mit der Option beginnt das heutige Verhalten bei Reihe 3. Vorschlag: leeres Feld bedeutet „automatisch" (Abschnitt 4.1). | Entscheidung des Product Owners. Ohne sie ist AK9 nicht erfüllbar. |
+| H3 | **MAS-62 AK1 war zu berichtigen.** „Vorbelegt ist 2" stimmt nur ohne „jede 2. Reihe/Runde"; mit der Option beginnt das heutige Verhalten bei Reihe 3. | **Erledigt.** Am 23.10.2026 als **E31** entschieden: leeres Feld bedeutet „automatisch" (Abschnitt 4.1). AK1 in Jira berichtigt, abgestimmt mit der Enduserin. |
 | H4 | Mit eigener Startreihe können Zu-/Abnahmen auf geraden Reihen liegen, also auf Rückreihen. Fachlich ist das beim gewendeten Stricken unüblich – die Enduserin hat die Hinreihen-Logik selbst eingebracht. | Bewusst zugelassen, weil sie ausdrücklich um die Kontrolle gebeten hat. Ein Hinweis am Feld wäre denkbar; der Product Owner entscheidet, ob er gewünscht ist. |
 
 Neue Risiken beginnen bei **R17**, neue Hinweise bei **H5**.

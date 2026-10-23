@@ -43,6 +43,7 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E27 | Sprint-3-Umfang | US-25 (Proben einklappen) wird aus Sprint 3 herausgenommen, es gibt Diskussionsbedarf. Einzelne Ereignisreihen verschieben bleibt außerhalb von Sprint 3. |
 | E28 | Auswahl Endmaschen (S3-01) | Ist die Differenz kleiner als die Maschen pro Zu-/Abnahme, bietet die App zusätzlich „keine Zu-/Abnahme" an (Endmaschen = Anfangsmaschen). Die getroffene Auswahl bleibt sichtbar und änderbar (S3-02). |
 | E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), **US-39 (Startreihe selbst festlegen)** und US-38 (Kacheln zusammenklappen). **Noch am 22.10.2026 getauscht:** US-39 kam hinzu, US-25 ging dafür zurück in den Backlog. Begründung: US-39 ist ein fachlicher Wunsch der Enduserin, US-25 nur Bequemlichkeit – und so wird `js/plan.js` nur einmal angefasst statt zweimal. |
+| E31 | Startreihe: Vorbelegung | Das Feld für die Startreihe der Zu-/Abnahmen ist **leer** vorbelegt, und leer bedeutet **„automatisch"**: Reihe 2 ohne „nur jede 2. Reihe/Runde", Reihe 3 mit der Option – genau das bisherige Verhalten. Setzt die Nutzerin einen eigenen Wert, gilt er unverändert, und die Parität folgt ihrer Wahl. Berichtigt AK1 von US-39 (MAS-62); Hintergrund ist der Architekturbefund H3. Abgestimmt mit der Enduserin. |
 | E30 | Klapp-Mechanismus | US-25 und US-38 nutzen **einen gemeinsamen** Mechanismus und bleiben zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. Nach dem Tausch in E29 baut **US-38 den Mechanismus so, dass US-25 ihn später ohne Umbau nutzen kann**; US-25 liegt bis dahin im Backlog. |
 
 ## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
@@ -70,7 +71,7 @@ Datei gepflegt**, nicht der Schnappschuss.
 
 ## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E31**) und wird hier eingetragen,
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E32**) und wird hier eingetragen,
   sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.
