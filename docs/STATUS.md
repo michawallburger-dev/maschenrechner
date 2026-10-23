@@ -11,7 +11,7 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
   beginnt beim **Product Owner**.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
-  vier neue niedrige Befunde S4-07 bis S4-10 offen und ohne Jira-Vorgang.
+  vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
 - **Tests:** 311 Tests, 307 grün, 0 rot, 4 `todo` (die vier neuen Befunde), davon 24 neue in
   `tests/qa-sprint4-nachtest.test.js`. Ohne die Nachtest-Datei: 287 grün, 0 `todo`.
 - **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
@@ -31,8 +31,9 @@ gesetzte Startreihe und das Klappverhalten der Karten. Ergebnis als Jira-Vorgang
 `praxistest` anlegen, so wie MAS-56 für 0.3.0.
 
 **2. Über S4-07 bis S4-10 entscheiden** (Rolle Product Owner). Vier Befunde aus dem
-QA-Nachtest, alle niedrig bzw. kosmetisch, bewusst nicht in 0.4.0 behoben und noch **ohne
-Jira-Vorgang**. Der gewichtigste ist **S4-07**: Eine zugeklappte Plan-Karte verbirgt den
+QA-Nachtest, alle niedrig bzw. kosmetisch, bewusst nicht in 0.4.0 behoben. Angelegt am
+23.10.2026 als **MAS-69** (S4-07), **MAS-70** (S4-08), **MAS-71** (S4-09) und **MAS-72**
+(S4-10), mit Label `qa-sprint-4` am Backlog-Epic MAS-4. Der gewichtigste ist **S4-07**: Eine zugeklappte Plan-Karte verbirgt den
 eigenen Hinweis „Bitte zuerst die eigene Probe … ausfüllen", weil `problemText()` in
 `js/ansichten/plankarte.js` nur `.fehler` und `[data-rolle="status"]` kennt. Damit ist der
 Zweck von US-38 AK6 noch nicht ganz erfüllt; die QA nennt den Fix eine Zeile. S4-08 ist
@@ -97,10 +98,10 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 ## Offen
 - **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
   Einziger offener Fehler.
-- **18 offene Jira-Vorgänge** (gezählt am 23.10.2026). Aus Sprint 4 ist nur noch das Epic
+- **21 offene Jira-Vorgänge** (gezählt am 23.10.2026, einschließlich MAS-69 bis MAS-72). Aus Sprint 4 ist nur noch das Epic
   **MAS-60** offen; es schließt nach der Freigabe des Merges.
-- **Vier neue QA-Befunde S4-07 bis S4-10** aus dem Nachtest, alle niedrig bzw. kosmetisch und
-  **ohne Jira-Vorgang** – der Product Owner entscheidet, was davon in den Backlog geht.
+- **Vier neue QA-Befunde S4-07 bis S4-10** aus dem Nachtest als **MAS-69 bis MAS-72** angelegt,
+  alle niedrig bzw. kosmetisch. MAS-70 ist zuerst eine Produktentscheidung, kein Auftrag.
   S4-07 ist der gewichtigste: Die Plan-Karte verbirgt zugeklappt ihren eigenen Hinweis
   „Bitte zuerst die eigene Probe … ausfüllen“, weil `problemText()` nur `.fehler` und
   `[data-rolle="status"]` kennt. Damit ist der Zweck von US-38 AK6 noch nicht ganz erfüllt.
