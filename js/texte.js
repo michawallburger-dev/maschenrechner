@@ -53,8 +53,9 @@ export const SPRACHEN = Object.freeze({
       'rechner.reihenAusAnleitung.tatsaechlich': 'Tatsächliche Höhe ({einheit})',
       'rechner.reihenAusAnleitung.abweichung': 'Abweichung zur Anleitung ({einheit})',
 
-      // Rechner 3: Breite in Maschen (US-05)
-      'rechner.breiteZuMaschen.titel': 'Breite in Maschen',
+      // Rechner 3: aus einer Breite in cm die Maschen (US-05)
+      // Titel nennt die Eingabe, nicht das Ergebnis (MAS-57, P3-01)
+      'rechner.breiteZuMaschen.titel': 'Aus Breite ({einheit}) → Maschen',
       'rechner.breiteZuMaschen.beschreibung': 'Wie viele Maschen brauchst du für eine bestimmte Breite?',
       'rechner.breiteZuMaschen.eingabe': 'Gewünschte Breite ({einheit})',
       'rechner.breiteZuMaschen.anleitungGerundet': 'Maschen laut Anleitung, gerundet',
@@ -63,8 +64,9 @@ export const SPRACHEN = Object.freeze({
       'rechner.breiteZuMaschen.tatsaechlich': 'Tatsächliche Breite ({einheit})',
       'rechner.breiteZuMaschen.abweichung': 'Abweichung zur gewünschten Breite ({einheit})',
 
-      // Rechner 4: Länge in Reihen (US-06)
-      'rechner.laengeZuReihen.titel': 'Länge in Reihen',
+      // Rechner 4: aus einer Länge in cm die Reihen (US-06)
+      // Titel nennt die Eingabe, nicht das Ergebnis (MAS-57, P3-01)
+      'rechner.laengeZuReihen.titel': 'Aus Länge ({einheit}) → Reihen',
       'rechner.laengeZuReihen.beschreibung': 'Wie viele Reihen brauchst du für eine bestimmte Länge?',
       'rechner.laengeZuReihen.eingabe': 'Gewünschte Länge ({einheit})',
       'rechner.laengeZuReihen.anleitungGerundet': 'Reihen laut Anleitung, gerundet',
