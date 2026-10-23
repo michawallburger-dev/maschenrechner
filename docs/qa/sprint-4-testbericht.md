@@ -320,7 +320,12 @@ rechnet unverändert. Eine Regression durch die Nachbesserung wurde nicht gefund
 Vier **neue, niedrige Befunde** (S4-07 bis S4-10) betreffen Fälle, die die neue Kurzfassung noch
 nicht abdeckt, und einen vergessenen Vorgabetext. Keiner davon blockiert die Veröffentlichung;
 S4-09 bestand schon vor der Nachbesserung. Der Product Owner entscheidet, ob sie in 0.4.1 oder in
-den Backlog gehen. **Jira-Vorgänge sind dafür auftragsgemäß nicht angelegt.**
+den Backlog gehen. **Nachtrag vom 23.10.2026:** Die vier Befunde sind nach der Entscheidung des Product Owners
+doch als Jira-Bugs angelegt – **MAS-69** (S4-07), **MAS-70** (S4-08), **MAS-71** (S4-09) und
+**MAS-72** (S4-10), alle mit Label `qa-sprint-4` am Backlog-Epic MAS-4, weil Epic MAS-60 mit
+dem Sprint geschlossen ist. Ebenfalls nachgetragen: Die vier Stories des Sprints, die in
+Abschnitt 7 dieses Berichts noch als unbuchte Vorgänge bemängelt werden, stehen seit dem
+23.10.2026 auf „Erledigt“.
 
 | Befund | Jira | Stand nach dem Nachtest | Beleg |
 |---|---|---|---|
@@ -330,10 +335,10 @@ den Backlog gehen. **Jira-Vorgänge sind dafür auftragsgemäß nicht angelegt.*
 | S4-04 „ab der ersten" am Schalter „nur jede 2." | MAS-67 | **behoben** | `plan.jedeZweiteHinweis` = „… ab der Startreihe."; im Browser so dargestellt |
 | S4-05 Zielquelle hieß „Länge in Reihen" | MAS-67 | **behoben** | Auswahlfeld 227 × 48 px bei 360 px, Eintrag „Aus Länge (cm) → Reihen" |
 | S4-06 0.3.0 verliert beide Felder beim Speichern | MAS-68 | **dokumentiert** (nicht behoben, so entschieden) | R13 in beiden Dokumenten berichtigt, CHANGELOG-Abschnitt „Bewusst nicht umgesetzt"; Verhalten der 0.3.0-Module unabhängig nachgestellt |
-| S4-07 Plan-Karte verbirgt „Maschenprobe fehlt" | – | **neu, niedrig** | zugeklappte Karte 44 px, Kurzfassung leer, Hinweis `checkVisibility() === false` |
-| S4-08 Offene Auswahl bleibt zugeklappt unsichtbar | – | **neu, niedrig** | Status „auswahl": Kurzfassung leer, kein `data-problem` |
-| S4-09 Kurzfassung bleibt nach dem Löschen des Plans stehen | – | **neu, niedrig** (Altbestand) | nach „Plan löschen" weiter „17 × 2 M zunehmen …", obwohl `plan === null` |
-| S4-10 Vorgabetext in `index.html` nicht mitgezogen | – | **neu, kosmetisch** | `data-text="plan.jedeZweiteHinweis"` enthält weiter „, ab der ersten." |
+| S4-07 Plan-Karte verbirgt „Maschenprobe fehlt" | MAS-69 | **neu, niedrig** | zugeklappte Karte 44 px, Kurzfassung leer, Hinweis `checkVisibility() === false` |
+| S4-08 Offene Auswahl bleibt zugeklappt unsichtbar | MAS-70 | **neu, niedrig** | Status „auswahl": Kurzfassung leer, kein `data-problem` |
+| S4-09 Kurzfassung bleibt nach dem Löschen des Plans stehen | MAS-71 | **neu, niedrig** (Altbestand) | nach „Plan löschen" weiter „17 × 2 M zunehmen …", obwohl `plan === null` |
+| S4-10 Vorgabetext in `index.html` nicht mitgezogen | MAS-72 | **neu, kosmetisch** | `data-text="plan.jedeZweiteHinweis"` enthält weiter „, ab der ersten." |
 
 ## N.1 Vorgehen
 
@@ -517,7 +522,7 @@ Die Nachbesserung ändert am Datenschutzkonzept aus Sprint 1, Abschnitt 7 nichts
 
 ## N.9 Neue Befunde
 
-### S4-07 – Die Plan-Karte verbirgt zugeklappt den Hinweis „Maschenprobe fehlt" (niedrig)
+### S4-07 (MAS-69) – Die Plan-Karte verbirgt zugeklappt den Hinweis „Maschenprobe fehlt" (niedrig)
 
 **Fall:** Ein Strickstück hat einen Plan mit gültigen Werten, aber eine unvollständige eigene
 Maschenprobe. Die Plan-Karte zeigt dann `[data-rolle="probe-fehlt"]`: „Bitte zuerst die eigene Probe
@@ -537,7 +542,7 @@ in ihrer Kurzfassung. Es gibt also andere Signale.
 **Vorschlag:** `[data-rolle="probe-fehlt"]` in `problemText()` aufnehmen. Eine Zeile; die Zusage in
 Architektur v4.3, Abschnitt 5.4 wäre dann auch für die Plan-Karte eingelöst.
 
-### S4-08 – Eine offene Auswahl bleibt zugeklappt unsichtbar (niedrig)
+### S4-08 (MAS-70) – Eine offene Auswahl bleibt zugeklappt unsichtbar (niedrig)
 
 **Fall:** Die Differenz ist nicht durch die Maschen je Ereignis teilbar (z. B. 20 → 33 cm bei 2 M je
 Ereignis), und die Nutzerin hat noch nicht gewählt. Status `auswahl` mit Optionen.
@@ -550,7 +555,7 @@ aussteht.
 Kurzform") trifft nicht zu, weil es noch kein Ergebnis gibt. Eine Kurzfassung wie „Bitte prüfen:
 Auswahl offen" wäre folgerichtig. Der Product Owner entscheidet.
 
-### S4-09 – Nach dem Löschen des Plans bleibt die alte Kurzfassung stehen (niedrig, Altbestand)
+### S4-09 (MAS-71) – Nach dem Löschen des Plans bleibt die alte Kurzfassung stehen (niedrig, Altbestand)
 
 **Fall:** Plan löschen, Karte danach zuklappen.
 
@@ -562,7 +567,7 @@ und Zurück) ist die Kurzfassung leer.
 **Nicht durch die Nachbesserung entstanden** – der Zweig sieht in `bad253d` genauso aus; der erste
 Lauf hat den Fall übersehen.
 
-### S4-10 – Vorgabetext in `index.html` nicht mitgezogen (kosmetisch)
+### S4-10 (MAS-72) – Vorgabetext in `index.html` nicht mitgezogen (kosmetisch)
 
 `data-text="plan.jedeZweiteHinweis"` trägt in der Vorlage weiter den beanstandeten Wortlaut „Dann
 nur jede zweite Reihe bzw. Runde, ab der ersten." Im Browser steht der neue Text, weil
@@ -577,8 +582,10 @@ Irre und sollte beim nächsten Anfassen der Datei angeglichen werden.
    Durchsicht der Texte mit der Enduserin.
 2. **Die Testzahl im `CHANGELOG`** steht mit 287 richtig. Nach Übernahme dieses Nachtests kommen
    24 QA-Tests hinzu (311 gesamt, davon 4 `todo` für S4-07 bis S4-10).
-3. **S4-07 bis S4-10** sind auftragsgemäß **nicht** als Jira-Vorgänge angelegt. S4-07 ist eine
-   Ein-Zeilen-Änderung und könnte vor dem Praxistest mitgenommen werden.
+3. **S4-07 bis S4-10** sind inzwischen als MAS-69 bis MAS-72 angelegt (Nachtrag oben). S4-07 ist
+   eine Ein-Zeilen-Änderung und könnte vor dem Praxistest mitgenommen werden; MAS-69, MAS-70
+   und MAS-71 betreffen dieselbe Datei `js/ansichten/plankarte.js` und lohnen sich zusammen.
+   **MAS-70 ist zuerst eine Produktentscheidung**, kein fertiger Auftrag.
 4. **Zur Zähleransicht:** Sie passt weiterhin ohne jede Reserve in 640 px; mit dem
    Wachhalter-Hinweis scrollt sie. R15 bleibt offen und gehört in den Praxistest.
 
