@@ -6,8 +6,9 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version 0.3.0 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** 3 **abgeschlossen** – Praxistest MAS-56 am 21.10.2026 bestanden, Epic MAS-3
   geschlossen
-- **Rolle:** Architekt **abgeschlossen und freigegeben** – `docs/architektur/sprint-4-architektur.md`
-  v4.1. H3 ist mit E31 entschieden. Als Nächstes ist der Entwickler dran.
+- **Rolle:** Entwickler **abgeschlossen** – alle vier Vorgänge von Sprint 4 sind umgesetzt,
+  Version auf 0.4.0 gehoben. Als Nächstes ist die QA dran.
+- **Tests:** 245 Tests, alle grün (vorher 224)
 - **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
   US-38 gemeinsam planen (22.10.2026)
 - **Tests:** 224 Tests, alle grün (Node.js 22.16); CI läuft bei jedem Push
@@ -16,12 +17,26 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
-**Rolle Entwickler.** Umsetzung in der Reihenfolge aus MAS-60: MAS-57 (Kartentitel), MAS-58
-(Maschenzahl je Ereignis), MAS-62 (Startreihe), MAS-59 (klappbare Karten). Verbindlich ist
-`docs/architektur/sprint-4-architektur.md` v4.1.
+**Rolle QA.** Den Subagenten `qa` (`.claude/agents/qa.md`) starten. Er prüft gegen die Stories in
+Jira, `docs/entscheidungen.md` und `docs/architektur/sprint-4-architektur.md` v4.2 und schreibt
+`docs/qa/sprint-4-testbericht.md`.
 
-Beim Umsetzen von MAS-62 ist **E24 in `docs/entscheidungen.md` nachzuziehen**: „erste Reihe bleibt
-frei" wird dann zur Vorbelegung. Die letzte Reihe bleibt unverändert frei.
+**Zwei Punkte brauchen die Bestätigung des Product Owners** (im Entwickler-Commit zu MAS-62
+ausführlich begründet):
+
+1. Die Beschriftung des neuen Feldes heißt **„Frühestens ab Reihe"**, nicht wie in AK1 vorgesehen
+   „Erste Reihe mit Zu-/Abnahme". Die Ereignisse werden gleichmäßig verteilt, das erste liegt also
+   in der Regel später – bei Startreihe 4 und 17 Zunahmen beginnt der Plan bei Reihe 10. Die
+   vorgesehene Beschriftung hätte genau den Fehler wiederholt, den P3-01 beschreibt.
+2. Offene Frage dahinter: Soll die Startreihe die **früheste erlaubte** Reihe sein (so umgesetzt,
+   so entworfen) oder die Reihe, in der das **erste Ereignis** liegt? Beim Ärmel könnte Letzteres
+   gemeint sein. Das wäre eine eigene Story.
+
+**Für den Praxistest gemessen** (360 × 640 px, lokaler Browser): Die neuen Maschenzahlen kosten
+**0 px** zusätzliche Höhe, die Ereigniszeilen bleiben einzeilig. Die Zähleransicht ist dort genau
+640 px hoch, passt also – aber **ohne jede Reserve**. Der Hinweis „Bildschirm kann nicht
+wachgehalten werden" belegt allein 164 px; wo er erscheint, muss gescrollt werden. Auf dem
+installierten iPhone ab iOS 18.4 erscheint er nicht.
 
 ## Sprint 4 „Überblick beim Stricken" – Epic MAS-60, Ziel Version 0.4.0
 Alle Punkte stammen aus dem Praxistest von 0.3.0 am 21.10.2026 (MAS-56, bestanden).

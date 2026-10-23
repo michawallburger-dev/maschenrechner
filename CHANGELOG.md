@@ -1,5 +1,26 @@
 # Änderungsprotokoll
 
+## 0.4.0 – unveröffentlicht (Sprint 4 „Überblick beim Stricken")
+
+Das Datum wird beim Veröffentlichen eingetragen. QA und Praxistest stehen noch aus.
+Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
+
+### Neu
+- Der Zu-/Abnahmeplan und der Reihenzähler nennen bei jedem Ereignis die Maschenzahl, mit der danach weitergestrickt wird, z. B. „Reihe 12: 2 M zunehmen → 52 M" (US-37)
+- Die Reihe, ab der zu- oder abgenommen werden darf, lässt sich selbst festlegen („Frühestens ab Reihe"). Leer bedeutet automatisch: Reihe 2, mit „nur jede 2." Reihe 3 (US-39, Entscheidung E31)
+- Die Karten eines Strickstücks lassen sich einzeln zuklappen. Zugeklappt zeigt die Karte ihr Hauptergebnis in Kurzform, und der Zustand bleibt gespeichert (US-38)
+
+### Behoben
+- P3-01: Die Karten „Breite in Maschen" und „Länge in Reihen" heißen jetzt „Aus Breite (cm) → Maschen" und „Aus Länge (cm) → Reihen". Dort werden Zentimeter eingegeben; die alten Titel haben zur Eingabe von Maschen verleitet.
+
+### Geändert
+- Mit „nur jede 2. Reihe/Runde" folgt die Parität der Zu-/Abnahmen jetzt der gewählten Startreihe und ist nicht mehr fest auf ungerade Reihen gelegt (E31 ersetzt die feste Regel aus E25)
+- Entscheidung E24: Die letzte Reihe bleibt weiter ohne Zu-/Abnahme. Am Anfang ist die freie Reihe nur noch die Vorbelegung.
+
+### Technisch
+- Schema 3 bleibt. Die zwei neuen Felder sind optional; ihr Fehlen bedeutet das bisherige Verhalten. Kein neuer Speicherschlüssel, keine Migration – und eine noch installierte 0.3.0 kann Daten von 0.4.0 lesen und unverändert rechnen.
+- 245 automatische Tests (vorher 224), darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
+
 ## 0.3.0 – 17.10.2026 (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“)
 
 ### Neu

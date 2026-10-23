@@ -17,7 +17,7 @@ import * as strickstueck from './ansichten/strickstueck.js';
 import * as zaehler from './ansichten/zaehler.js';
 import * as einstellungen from './ansichten/einstellungen.js';
 
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = '0.4.0';
 
 const SPEICHER_VERZOEGERUNG_MS = 300;
 const THEME_FARBE = { hell: '#7a2e4a', dunkel: '#1d1a19' };
