@@ -6,9 +6,8 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version 0.3.0 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** 3 **abgeschlossen** – Praxistest MAS-56 am 21.10.2026 bestanden, Epic MAS-3
   geschlossen
-- **Rolle:** QA **abgeschlossen** (23.10.2026) – Ergebnis **Zurück an Entwickler**. Bericht:
-  `docs/qa/sprint-4-testbericht.md`. Keine kritischen oder hohen Befunde; zwei mittlere an der
-  Klapp-Funktion (MAS-64, MAS-65), vier niedrige (MAS-66, MAS-67, MAS-68).
+- **Rolle:** Entwickler, Nachbesserung nach der QA **abgeschlossen** (Commit `cf49a64`).
+  Als Nächstes der Nachtest durch die QA.
 - **Tests:** 287 Tests, 285 grün, 0 rot, 2 `todo` (vorher 245), davon 42 neue in
   `tests/qa-sprint4.test.js`
 - **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
@@ -19,39 +18,42 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
-**Rolle Entwickler, Nachbesserung.** Die QA hat am 23.10.2026 **„Zurück an Entwickler“** gegeben.
-Zu beheben sind mindestens die beiden mittleren Befunde:
 
-| Befund | Jira | Schwere | Kurz |
-|---|---|---|---|
-| S4-01 | MAS-64 | mittel | `summary { display: flex }` nimmt das Aufklapp-Dreieck weg – nicht erkennbar, dass und ob eine Karte klappt |
-| S4-02 | MAS-65 | mittel | Zugeklappte Karte verbirgt die Statusmeldung (z. B. „keine passende Reihe“) vollständig; Kurzfassung bleibt leer |
-| S4-03 | MAS-66 | niedrig | Karte mit sichtbarem Eingabefehler lässt sich wieder zuklappen und bleibt zu |
-| S4-04/05 | MAS-67 | niedrig | „ab der ersten“ am Schalter „nur jede 2.“ und „Länge in Reihen“ als Zielquelle im Zähler |
-| S4-06 | MAS-68 | niedrig | 0.3.0 liest Daten von 0.4.0, löscht Startreihe und Klapp-Zustand aber beim nächsten Speichern (R13) |
+**1. Jira-Buchführung nachholen** – nichts davon ist bisher eingetragen:
 
-Alle fünf Vorgänge hängen an Epic MAS-60, Label `qa-sprint-4`, Version 0.4.0.
+| Vorgang | Soll |
+|---|---|
+| MAS-57, MAS-58, MAS-62, MAS-59 | auf **Erledigt** – Entwickler-Artefakt nach `CLAUDE.md`, war vergessen |
+| MAS-64, MAS-65, MAS-66, MAS-67 | auf **Erledigt**, mit Kommentar zur Korrektur (Commit `cf49a64`) |
+| MAS-68 | auf **Erledigt**: nur dokumentiert, so vom Auftraggeber entschieden, siehe R13 |
 
-**Außerdem offen:** Die vier Sprint-Vorgänge MAS-57, MAS-58, MAS-62 und MAS-59 stehen in Jira noch
-auf „Zu erledigen“ und gehören auf „Erledigt“. Die Testzahl im `CHANGELOG` (245) ist auf 287 zu
-heben.
+**2. Nachtest durch die QA.** Der Subagent prüft gegen Commit `cf49a64`, ob S4-01 bis S4-05
+behoben sind, und liefert „Freigabe" oder erneut „Zurück an Entwickler". Seine beiden
+`todo`-Tests sind inzwischen echte Regressionstests.
 
-**Zwei Punkte brauchen die Bestätigung des Product Owners** (im Entwickler-Commit zu MAS-62
-ausführlich begründet):
+**3. Danach:** Merge nach `main` – das veröffentlicht 0.4.0 über GitHub Pages –, Datum im
+CHANGELOG eintragen, Praxistest am iPhone mit der Enduserin.
 
-1. Die Beschriftung des neuen Feldes heißt **„Frühestens ab Reihe"**, nicht wie in AK1 vorgesehen
-   „Erste Reihe mit Zu-/Abnahme". Die Ereignisse werden gleichmäßig verteilt, das erste liegt also
-   in der Regel später – bei Startreihe 4 und 17 Zunahmen beginnt der Plan bei Reihe 10. Die
-   vorgesehene Beschriftung hätte genau den Fehler wiederholt, den P3-01 beschreibt.
-2. Offene Frage dahinter: Soll die Startreihe die **früheste erlaubte** Reihe sein (so umgesetzt,
-   so entworfen) oder die Reihe, in der das **erste Ereignis** liegt? Beim Ärmel könnte Letzteres
-   gemeint sein. Das wäre eine eigene Story.
+## Stand der Nachbesserung (23.10.2026, Commit cf49a64)
 
-**Für den Praxistest gemessen** (360 × 640 px, lokaler Browser): Die neuen Maschenzahlen kosten
-**0 px** zusätzliche Höhe, die Ereigniszeilen bleiben einzeilig. Die Zähleransicht ist dort genau
-640 px hoch, passt also – aber **ohne jede Reserve**. Der Hinweis „Bildschirm kann nicht
-wachgehalten werden" belegt allein 164 px; wo er erscheint, muss gescrollt werden. Auf dem
-installierten iPhone ab iOS 18.4 erscheint er nicht.
+287 Tests, alle grün, keine `todo`-Tests mehr. Behoben: S4-01 bis S4-05. S4-06 nur dokumentiert.
+
+**Im Browser bei 360 × 640 px nachgemessen** – diese Werte soll der Nachtest bestätigen oder
+widerlegen:
+
+- Dreieck 7 px in `--text-leise`, bei offener Karte um 90° gedreht, bei zugeklappter nicht.
+  `summary` weiter 44 px hoch, kein Querscrollen.
+- Zugeklappte Plan-Karte mit Startreihe 999 zeigt „Bitte prüfen: Für 17 Zu-/Abnahmen gibt es keine
+  passende Reihe …" und bleibt zugeklappt. Mit gültigem Wert wieder „17 × 2 M zunehmen, alle
+  9–10 Reihen", das Attribut `data-problem` verschwindet.
+- Auswahlfeld der Zielquelle 227 px breit bei 360 px Sicht, mit dem längeren Namen
+  „Aus Länge (cm) → Reihen".
+- Zähleransicht unverändert genau 640 px ohne den Wachhalter-Hinweis, mit ihm 773 px.
+
+**Abweichung vom Entwurf, freigegeben:** Fehler und Statusmeldungen gehen in die Kurzfassung,
+statt die Karte erzwungen aufzuklappen. US-38 AK6 ist entsprechend zu lesen; die neue Fassung
+steht in `docs/architektur/sprint-4-architektur.md` v4.3, Abschnitt 5.4.
+
 
 ## Sprint 4 „Überblick beim Stricken" – Epic MAS-60, Ziel Version 0.4.0
 Alle Punkte stammen aus dem Praxistest von 0.3.0 am 21.10.2026 (MAS-56, bestanden).
