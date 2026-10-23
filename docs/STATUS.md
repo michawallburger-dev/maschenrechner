@@ -57,23 +57,16 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 - **E24 hängt an US-39:** Wird sie umgesetzt, ist „erste Reihe bleibt frei" nur noch eine
   Vorbelegung. Beim Umsetzen in `docs/entscheidungen.md` nachtragen. Die Zählerfeld-Variante a
   aus E22 ist unverändert bestätigt.
-## Offener Jira-Abgleich (22.10.2026)
-
-Die Atlassian-Verbindung lief in Zeitüberschreitungen: Lesezugriffe gingen, Schreibzugriffe nicht.
-Ein Neustart von Claude Desktop hat das **nicht** behoben – danach schlugen auch Lesezugriffe fehl
-(„Connection closed", dann wieder Zeitüberschreitung), während der Konnektor sich durchgehend als
-„connected" meldete. Deshalb greift auch das Reconnect-Werkzeug nicht, das nur bei Status „failed"
-arbeitet. Nächster Versuch: `/mcp` in der Sitzung, dort Reconnect bzw. Anmeldung erneuern.
-Am Zeitstempel von MAS-62 (13:38:49, meine Tippfehler-Korrektur) ist belegt, dass die späteren
-Schreibvorgänge **nicht** angekommen sind. **Die Entscheidungen stehen und sind hier dokumentiert;
-nur Jira ist noch nicht nachgezogen.** Nachzuholen ist genau das:
-
-1. **MAS-62** an Epic **MAS-60** hängen, Version **0.4.0**, Label `sprint-4` ergänzen.
-2. **MAS-29** zurück an Epic **MAS-4** hängen, Version entfernen.
-3. **MAS-62 Beschreibung:** Die Abschnitte „Noch zu klären" Punkt 1 (Abstand frei wählbar) und
-   Punkt 3 (Sprint) sind erledigt und gehören heraus. Punkt 2 (E24 anpassen) bleibt. Die Zeile
-   „Priorität: Muss (Entscheidung des Auftraggebers steht aus)" wird zu „Priorität: Muss".
-4. **MAS-60 Beschreibung:** Umfangstabelle steht noch auf dem Stand vor dem Tausch. Soll sein:
-   1. MAS-57, 2. MAS-58, 3. MAS-62, 4. MAS-59; dazu MAS-61 (erledigt). E29 und E30 wie in
-   `docs/entscheidungen.md` nachziehen und MAS-29 aus der Tabelle nehmen.
 - **Tags:** v0.2.0 und v0.3.0 fehlen (wird später nachgezogen).
+- **Branch `setup/projektregeln`** ist gemergt und kann auf GitHub gelöscht werden.
+
+## Jira ist abgeglichen (23.10.2026)
+
+Der Abgleich aus E29 ist vollständig: MAS-62 hängt an Epic MAS-60 mit Version 0.4.0 und Label
+`sprint-4`, MAS-29 wieder an MAS-4 ohne Version. Die Beschreibungen von MAS-60 und MAS-62 sind auf
+dem Stand nach dem Tausch.
+
+**Nachtrag zur Störung vom 22.10.:** Die beiden Schreibvorgänge, die damals in Zeitüberschreitungen
+liefen, sind serverseitig später doch angekommen (16:09 und 16:28) – nach Sitzungsende. Eine
+Zeitüberschreitung beim Atlassian-MCP heißt also **nicht**, dass der Schreibvorgang verloren ist.
+Vor dem Wiederholen immer erst per Abfrage den Ist-Stand prüfen, sonst schreibt man doppelt.
