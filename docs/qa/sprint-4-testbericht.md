@@ -300,3 +300,299 @@ bestanden – das gehört in den Praxistest.
 - **S4-01 (MAS-64)** und **S4-02 (MAS-65)** beheben.
 - **S4-03 bis S4-06** entweder beheben oder ausdrücklich zurückstellen.
 - Nachtest durch die QA, danach Praxistest am iPhone mit der Enduserin.
+
+---
+
+# Nachtest nach der Nachbesserung (Commit `cf49a64`)
+
+Rolle: QA · Stand: 23.10.2026 · Prüfgegenstand: Branch `sprint-4`, Commit **`cf49a64`** („Korrekturen
+aus der QA von Sprint 4") · Grundlage: `docs/architektur/sprint-4-architektur.md` **v4.3**,
+Risikoregister in `docs/architektur.md` (R13–R16), `CHANGELOG.md` 0.4.0, die Akzeptanzkriterien aus
+Abschnitt 3 dieses Berichts
+
+## Ergebnis: **Freigabe** für Version 0.4.0
+
+**S4-01 bis S4-05 sind behoben**, jeder einzeln am Code und im Browser nachgeprüft. **S4-06 ist
+sauber dokumentiert** – die Berichtigung von R13 stimmt mit dem Verhalten der 0.3.0-Module überein.
+Die beiden früheren `todo`-Tests sind echte Regressionstests und grün. Der Referenzfall aus Sprint 3
+rechnet unverändert. Eine Regression durch die Nachbesserung wurde nicht gefunden.
+
+Vier **neue, niedrige Befunde** (S4-07 bis S4-10) betreffen Fälle, die die neue Kurzfassung noch
+nicht abdeckt, und einen vergessenen Vorgabetext. Keiner davon blockiert die Veröffentlichung;
+S4-09 bestand schon vor der Nachbesserung. Der Product Owner entscheidet, ob sie in 0.4.1 oder in
+den Backlog gehen. **Jira-Vorgänge sind dafür auftragsgemäß nicht angelegt.**
+
+| Befund | Jira | Stand nach dem Nachtest | Beleg |
+|---|---|---|---|
+| S4-01 Kein Dreieck, Klappzustand unsichtbar | MAS-64 | **behoben** | `.kartenkopf::before` gemessen: 7 px, `rgb(95,84,80)` = `--text-leise`; `rotate(90deg)` nur bei `details[open]` |
+| S4-02 Zugeklappte Karte verbirgt die Statusmeldung | MAS-65 | **behoben** | Startreihe 999 bei zugeklappter Karte: „Bitte prüfen: Für 17 Zu-/Abnahmen …"; auch `probenFehlen` und `ergebnisZuKlein` der Rechner |
+| S4-03 Karte mit Fehler lässt sich wieder zuklappen | MAS-66 | **behoben** (geänderter Entwurf) | Zuklappen bleibt erlaubt, der Fehler steht im Kartenkopf; Architektur v4.3, Abschnitt 5.4 |
+| S4-04 „ab der ersten" am Schalter „nur jede 2." | MAS-67 | **behoben** | `plan.jedeZweiteHinweis` = „… ab der Startreihe."; im Browser so dargestellt |
+| S4-05 Zielquelle hieß „Länge in Reihen" | MAS-67 | **behoben** | Auswahlfeld 227 × 48 px bei 360 px, Eintrag „Aus Länge (cm) → Reihen" |
+| S4-06 0.3.0 verliert beide Felder beim Speichern | MAS-68 | **dokumentiert** (nicht behoben, so entschieden) | R13 in beiden Dokumenten berichtigt, CHANGELOG-Abschnitt „Bewusst nicht umgesetzt"; Verhalten der 0.3.0-Module unabhängig nachgestellt |
+| S4-07 Plan-Karte verbirgt „Maschenprobe fehlt" | – | **neu, niedrig** | zugeklappte Karte 44 px, Kurzfassung leer, Hinweis `checkVisibility() === false` |
+| S4-08 Offene Auswahl bleibt zugeklappt unsichtbar | – | **neu, niedrig** | Status „auswahl": Kurzfassung leer, kein `data-problem` |
+| S4-09 Kurzfassung bleibt nach dem Löschen des Plans stehen | – | **neu, niedrig** (Altbestand) | nach „Plan löschen" weiter „17 × 2 M zunehmen …", obwohl `plan === null` |
+| S4-10 Vorgabetext in `index.html` nicht mitgezogen | – | **neu, kosmetisch** | `data-text="plan.jedeZweiteHinweis"` enthält weiter „, ab der ersten." |
+
+## N.1 Vorgehen
+
+- **Code-Review** des vollständigen Diffs `cf49a64` (10 Dateien) gegen das Architekturdokument v4.3
+  und die Akzeptanzkriterien. Die Commit-Botschaft wurde als Behauptung behandelt, nicht als Beleg.
+- **Automatische Tests:** `npm test` (Node 22.16, keine Abhängigkeiten), dazu eine eigene neue Datei
+  `tests/qa-sprint4-nachtest.test.js`, die unabhängig von den Tests des Entwicklers prüft.
+- **Browsermessung:** lokaler Server `py -m http.server 8000`, Chrome 155 im Kopflosmodus über das
+  DevTools-Protokoll ferngesteuert, Ansichtsfenster **360 × 640 px**, `mobile: true`. Gemessen wurde
+  mit `getBoundingClientRect`, `getComputedStyle` (auch für `::before`), `checkVisibility()` und
+  `document.documentElement.scrollHeight/scrollWidth`. Testdaten per dynamischem Import von
+  `js/modell.js` in den `localStorage`, danach Neuladen – **erfundene Daten**, ein Projekt
+  „Testprojekt" mit den Strickstücken „Teil A/B/C". Der Server wurde nach dem Testen beendet.
+- **Rückwärtstest 0.3.0:** die Module aus Commit `7a7bae2` gegen einen von 0.4.0 geschriebenen
+  Datensatz laufen lassen (für S4-06).
+
+## N.2 Automatische Tests
+
+| Lauf | Ergebnis |
+|---|---|
+| `npm test` auf dem Stand `cf49a64` (ohne die neue QA-Datei) | **287 Tests, 287 grün, 0 rot, 0 `todo`** – die Behauptung des Entwicklers stimmt |
+| davon die beiden früheren `todo`-Tests (S4-04, S4-05) | echte Regressionstests, beide grün: `plan.jedeZweiteHinweis` ohne „ab der ersten" und mit „Startreihe"; Zielquelle = Kartentitel für dieselbe Einheit |
+| `npm test` **mit** `tests/qa-sprint4-nachtest.test.js` | **311 Tests, 307 grün, 0 rot, 4 `todo`** – die vier `todo` halten die neuen Befunde S4-07 bis S4-10 fest |
+
+Die neue Datei prüft eigenständig: das gezeichnete Dreieck und den abgeschalteten Browser-Marker im
+Stylesheet, die Struktur `.kartenkopf-text` in beiden Vorlagen, das Fehlen von `setzeOffen`/`istOffen`
+in allen drei betroffenen Modulen, die Abdeckung von `.fehler` **und** `[data-rolle="status"]` in
+beiden `problemText`-Funktionen, beide Textkorrekturen in allen Einheiten, die Berichtigung von R13
+in beiden Dokumenten, den Referenzfall aus Sprint 3 für beide Werte von „nur jede 2.", die
+Gleichheit von „Feld fehlt" und „Feld leer", Datenschutz (fremde Adressen, `@import`, CSP) und die
+Auslieferungsliste des Service Workers.
+
+## N.3 Die Messwerte des Entwicklers – bestätigt oder widerlegt
+
+| Behauptung aus `docs/STATUS.md` | Nachgemessen (Chrome 155, 360 × 640 px) | Urteil |
+|---|---|---|
+| Dreieck 7 px in `--text-leise` | `border-left: 7px`, `rgb(95, 84, 80)` – das ist `--text-leise` `#5f5450`; dunkles Schema `rgb(200, 189, 182)` = `#c8bdb6` | **bestätigt** |
+| bei offener Karte um 90° gedreht, bei zugeklappter nicht | offen `matrix(0, 1, -1, 0, 0, 0)` (= `rotate(90deg)`), zugeklappt `none` | **bestätigt** |
+| `summary` weiter 44 px hoch | offene Karte **44,0 × 294 px**; zugeklappt mit Kurzfassung 56,8 px, mit langem Problemtext bis 125 px | **bestätigt** (44 px ist die Mindesthöhe; der Kopf wächst mit der Kurzfassung, das Touch-Ziel bleibt ≥ 44 px) |
+| kein Querscrollen | `scrollWidth === innerWidth === 360` in allen geprüften Zuständen, auch mit dem langen Problemtext | **bestätigt** |
+| Startreihe 999, zugeklappte Plan-Karte zeigt „Bitte prüfen: Für 17 Zu-/Abnahmen gibt es keine passende Reihe …" und bleibt zu | Kurzfassung exakt „Bitte prüfen: Für 17 Zu-/Abnahmen gibt es keine passende Reihe. Nimm mehr Maschen pro Zu-/Abnahme oder prüfe die Länge.", `details.open === false`, `data-problem` gesetzt | **bestätigt** |
+| mit gültigem Wert wieder „17 × 2 M zunehmen, alle 9–10 Reihen", `data-problem` verschwindet | genau so, `data-problem` nicht mehr vorhanden, Farbe zurück auf `--text-leise` | **bestätigt** |
+| Auswahlfeld der Zielquelle 227 px breit, Name „Aus Länge (cm) → Reihen" | **227,0 × 48 px**; Einträge „Zu-/Abnahmeplan" und „Aus Länge (cm) → Reihen" | **bestätigt** |
+| Zähleransicht unverändert genau 640 px ohne den Wachhalter-Hinweis | `scrollHeight === 640`, kein Scrollbalken | **bestätigt** |
+| mit Wachhalter-Hinweis 773 px | **749 px** (der Hinweis selbst 140 px hoch, `clientHeight` 640) | **abweichend**: dass die Ansicht mit dem Hinweis scrollt, stimmt; die Zahl 773 ist hier nicht reproduzierbar (Schriftrendering, Scrollbalken). Kein Befund, aber die genaue Zahl taugt nicht als Zusage. |
+
+## N.4 Befunde einzeln
+
+### S4-01 (MAS-64) – **behoben**
+
+| Prüfung | Erwartet | Tatsächlich | |
+|---|---|---|---|
+| Dreieck vorhanden und sichtbar | Zustandsanzeige am Kartenkopf | eigenes Rahmen-Dreieck in `.kartenkopf::before`, `content: ''` | ✓ |
+| Zustand erkennbar | offen ≠ zu | Drehung um 90° nur bei `details[open]`; im Bildschirmfoto deutlich unterscheidbar | ✓ |
+| nicht nur Farbe als Hinweis | Form trägt die Aussage | Richtung des Dreiecks, nicht die Farbe | ✓ |
+| Kontrast des Dreiecks | ≥ 3 : 1 (grafisches Element) | hell 7,32 : 1, dunkel 8,35 : 1 | ✓ |
+| Screenreader | kein zusätzliches Vorlesen | leerer `content`, kein Textknoten; den Zustand meldet `<details>` selbst | ✓ |
+| Marker des Browsers | abgeschaltet, kein doppeltes Dreieck | `list-style: none` und `::-webkit-details-marker { display: none }` | ✓ |
+| Touch-Ziel, Umbruch | ≥ 44 px, kein Querscrollen | 44 × 294 px, `.kartenkopf-text` bricht um, `scrollWidth` 360 | ✓ |
+
+Die Begründung im Commit ist zutreffend: `display: flex` verhindert den `::marker`, weil der nur bei
+`display: list-item` entsteht. Der falsche Kommentar im Stylesheet ist entfernt.
+
+### S4-02 (MAS-65) – **behoben**
+
+| Zustand der Karte (zugeklappt) | Erwartet | Tatsächlich | |
+|---|---|---|---|
+| Plan: Startreihe 999 (`ZU_WENIG_REIHEN`) | Meldung sichtbar | „Bitte prüfen: Für 17 Zu-/Abnahmen gibt es keine passende Reihe. …" | ✓ |
+| Plan: Startreihe „abc" (Feldfehler) | Meldung sichtbar | „Bitte prüfen: Bitte eine Zahl eingeben, z. B. 12 oder 12,5." | ✓ |
+| Rechner: Eingabe „abc" | Meldung sichtbar | dieselbe Meldung mit Vorspann | ✓ |
+| Rechner: geleertes Pflichtfeld | Meldung sichtbar | „Bitte prüfen: Bitte einen Wert eingeben." | ✓ |
+| Rechner: Maschenproben unvollständig | Meldung sichtbar | „Bitte prüfen: Bitte zuerst beide Maschenproben vollständig ausfüllen." | ✓ |
+| Rechner: Anpassung zu groß (`ergebnisZuKlein`) | Meldung sichtbar | „Bitte prüfen: Mit dieser Anpassung bleibt weniger als 1 übrig. …" | ✓ |
+| Plan: eigene Probe unvollständig | Meldung sichtbar | **Kurzfassung leer** → **S4-07** | ✗ |
+| Plan: offene Auswahl, noch nicht entschieden | Hinweis erwartet | **Kurzfassung leer** → **S4-08** | ✗ |
+| unberührtes leeres Feld | **keine** Meldung, nur der Titel (AK5) | Kurzfassung leer | ✓ |
+
+Beide `problemText`-Funktionen werten nur **sichtbare** Meldungen aus (`!e.hidden` und Textinhalt),
+Feldfehler haben Vorrang vor der Statusmeldung. Das Wort „Bitte prüfen:" trägt die Aussage; die
+Farbe `--warnung-text` kommt hinzu (Kontrast hell 9,3 : 1, dunkel 11,5 : 1, Schriftstärke 600). Die
+Kurzfassung ist **keine** Live-Region, es kommt also keine Ansage hinzu – MAS-32/S3-04 bleibt
+gewahrt.
+
+### S4-03 (MAS-66) – **behoben**, auf dem freigegebenen anderen Weg
+
+Das erzwungene Aufklappen ist ersatzlos entfallen; `setzeOffen`/`istOffen` sind aus `js/dom.js`
+entfernt. Eine Karte mit Fehler lässt sich zuklappen und **bleibt** zu – das ist jetzt zulässig,
+weil der Fehler im Kartenkopf steht. Die Abweichung vom ursprünglichen Entwurf ist in
+`docs/architektur/sprint-4-architektur.md` v4.3, Abschnitt 5.4 beschrieben und in R16 nachgezogen.
+
+**Beurteilung gegen den Zweck von US-38 AK6** („ein Hinweis darf nicht verborgen bleiben"): Für
+Feldfehler und für alle Statusmeldungen beider Kartenarten ist der Zweck erfüllt, und die neue
+Lösung ist der alten überlegen, weil sie den Willen der Nutzerin nicht überschreibt. **Vollständig
+ist sie nicht:** Die Plan-Karte kennt zwei weitere Zustände mit Handlungsbedarf, die die Kurzfassung
+nicht erreicht (S4-07, S4-08). Das Architekturdokument zählt in Abschnitt 5.4 ausdrücklich
+„Maschenproben fehlen" zu den abgedeckten Meldungen – das gilt für die Rechner-Karten, nicht für den
+eigenen Probenhinweis der Plan-Karte.
+
+### S4-04 und S4-05 (MAS-67) – **behoben**
+
+| Prüfung | Erwartet | Tatsächlich | |
+|---|---|---|---|
+| `plan.jedeZweiteHinweis` | kein „ab der ersten" | „Dann nur jede zweite Reihe bzw. Runde ab der Startreihe." | ✓ |
+| im Browser dargestellt | neuer Wortlaut | genau so | ✓ |
+| Vorgabetext in `index.html` | mitgezogen | **weiter „…, ab der ersten."** → **S4-10** (nie sichtbar, `texteFuellen` ersetzt ihn) | ✗ |
+| `zaehler.quelle.laengeZuReihen` = Kartentitel | gleich, in jeder Einheit | gleich für `cm` und `in`; der Rohtext trägt `{einheit}`, `ctx.t` füllt es immer | ✓ |
+| Platz im Auswahlfeld bei 360 px | passt ohne Querscrollen | 227 px von 360 px, `scrollWidth` 360 | ✓ |
+| übrige Zielquellen | unverändert | „Zu-/Abnahmeplan", „Reihen aus der Anleitung" | ✓ |
+
+### S4-06 (MAS-68) – **dokumentiert**, bewusst nicht behoben
+
+| Prüfung | Ergebnis |
+|---|---|
+| Verhalten unabhängig nachgestellt | `pruefeDaten` aus Commit `7a7bae2` (0.3.0) gegen einen 0.4.0-Datensatz: Ergebnis `gueltig`, das Strickstück behält `id, name, erstellt, geaendert, probeId, rechner, zaehler, zielQuelle, plan` – **`eingeklappt` fehlt, `plan.startReihe` fehlt**. Die Beschreibung des Befundes stimmt. |
+| R13 in `docs/architektur.md` | berichtigt: „verliert die neuen Felder aber beim nächsten Speichern. Bewusst hingenommen (MAS-68)" – zutreffend |
+| R13 in `docs/architektur/sprint-4-architektur.md`, Abschnitt 8 | ausführlich und richtig; nennt die Ursache (`pruefeDaten` schneidet unbekannte Felder weg), die Folge (Plan rechnet mit dem Standard) und einen Weg für später |
+| R16 | auf die neue Lösung umgeschrieben, nennt die erste Fassung als Befund | ✓ |
+| `CHANGELOG.md` | eigener Abschnitt „Bewusst nicht umgesetzt" mit S4-06, MAS-68 und Begründung | ✓ |
+| Einschränkung | Der Punkt unter „Technisch" sagt unverändert, eine 0.3.0 könne Daten „lesen und unverändert rechnen". Das stimmt für das Lesen und wird zehn Zeilen später richtiggestellt, liest sich für sich genommen aber zu beruhigend. **Empfehlung**, kein Befund: den Halbsatz um „…, verliert sie aber beim Speichern" ergänzen. |
+
+Damit ist S4-06 als Dokumentationsaufgabe **erledigt**. Der Datenverlust selbst bleibt bestehen und
+ist in R13 nachlesbar; er tritt nur auf, wenn ein zweites Gerät ohne Update weiterarbeitet.
+
+## N.5 Keine Regression durch die Nachbesserung
+
+| Prüfung | Ergebnis |
+|---|---|
+| `setzeOffen` / `istOffen` wirklich unbenutzt | ✓ – kein Treffer mehr in `js/`, `index.html`, `tests/`; `klappbar()` gibt nichts mehr zurück, beide Aufrufstellen werten nichts aus; der JSDoc-`@returns` ist ebenfalls entfernt |
+| Klappen weiterhin vollständig | ✓ – Klick auf den Kopf, **Enter** und **Leertaste** klappen zu und auf; der Zustand steht sofort in `eingeklappt` und überlebt das Neuladen; Aufklappen entfernt den Schlüssel wieder |
+| Anfangszustand wird nicht als Wunsch gespeichert | ✓ – der `gemeldet`-Abgleich ist unverändert; beim Aufbau wird nichts geschrieben |
+| Referenzfall Sprint 3, leere Startreihe, **ohne** „jede 2." | ✓ – 50 Anfangsmaschen, 84 Endmaschen, 167 Reihen, 17 Zunahmen, Abstand 9–10, letzte Maschenzahl 84, letztes Ereignis in Reihe 157 (≤ 166, E24) |
+| derselbe Fall **mit** „jede 2." (US-39 AK9) | ✓ – gleiche Kennzahlen, alle 17 Ereignisse auf ungeraden Reihen (9 … 157) |
+| Plan **ohne** das Feld `startReihe` gegen leeres Feld | ✓ – `deepEqual` für beide Werte von „jede 2." |
+| `erlaubteReihen` ohne drittes Argument gegen `null` | ✓ – gleiche Anzahl, gleicher Start, gleiche Reihen (167 Reihen, beide Schalterstellungen) |
+| Kurzfassung der Rechner-Karten bei gültiger Eingabe | ✓ – „Deine Maschen: 125", „Deine Reihen: 111"; nach dem Leeren des Feldes bleibt kein alter Wert stehen |
+| Maschenzahl je Ereignis (US-37) im Zähler | ✓ – „Reihe 19: +2 M → 54 M", „Reihe 28: … → 56 M", „Reihe 37: … → 58 M", einzeilig |
+| Randfälle `startReihe` (erneut geprüft) | ✓ – `""` und `"   "` → automatisch; `"1.000"` → 1000 (E13); `"0"`/`"-3"` → `NICHT_POSITIV`; `"2,5"` → `KEINE_GANZZAHL`; `"abc"` → `KEINE_ZAHL`; `"99999"` gültig, `"100000"` → `ZU_GROSS`; 999 → `ZU_WENIG_REIHEN` mit `moeglich 0`, 166 → `moeglich 1` |
+| Datenerhalt bei 64-stelligen IDs | ✓ – Projekt- und Strickstück-ID mit 64 Zeichen bleiben, `startReihe: "1.000"` und `eingeklappt` erhalten |
+| beschädigte Daten | ✓ – `eingeklappt: "ja"` → `{}`, unbekannte Kartennamen entfallen, `startReihe: "kaputt"` wird **aufbewahrt** (R10), der Rest des Strickstücks bleibt |
+| gesamte Bestandssuite | ✓ – 287 von 287 grün |
+
+## N.6 Datenschutz
+
+| Prüfung | Ergebnis |
+|---|---|
+| Netzwerkverkehr einer vollen Sitzung (Liste, Strickstück, Plan, Zähler, Klappen, Löschdialog) | **28 Anfragen, alle an `localhost:8000`** – keine einzige fremde Herkunft |
+| `fetch`, `<script src>`, `<link href>`, `@import`, Schriften | keine externen; nur relative Pfade, Systemschriften |
+| Cookies nach der Sitzung | `document.cookie === ""` |
+| Tracker, Analyse, Einwilligungsbanner | keine |
+| Content Security Policy in `index.html` | unverändert eng: `default-src 'self'`, `script-src 'self'`, `base-uri 'none'`, `form-action 'none'`, `object-src 'none'`; kein `unsafe-inline`, kein `unsafe-eval`, kein `*` |
+| die beiden neuen Felder | reine Darstellungs- und Rechenangaben ohne Personenbezug; in `docs/architektur.md` ist nichts zu begründen |
+
+Die Nachbesserung ändert am Datenschutzkonzept aus Sprint 1, Abschnitt 7 nichts.
+
+## N.7 Offlinefähigkeit
+
+| Prüfung | Ergebnis |
+|---|---|
+| neue Dateien durch die Nachbesserung | **keine** – `cf49a64` ändert 10 vorhandene Dateien und legt keine an |
+| alle geänderten Dateien in `APP_DATEIEN` | ✓ `css/style.css`, `js/dom.js`, `js/texte.js`, `js/ansichten/plankarte.js`, `js/ansichten/strickstueck.js`, `index.html` |
+| `CACHE_NAME` | ✓ `maschenrechner-v0.4.0` |
+| Versionsnummern `package.json` / `sw.js` / `js/app.js` | ✓ alle drei `0.4.0` |
+| jeder Eintrag der Liste existiert | ✓ |
+
+## N.8 Mobilansicht und Barrierefreiheit (360 × 640 px)
+
+| Prüfung | Erwartet | Tatsächlich | |
+|---|---|---|---|
+| Zähleransicht ohne Scrollen (R9/R15) | `scrollHeight ≤ 640` | genau 640 px, unverändert gegenüber dem ersten Lauf | ✓ (knapp) |
+| dieselbe Ansicht mit dem Wachhalter-Hinweis | – | 749 px, also scrollbar; alle Bedienelemente bleiben erreichbar, nichts wird abgeschnitten | bekannt (R15) |
+| Querscrollen | nein | `scrollWidth` 360 in allen Ansichten und Zuständen | ✓ |
+| Touch-Ziele in der Zähleransicht | ≥ 44 × 44 px | kein Element darunter | ✓ |
+| Touch-Ziel des Kartenkopfes | ≥ 44 px | 44 × 294 px | ✓ |
+| Tastatur | fokussierbar, Enter und Leertaste | `summary` mit `tabIndex 0`, beide Tasten klappen, Fokusring 2 px `--fokus` sichtbar | ✓ |
+| Kontrast Kurzfassung normal | ≥ 4,5 : 1 | hell 7,32 : 1, dunkel 8,35 : 1 | ✓ |
+| Kontrast Kurzfassung mit Problem | ≥ 4,5 : 1 | hell 9,30 : 1, dunkel 11,48 : 1 | ✓ |
+| Farbe nie allein | das Wort trägt die Aussage | „Bitte prüfen:" im Text, Dreieck als Form | ✓ |
+| Live-Regionen Strickstück-Ansicht | nicht mehr als bisher | unverändert: 1 ausdrückliche (`plan-ansage`, verzögert) und 4 implizite `<output>`; die neue Kurzfassung ist **keine** Live-Region | ✓ |
+| Live-Regionen Zähleransicht | genau 1 | 1 (`ansage`) | ✓ |
+| Kopf einer zugeklappten Karte mit langem Problemtext | lesbar, kein Überlauf | bricht um, bis 125 px hoch, kein Querscrollen | ✓ |
+
+## N.9 Neue Befunde
+
+### S4-07 – Die Plan-Karte verbirgt zugeklappt den Hinweis „Maschenprobe fehlt" (niedrig)
+
+**Fall:** Ein Strickstück hat einen Plan mit gültigen Werten, aber eine unvollständige eigene
+Maschenprobe. Die Plan-Karte zeigt dann `[data-rolle="probe-fehlt"]`: „Bitte zuerst die eigene Probe
+dieses Strickstücks vollständig ausfüllen."
+
+**Gemessen:** Zugeklappt ist der Kartenkopf 44 px hoch, die Kurzfassung **leer**, kein
+`data-problem`; der Hinweis ist tatsächlich unsichtbar (`checkVisibility() === false`). Die Nutzerin
+sieht nur den Titel „Zu- und Abnahmen" und erfährt nicht, warum kein Plan erscheint.
+
+**Ursache:** `problemText()` in `js/ansichten/plankarte.js` kennt nur `.fehler` und
+`[data-rolle="status"]`. Der Probenhinweis ist ein drittes Element.
+
+**Warum nur niedrig:** Der Probenkasten oben in derselben Ansicht zeigt im selben Fall
+„Eigene Probe: – M auf 10 cm · – R auf 10 cm", und jede Rechner-Karte mit Eingabe meldet den Mangel
+in ihrer Kurzfassung. Es gibt also andere Signale.
+
+**Vorschlag:** `[data-rolle="probe-fehlt"]` in `problemText()` aufnehmen. Eine Zeile; die Zusage in
+Architektur v4.3, Abschnitt 5.4 wäre dann auch für die Plan-Karte eingelöst.
+
+### S4-08 – Eine offene Auswahl bleibt zugeklappt unsichtbar (niedrig)
+
+**Fall:** Die Differenz ist nicht durch die Maschen je Ereignis teilbar (z. B. 20 → 33 cm bei 2 M je
+Ereignis), und die Nutzerin hat noch nicht gewählt. Status `auswahl` mit Optionen.
+
+**Gemessen:** Zusammenfassung „–", Statusmeldung bewusst leer, Kurzfassung leer, kein
+`data-problem`. Zugeklappt wirkt die Karte wie „nichts eingetragen", obwohl eine Entscheidung
+aussteht.
+
+**Bewertung:** Grenzfall. Es ist kein Fehler, aber Handlungsbedarf, und AK5 („Hauptergebnis in
+Kurzform") trifft nicht zu, weil es noch kein Ergebnis gibt. Eine Kurzfassung wie „Bitte prüfen:
+Auswahl offen" wäre folgerichtig. Der Product Owner entscheidet.
+
+### S4-09 – Nach dem Löschen des Plans bleibt die alte Kurzfassung stehen (niedrig, Altbestand)
+
+**Fall:** Plan löschen, Karte danach zuklappen.
+
+**Gemessen:** Die Karte zeigt weiter „17 × 2 M zunehmen, alle 9–10 Reihen", obwohl `plan === null`
+ist und die Karte den Knopf „Plan anlegen" enthält. Erst beim nächsten Aufbau der Ansicht (Wechsel
+und Zurück) ist die Kurzfassung leer.
+
+**Ursache:** `berechneUndZeige()` verlässt den Zweig „kein Plan" vor `zeigeKurzfassung(…)`.
+**Nicht durch die Nachbesserung entstanden** – der Zweig sieht in `bad253d` genauso aus; der erste
+Lauf hat den Fall übersehen.
+
+### S4-10 – Vorgabetext in `index.html` nicht mitgezogen (kosmetisch)
+
+`data-text="plan.jedeZweiteHinweis"` trägt in der Vorlage weiter den beanstandeten Wortlaut „Dann
+nur jede zweite Reihe bzw. Runde, ab der ersten." Im Browser steht der neue Text, weil
+`texteFuellen` ihn ersetzt – sichtbar wird der alte nie. Er führt aber beim Lesen der Vorlage in die
+Irre und sollte beim nächsten Anfassen der Datei angeglichen werden.
+
+## N.10 Hinweise an den Product Owner
+
+1. **Beschriftung und Hinweis sprechen zwei Sprachen:** Das Feld heißt „Frühestens ab Reihe", der
+   Hinweis am Schalter spricht von „der Startreihe". Beides ist für sich richtig; zusammen gelesen
+   fehlt die Brücke. Das gehört zu der ohnehin offenen Frage **MAS-63** und am besten in die
+   Durchsicht der Texte mit der Enduserin.
+2. **Die Testzahl im `CHANGELOG`** steht mit 287 richtig. Nach Übernahme dieses Nachtests kommen
+   24 QA-Tests hinzu (311 gesamt, davon 4 `todo` für S4-07 bis S4-10).
+3. **S4-07 bis S4-10** sind auftragsgemäß **nicht** als Jira-Vorgänge angelegt. S4-07 ist eine
+   Ein-Zeilen-Änderung und könnte vor dem Praxistest mitgenommen werden.
+4. **Zur Zähleransicht:** Sie passt weiterhin ohne jede Reserve in 640 px; mit dem
+   Wachhalter-Hinweis scrollt sie. R15 bleibt offen und gehört in den Praxistest.
+
+## N.11 Was ungeprüft bleibt
+
+- **Alles am iPhone**: Darstellung, Touch-Bedienung beim Stricken, VoiceOver, das Update der
+  installierten 0.3.0 auf 0.4.0 mit den echten Daten der Enduserin, der Wachhalter. Das bleibt dem
+  Praxistest vorbehalten und ist Teil der Definition of Done von MAS-60.
+- **Safari und Firefox.** Gemessen wurde in Chrome 155 (Chromium). Das Dreieck ist selbst gezeichnet
+  und damit vom `::marker`-Verhalten des Browsers unabhängig; nachgemessen ist das in WebKit nicht.
+- **Echte Screenreader.** Geprüft sind die Auszeichnung und die Zahl der Live-Regionen, nicht, was
+  VoiceOver oder TalkBack daraus machen.
+- **Jira.** In dieser Sitzung war kein Zugriff auf das Projekt MAS möglich. Die Akzeptanzkriterien
+  wurden deshalb aus Abschnitt 3 dieses Berichts und dem Architekturdokument v4.3 gelesen; **ob
+  MAS-57, MAS-58, MAS-59, MAS-62 und MAS-64 bis MAS-68 den richtigen Status tragen, ist ungeprüft.**
+- **Bestätigung der Texte durch die Enduserin** (MAS-57 AK4 und jetzt auch die beiden geänderten
+  Texte aus S4-04 und S4-05).
