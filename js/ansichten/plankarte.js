@@ -9,7 +9,7 @@ import { pruefeZahl, REGELN } from '../eingabe.js';
 import { formatZahl, formatGanzzahl, LEER_ANZEIGE } from '../format.js';
 import { vonCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern } from '../modell.js';
-import { planAusTexten, probeAusTexten } from '../plan.js';
+import { planAusTexten, probeAusTexten, standardStartReihe } from '../plan.js';
 import { vorlage, texteFuellen, el, leeren, bestaetigen } from '../dom.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, planArt } from './gemeinsam.js';
@@ -67,6 +67,8 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   const zusammenfassung = karte.querySelector('[data-rolle="zusammenfassung"]');
   const planAnsage = karte.querySelector('[data-rolle="plan-ansage"]');
   const liste = karte.querySelector('[data-rolle="liste"]');
+  const startLabel = karte.querySelector('[data-rolle="startReihe-label"]');
+  const startHinweis = karte.querySelector('[data-rolle="startReihe-hinweis"]');
   probeFehlt.querySelector('[data-rolle="probe-link"]').href = hashFuer({ ansicht: 'projekt', projektId });
 
   const beruehrt = new Set();
@@ -215,6 +217,14 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     const r = planAusTexten(plan, probe?.eigen, einheit);
     const reihenTitel = werteBereich.querySelector('[data-wert="reihen"] [data-rolle="titel"]');
     reihenTitel.textContent = t(plan.arbeitsweise === 'runden' ? 'plan.rundenGesamt' : 'plan.reihenGesamt');
+
+    // Startreihe: Beschriftung und Hinweis folgen der Arbeitsweise und „nur jede 2.“ (US-39, E31)
+    const einheitReihe = t(plan.arbeitsweise === 'runden' ? 'plan.einheitRunde' : 'plan.einheitReihe');
+    startLabel.textContent = t('plan.startReihe', { einheitReihe });
+    startHinweis.textContent = t('plan.startReiheAuto', {
+      einheitReihe,
+      reihe: formatGanzzahl(standardStartReihe(plan.jedeZweite === true), loc),
+    });
 
     if (!r) {
       for (const w of WERTE) setzeWert(w.schluessel, LEER_ANZEIGE, '');

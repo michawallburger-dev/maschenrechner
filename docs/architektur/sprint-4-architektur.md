@@ -1,4 +1,12 @@
-# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.1)
+# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.2)
+
+**Änderungen in v4.2** (23.10.2026, Rückmeldung aus der Entwicklung): Die Beschriftung des
+Startreihen-Feldes heißt **„Frühestens ab Reihe"**, nicht „Erste Reihe mit Zu-/Abnahme". Grund:
+Die Ereignisse werden gleichmäßig über die erlaubten Reihen verteilt, das erste liegt also in der
+Regel **nicht** auf der Startreihe. Bei `startReihe = 4` und 17 Zunahmen beginnt der Plan bei
+Reihe 10. „Erste Reihe mit Zu-/Abnahme" hätte genau den Fehler wiederholt, den P3-01 beschreibt –
+eine Beschriftung, die etwas anderes verspricht als sie tut. Abschnitt 5.2 ist entsprechend
+angepasst; an der Rechenregel in Abschnitt 4.1 ändert sich nichts.
 
 **Änderungen in v4.1** (23.10.2026): Hinweis H3 ist entschieden – die Vorbelegung der Startreihe
 ist als **E31** festgelegt („leer bedeutet automatisch"), AK1 von MAS-62 ist in Jira berichtigt.
@@ -150,14 +158,22 @@ Die Einheit kommt aus der Einstellung, der Text enthält also `{einheit}` wie di
 Das Feld steht in der Gruppe der Arbeitsweise, direkt **über** dem Schalter „nur jede 2. Reihe/Runde", weil der Schalter den Standard verändert:
 
 ```text
-Erste Reihe mit Zu-/Abnahme   [     ]
-leer = automatisch: Reihe 3
+Frühestens ab Reihe   [     ]
+Vorher wird nicht zu- oder abgenommen. Leer lassen für automatisch: Reihe 2.
 
 ☐ Nur jede 2. Reihe/Runde
-   Dann nur jede zweite Reihe ab der Startreihe.
+   Dann nur jede zweite Reihe bzw. Runde, ab der ersten.
 ```
 
-Der Hinweis unter dem Feld nennt die Reihe, die sich gerade aus dem Standard ergibt, und aktualisiert sich beim Umschalten. Bei Arbeitsweise „Runden" heißt die Beschriftung „Erste Runde mit Zu-/Abnahme".
+**Die Beschriftung nennt die früheste erlaubte Reihe, nicht die des ersten Ereignisses.** Verteilt
+wird gleichmäßig über alle erlaubten Reihen (Abschnitt 4.1), das erste Ereignis liegt also in der
+Regel später: bei `startReihe = 4` und 17 Zunahmen auf 167 Reihen beginnt der Plan bei Reihe 10.
+Eine Beschriftung wie „Erste Reihe mit Zu-/Abnahme" würde etwas anderes versprechen, als die Regel
+leistet – genau der Fehler, den P3-01 beschreibt.
+
+Der Hinweis unter dem Feld nennt die Reihe, die sich gerade aus dem Standard ergibt, und
+aktualisiert sich beim Umschalten. Bei Arbeitsweise „Runden" heißt die Beschriftung „Frühestens ab
+Runde".
 
 Der bestehende Hinweis am Schalter („Dann nur in ungeraden Reihen bzw. Runden, ab Reihe 3.") wird angepasst: Die Parität ist nicht mehr fest, sondern folgt der Startreihe.
 

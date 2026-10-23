@@ -48,7 +48,7 @@ export const GRENZEN = Object.freeze({
 export const ID_MUSTER = /^[A-Za-z0-9_-]{1,64}$/;
 
 export const PROBE_FELDER = Object.freeze(['maschenAnzahl', 'maschenBezug', 'reihenAnzahl', 'reihenBezug']);
-const PLAN_TEXTFELDER = Object.freeze(['anfangBreite', 'endBreite', 'laenge', 'maschenProEreignis']);
+const PLAN_TEXTFELDER = Object.freeze(['anfangBreite', 'endBreite', 'laenge', 'maschenProEreignis', 'startReihe']);
 const ANPASSUNGEN = Object.freeze(['anfang', 'ende', 'reihen']);
 const NULLZEIT = '1970-01-01T00:00:00.000Z';
 
@@ -117,6 +117,8 @@ export function leererPlan() {
     endBreite: '',
     laenge: '',
     maschenProEreignis: '2',
+    // Leer bedeutet „automatisch“: Reihe 2, mit „nur jede 2.“ Reihe 3 (US-39, E31)
+    startReihe: '',
     arbeitsweise: 'reihen',
     jedeZweite: false,
     ereignisWahl: null,

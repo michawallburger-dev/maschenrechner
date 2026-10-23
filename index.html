@@ -258,9 +258,15 @@
             <label><input type="radio" name="plan-arbeitsweise" value="runden"><span data-text="plan.runden">In Runden</span></label>
           </div>
         </fieldset>
+        <div class="feld">
+          <label for="plan-startReihe" data-rolle="startReihe-label">Frühestens ab Reihe</label>
+          <input id="plan-startReihe" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="startReihe" data-regel="startReihe" aria-describedby="plan-startReihe-hinweis fehler-plan-startReihe">
+          <p class="feldhinweis" id="plan-startReihe-hinweis" data-rolle="startReihe-hinweis"></p>
+          <p class="fehler" id="fehler-plan-startReihe" hidden></p>
+        </div>
         <div class="schalter-feld">
           <label class="schalter"><input type="checkbox" data-planfeld="jedeZweite" aria-describedby="plan-jedeZweite-hinweis"><span data-text="plan.jedeZweite">Nur jede 2. Reihe/Runde</span></label>
-          <p class="feldhinweis" id="plan-jedeZweite-hinweis" data-text="plan.jedeZweiteHinweis">Dann nur in ungeraden Reihen bzw. Runden, ab Reihe 3.</p>
+          <p class="feldhinweis" id="plan-jedeZweite-hinweis" data-text="plan.jedeZweiteHinweis">Dann nur jede zweite Reihe bzw. Runde, ab der ersten.</p>
         </div>
 
         <div class="hinweis" data-rolle="probe-fehlt" hidden>

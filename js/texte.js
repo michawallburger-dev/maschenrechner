@@ -274,7 +274,10 @@ export const SPRACHEN = Object.freeze({
       'plan.reihen': 'In Reihen (gewendet)',
       'plan.runden': 'In Runden',
       'plan.jedeZweite': 'Nur jede 2. Reihe/Runde',
-      'plan.jedeZweiteHinweis': 'Dann nur in ungeraden Reihen bzw. Runden, ab Reihe 3.',
+      'plan.jedeZweiteHinweis': 'Dann nur jede zweite Reihe bzw. Runde, ab der ersten.',
+      // Erste Reihe mit Zu-/Abnahme; leer bedeutet „automatisch“ (US-39, E31)
+      'plan.startReihe': 'Frühestens ab {einheitReihe}',
+      'plan.startReiheAuto': 'Vorher wird nicht zu- oder abgenommen. Leer lassen für automatisch: {einheitReihe} {reihe}.',
       'plan.anfang': 'Maschen am Anfang',
       'plan.ende': 'Maschen am Ende',
       'plan.reihenGesamt': 'Reihen gesamt',
