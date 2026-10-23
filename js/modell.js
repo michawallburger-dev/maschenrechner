@@ -30,6 +30,9 @@ export const RECHNER_NAMEN = Object.freeze([
   'laengeZuReihen',
 ]);
 
+/** Karten der Strickstück-Ansicht, die sich zuklappen lassen (US-38). */
+export const KLAPPBARE_KARTEN = Object.freeze(['maschenAusAnleitung', 'reihenAusAnleitung', 'breiteZuMaschen', 'laengeZuReihen', 'plan']);
+
 /** Längengrenzen für Texte und Zahlen (in der Oberfläche zusätzlich per maxlength). */
 export const GRENZEN = Object.freeze({
   name: 80,
@@ -318,6 +321,7 @@ export function neuesStrickstueck(daten, projektId, name, id, jetzt, probeId) {
     zaehler: 0,
     zielQuelle: null,
     plan: null,
+    eingeklappt: {},
   };
   const neuProjekt = { ...projekt, geaendert: jetzt, strickstuecke: [...projekt.strickstuecke, stueck] };
   return { gueltig: true, daten: mitProjekt(daten, neuProjekt), stueckId: id };
@@ -373,6 +377,16 @@ export function strickstueckAendern(daten, projektId, stueckId, felder, jetzt) {
   }
   if (felder.zielQuelle !== undefined) {
     neu.zielQuelle = ZIEL_QUELLEN.includes(felder.zielQuelle) ? felder.zielQuelle : null;
+  }
+  if (istObjekt(felder.eingeklappt)) {
+    // Nur die angegebenen Karten ändern; „offen“ wird nicht gespeichert (US-38 AK2)
+    const zustand = { ...alt.eingeklappt };
+    for (const karte of KLAPPBARE_KARTEN) {
+      if (typeof felder.eingeklappt[karte] !== 'boolean') continue;
+      if (felder.eingeklappt[karte]) zustand[karte] = true;
+      else delete zustand[karte];
+    }
+    neu.eingeklappt = zustand;
   }
   if (felder.plan === null) neu.plan = null;
   else if (istObjekt(felder.plan)) neu.plan = planMitFeldern(alt.plan, felder.plan);
@@ -440,6 +454,19 @@ function pruefeRechner(roh) {
   return rechner;
 }
 
+/**
+ * Klapp-Zustand prüfen (US-38 AK3): Nur bekannte Kartennamen mit echtem
+ * Wahrheitswert bleiben. Ein fehlender Schlüssel bedeutet „offen“ – deshalb
+ * genügt ein leeres Objekt als Vorbelegung und eine Sicherung aus 0.3 braucht
+ * keine Migration.
+ */
+function pruefeEingeklappt(roh) {
+  const zustand = {};
+  if (!istObjekt(roh)) return zustand;
+  for (const karte of KLAPPBARE_KARTEN) if (roh[karte] === true) zustand[karte] = true;
+  return zustand;
+}
+
 /** Ungültige Planfelder → Vorbelegung (der Plan bleibt erhalten); kein Objekt → kein Plan. */
 function pruefePlan(roh) {
   if (!istObjekt(roh)) return null;
@@ -501,6 +528,7 @@ export function pruefeDaten(roh) {
       zaehler: zaehlerWert(s.zaehler),
       zielQuelle: ZIEL_QUELLEN.includes(s.zielQuelle) ? s.zielQuelle : null,
       plan: pruefePlan(s.plan),
+      eingeklappt: pruefeEingeklappt(s.eingeklappt),
     }));
     return {
       id: eindeutig(p.id, projektIds, `p-reparatur-${i + 1}`),

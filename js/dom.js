@@ -34,6 +34,39 @@ export function leeren(e) {
  * @param {Element|Document} wurzel
  * @param {(schluessel:string)=>string} t
  */
+/**
+ * Macht einen Bereich auf- und zuklappbar (US-38, US-25; Architektur Sprint 4, Abschnitt 5.4).
+ *
+ * Umgesetzt mit <details>/<summary>: Tastaturbedienung, Fokus und die Ansage des
+ * Zustands kommen damit vom Browser. Der Helfer kennt den Speicher nicht – er
+ * setzt den Anfangszustand und meldet jede Änderung an den Aufrufer.
+ *
+ * @param {HTMLDetailsElement} klappe
+ * @param {{offen:boolean, aufToggle?:(offen:boolean)=>void}} optionen
+ * @returns {{setzeOffen:(offen:boolean)=>void, istOffen:()=>boolean}}
+ */
+export function klappbar(klappe, { offen, aufToggle }) {
+  // „gemeldet“ ist der Stand, den der Aufrufer kennt. Ein Setzen von .open löst
+  // ebenfalls ein toggle-Ereignis aus; ohne diesen Abgleich würde jedes
+  // programmatische Auf- und Zuklappen als Wunsch der Nutzerin gemeldet und
+  // immer wieder gespeichert.
+  let gemeldet = offen !== false;
+  klappe.open = gemeldet;
+  if (aufToggle) {
+    klappe.addEventListener('toggle', () => {
+      if (klappe.open === gemeldet) return;
+      gemeldet = klappe.open;
+      aufToggle(klappe.open);
+    });
+  }
+  return {
+    // Erzwungenes Aufklappen (z. B. bei einem Eingabefehler) überschreibt den
+    // gespeicherten Zustand nicht, weil es nicht gemeldet wird.
+    setzeOffen: (wert) => { gemeldet = wert; klappe.open = wert; },
+    istOffen: () => klappe.open,
+  };
+}
+
 export function texteFuellen(wurzel, t) {
   const alle = (sel) => {
     const liste = [...wurzel.querySelectorAll(sel)];

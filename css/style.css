@@ -224,6 +224,44 @@ body > .hinweis {
   line-height: 1.3;
 }
 
+/* Klappbare Karten (US-38, Architektur Sprint 4, Abschnitt 5.4).
+   Das Dreieck des <summary> bleibt sichtbar: Es zeigt den Zustand,
+   und Farbe allein darf nie der einzige Hinweis sein. */
+.kartenkopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-height: 44px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.kartenkopf h2 {
+  margin: 0;
+}
+
+/* Ohne Fokusring des Browsers wäre nicht erkennbar, wo die Tastatur steht */
+.kartenkopf:focus-visible {
+  outline: 2px solid var(--fokus);
+  outline-offset: 2px;
+}
+
+.kartenkopf .kurzfassung {
+  color: var(--text-leise);
+  font-size: 0.95rem;
+}
+
+/* Zugeklappt reicht die Kurzfassung; aufgeklappt wäre sie doppelt */
+details[open] > .kartenkopf .kurzfassung {
+  display: none;
+}
+
+/* Der Abstand unter der Überschrift gehört beim Aufklappen an den Inhalt */
+details[open] > .kartenkopf {
+  margin-bottom: 8px;
+}
+
 .beschreibung {
   margin: 4px 0 12px;
   color: var(--text-leise);

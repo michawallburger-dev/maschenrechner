@@ -10,7 +10,7 @@ import { formatZahl, formatGanzzahl, LEER_ANZEIGE } from '../format.js';
 import { vonCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern } from '../modell.js';
 import { planAusTexten, probeAusTexten, standardStartReihe } from '../plan.js';
-import { vorlage, texteFuellen, el, leeren, bestaetigen } from '../dom.js';
+import { vorlage, texteFuellen, el, leeren, klappbar, bestaetigen } from '../dom.js';
 import { hashFuer } from '../router.js';
 import { pruefeUndZeige, planArt } from './gemeinsam.js';
 
@@ -69,6 +69,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   const liste = karte.querySelector('[data-rolle="liste"]');
   const startLabel = karte.querySelector('[data-rolle="startReihe-label"]');
   const startHinweis = karte.querySelector('[data-rolle="startReihe-hinweis"]');
+  const kurzfassung = karte.querySelector('[data-rolle="kurzfassung"]');
   probeFehlt.querySelector('[data-rolle="probe-link"]').href = hashFuer({ ansicht: 'projekt', projektId });
 
   const beruehrt = new Set();
@@ -101,6 +102,15 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     if (ergebnis.gueltig) ctx.aendern(ergebnis.daten, { sofort });
   }
 
+  // Karte auf Wunsch zuklappen; der Zustand liegt am Strickstück (US-38)
+  const klappe = klappbar(karte.querySelector('[data-rolle="klappe"]'), {
+    offen: aktuell()?.stueck.eingeklappt?.plan !== true,
+    aufToggle: (offen) => {
+      const ergebnis = strickstueckAendern(ctx.daten(), projektId, stueckId, { eingeklappt: { plan: !offen } }, ctx.jetzt());
+      if (ergebnis.gueltig) ctx.aendern(ergebnis.daten, { sofort: true });
+    },
+  });
+
   /** Eingabefelder aus dem gespeicherten Plan füllen (beim Aufbau und nach dem Zurücksetzen). */
   function fuelleFelder(plan) {
     for (const input of karte.querySelectorAll('[data-planfeld]')) {
@@ -115,6 +125,11 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     const zeile = werteBereich.querySelector(`[data-wert="${schluessel}"]`);
     zeile.querySelector('[data-rolle="endgueltig"]').textContent = endgueltig;
     zeile.querySelector('[data-rolle="info"]').textContent = info;
+  }
+
+  /** Kurzfassung für den zugeklappten Zustand: dieselbe Aussage wie die Zusammenfassung (US-38 AK5). */
+  function zeigeKurzfassung(text) {
+    kurzfassung.textContent = text && text !== LEER_ANZEIGE ? text : '';
   }
 
   function zeigeStatus(text) {
@@ -210,6 +225,10 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       pruefeUndZeige(input, document.getElementById(`fehler-${input.id}`), 'anpassung', { t, beruehrt: beruehrt.has(input) });
     }
 
+    // Ein sichtbarer Fehler darf nicht hinter einer zugeklappten Karte verschwinden
+    // (US-38 AK6). Der gespeicherte Zustand bleibt dabei unberührt.
+    if ([...karte.querySelectorAll('.fehler')].some((e) => !e.hidden)) klappe.setzeOffen(true);
+
     const probe = probeVon(g.projekt, g.stueck);
     const probeOk = Boolean(probeAusTexten(probe?.eigen, 'maschen', einheit) && probeAusTexten(probe?.eigen, 'reihen', einheit));
     probeFehlt.hidden = probeOk;
@@ -232,6 +251,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       zeigeStatus(null);
       zeigeAuswahl(null);
       zeigeListe(null);
+      zeigeKurzfassung(null);
       return;
     }
 
@@ -280,6 +300,8 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
         }
       }
     }
+
+    zeigeKurzfassung(zusammenfassung.textContent);
   }
 
   // ---------------------------------------------------------------- Ereignisse

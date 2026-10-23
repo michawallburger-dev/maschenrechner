@@ -179,121 +179,131 @@
   <!-- Eine Rechner-Karte (viermal je Strickstück; Logik aus Sprint 1) -->
   <template id="tpl-rechner">
     <section class="karte rechner">
-      <h2 data-rolle="titel">Rechner</h2>
-      <p class="beschreibung" data-rolle="beschreibung"></p>
+      <details data-rolle="klappe" open>
+        <summary class="kartenkopf">
+          <h2 data-rolle="titel">Rechner</h2>
+          <span class="kurzfassung" data-rolle="kurzfassung"></span>
+        </summary>
+        <p class="beschreibung" data-rolle="beschreibung"></p>
 
-      <div class="feld">
-        <label data-rolle="eingabe-label">Eingabe</label>
-        <input type="text" autocomplete="off" enterkeyhint="next" maxlength="12" data-rolle="eingabe">
-        <p class="fehler" data-rolle="eingabe-fehler" hidden></p>
-      </div>
-
-      <dl class="werte">
-        <div data-nur="anleitung"><dt data-rolle="t-massAnleitung"></dt><dd data-ergebnis="massAnleitung">–</dd></div>
-        <div data-nur="laenge"><dt data-rolle="t-anleitungGerundet"></dt><dd data-ergebnis="anleitungGerundet">–</dd></div>
-        <div><dt data-rolle="t-eigenGerundet"></dt><dd data-ergebnis="eigenGerundet">–</dd></div>
-      </dl>
-
-      <div class="feld anpassung">
-        <label data-rolle="anpassung-label" data-text="anpassung.label">Anpassung</label>
-        <div class="stepper">
-          <button type="button" class="stepper-knopf" data-schritt="-1" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
-          <input type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="6" data-rolle="anpassung">
-          <button type="button" class="stepper-knopf" data-schritt="1" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+        <div class="feld">
+          <label data-rolle="eingabe-label">Eingabe</label>
+          <input type="text" autocomplete="off" enterkeyhint="next" maxlength="12" data-rolle="eingabe">
+          <p class="fehler" data-rolle="eingabe-fehler" hidden></p>
         </div>
-        <p class="feldhinweis" data-rolle="anpassung-hinweis" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
-        <p class="fehler" data-rolle="anpassung-fehler" hidden></p>
-      </div>
 
-      <div class="ergebnis">
-        <p class="hauptergebnis"><span data-rolle="t-endgueltig"></span> <output aria-live="polite" data-ergebnis="endgueltig">–</output></p>
         <dl class="werte">
-          <div><dt data-rolle="t-tatsaechlich"></dt><dd data-ergebnis="tatsaechlich">–</dd></div>
-          <div><dt data-rolle="t-abweichung"></dt><dd data-ergebnis="abweichung">–</dd></div>
+          <div data-nur="anleitung"><dt data-rolle="t-massAnleitung"></dt><dd data-ergebnis="massAnleitung">–</dd></div>
+          <div data-nur="laenge"><dt data-rolle="t-anleitungGerundet"></dt><dd data-ergebnis="anleitungGerundet">–</dd></div>
+          <div><dt data-rolle="t-eigenGerundet"></dt><dd data-ergebnis="eigenGerundet">–</dd></div>
         </dl>
-        <div class="hinweis" data-rolle="status" hidden>
-          <p data-rolle="status-text"></p>
-          <a class="link" data-rolle="status-link" href="#/" data-text="hinweis.probenLink" hidden>Zu den Maschenproben</a>
+
+        <div class="feld anpassung">
+          <label data-rolle="anpassung-label" data-text="anpassung.label">Anpassung</label>
+          <div class="stepper">
+            <button type="button" class="stepper-knopf" data-schritt="-1" data-text-aria-label="anpassung.minus" aria-label="Anpassung um 1 verringern">−</button>
+            <input type="text" inputmode="numeric" autocomplete="off" enterkeyhint="next" maxlength="6" data-rolle="anpassung">
+            <button type="button" class="stepper-knopf" data-schritt="1" data-text-aria-label="anpassung.plus" aria-label="Anpassung um 1 erhöhen">+</button>
+          </div>
+          <p class="feldhinweis" data-rolle="anpassung-hinweis" data-text="anpassung.hinweis">Ganze Zahl, z. B. +1 oder −2</p>
+          <p class="fehler" data-rolle="anpassung-fehler" hidden></p>
         </div>
-      </div>
+
+        <div class="ergebnis">
+          <p class="hauptergebnis"><span data-rolle="t-endgueltig"></span> <output aria-live="polite" data-ergebnis="endgueltig">–</output></p>
+          <dl class="werte">
+            <div><dt data-rolle="t-tatsaechlich"></dt><dd data-ergebnis="tatsaechlich">–</dd></div>
+            <div><dt data-rolle="t-abweichung"></dt><dd data-ergebnis="abweichung">–</dd></div>
+          </dl>
+          <div class="hinweis" data-rolle="status" hidden>
+            <p data-rolle="status-text"></p>
+            <a class="link" data-rolle="status-link" href="#/" data-text="hinweis.probenLink" hidden>Zu den Maschenproben</a>
+          </div>
+        </div>
+      </details>
     </section>
   </template>
 
   <!-- Zu- und Abnahmen eines Strickstücks (US-13, US-14, US-16) -->
   <template id="tpl-plankarte">
     <section class="karte plan" aria-labelledby="titel-plan">
-      <h2 id="titel-plan" data-text="plan.titel">Zu- und Abnahmen</h2>
-      <div data-rolle="ohne-plan">
-        <p class="beschreibung" data-text="plan.leer">Für Teile, deren Breite sich ändert.</p>
-        <button type="button" class="knopf knopf-primaer knopf-breit" data-rolle="anlegen" data-text="plan.anlegen">Plan anlegen</button>
-      </div>
-      <div class="plan-inhalt" data-rolle="mit-plan" hidden>
-        <p class="feldhinweis" data-text="plan.richtungHinweis">In Strickrichtung: Anfang ist dort, wo du anschlägst.</p>
-        <div class="plan-felder">
+      <details data-rolle="klappe" open>
+        <summary class="kartenkopf">
+          <h2 id="titel-plan" data-text="plan.titel">Zu- und Abnahmen</h2>
+          <span class="kurzfassung" data-rolle="kurzfassung"></span>
+        </summary>
+        <div data-rolle="ohne-plan">
+          <p class="beschreibung" data-text="plan.leer">Für Teile, deren Breite sich ändert.</p>
+          <button type="button" class="knopf knopf-primaer knopf-breit" data-rolle="anlegen" data-text="plan.anlegen">Plan anlegen</button>
+        </div>
+        <div class="plan-inhalt" data-rolle="mit-plan" hidden>
+          <p class="feldhinweis" data-text="plan.richtungHinweis">In Strickrichtung: Anfang ist dort, wo du anschlägst.</p>
+          <div class="plan-felder">
+            <div class="feld">
+              <label for="plan-anfangBreite" data-text="plan.anfangBreite">Breite am Anfang</label>
+              <input id="plan-anfangBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="anfangBreite" data-regel="laenge" aria-describedby="fehler-plan-anfangBreite">
+              <p class="fehler" id="fehler-plan-anfangBreite" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="plan-endBreite" data-text="plan.endBreite">Breite am Ende</label>
+              <input id="plan-endBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="endBreite" data-regel="laenge" aria-describedby="fehler-plan-endBreite">
+              <p class="fehler" id="fehler-plan-endBreite" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="plan-laenge" data-text="plan.laenge">Länge</label>
+              <input id="plan-laenge" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="laenge" data-regel="laenge" aria-describedby="fehler-plan-laenge">
+              <p class="fehler" id="fehler-plan-laenge" hidden></p>
+            </div>
+            <div class="feld">
+              <label for="plan-maschenProEreignis" data-text="plan.proEreignis">Maschen pro Zu-/Abnahme</label>
+              <input id="plan-maschenProEreignis" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="maschenProEreignis" data-regel="proEreignis" aria-describedby="fehler-plan-maschenProEreignis">
+              <p class="fehler" id="fehler-plan-maschenProEreignis" hidden></p>
+            </div>
+          </div>
+          <fieldset class="segment segment-zwei">
+            <legend data-text="plan.arbeitsweise">Arbeitsweise</legend>
+            <div class="segment-optionen">
+              <label><input type="radio" name="plan-arbeitsweise" value="reihen"><span data-text="plan.reihen">In Reihen (gewendet)</span></label>
+              <label><input type="radio" name="plan-arbeitsweise" value="runden"><span data-text="plan.runden">In Runden</span></label>
+            </div>
+          </fieldset>
           <div class="feld">
-            <label for="plan-anfangBreite" data-text="plan.anfangBreite">Breite am Anfang</label>
-            <input id="plan-anfangBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="anfangBreite" data-regel="laenge" aria-describedby="fehler-plan-anfangBreite">
-            <p class="fehler" id="fehler-plan-anfangBreite" hidden></p>
+            <label for="plan-startReihe" data-rolle="startReihe-label">Frühestens ab Reihe</label>
+            <input id="plan-startReihe" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="startReihe" data-regel="startReihe" aria-describedby="plan-startReihe-hinweis fehler-plan-startReihe">
+            <p class="feldhinweis" id="plan-startReihe-hinweis" data-rolle="startReihe-hinweis"></p>
+            <p class="fehler" id="fehler-plan-startReihe" hidden></p>
           </div>
-          <div class="feld">
-            <label for="plan-endBreite" data-text="plan.endBreite">Breite am Ende</label>
-            <input id="plan-endBreite" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="endBreite" data-regel="laenge" aria-describedby="fehler-plan-endBreite">
-            <p class="fehler" id="fehler-plan-endBreite" hidden></p>
+          <div class="schalter-feld">
+            <label class="schalter"><input type="checkbox" data-planfeld="jedeZweite" aria-describedby="plan-jedeZweite-hinweis"><span data-text="plan.jedeZweite">Nur jede 2. Reihe/Runde</span></label>
+            <p class="feldhinweis" id="plan-jedeZweite-hinweis" data-text="plan.jedeZweiteHinweis">Dann nur jede zweite Reihe bzw. Runde, ab der ersten.</p>
           </div>
-          <div class="feld">
-            <label for="plan-laenge" data-text="plan.laenge">Länge</label>
-            <input id="plan-laenge" type="text" inputmode="decimal" autocomplete="off" maxlength="12" data-planfeld="laenge" data-regel="laenge" aria-describedby="fehler-plan-laenge">
-            <p class="fehler" id="fehler-plan-laenge" hidden></p>
+
+          <div class="hinweis" data-rolle="probe-fehlt" hidden>
+            <p data-text="plan.probeFehlt">Bitte zuerst die eigene Probe vollständig ausfüllen.</p>
+            <a class="link" data-rolle="probe-link" href="#/" data-text="hinweis.probenLink">Zu den Maschenproben</a>
           </div>
-          <div class="feld">
-            <label for="plan-maschenProEreignis" data-text="plan.proEreignis">Maschen pro Zu-/Abnahme</label>
-            <input id="plan-maschenProEreignis" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="maschenProEreignis" data-regel="proEreignis" aria-describedby="fehler-plan-maschenProEreignis">
-            <p class="fehler" id="fehler-plan-maschenProEreignis" hidden></p>
+
+          <div class="plan-werte" data-rolle="werte"></div>
+
+          <fieldset class="plan-auswahl" data-rolle="auswahl" hidden>
+            <legend data-rolle="auswahl-frage"></legend>
+            <div class="optionen" data-rolle="optionen"></div>
+          </fieldset>
+
+          <div class="ergebnis plan-ergebnis">
+            <p class="plan-zusammenfassung"><output data-rolle="zusammenfassung">–</output></p>
+            <p class="visuell-versteckt" aria-live="polite" data-rolle="plan-ansage"></p>
+            <p class="hinweis hinweis-warnung" data-rolle="status" hidden></p>
+            <h3 class="visuell-versteckt" data-text="plan.listeTitel">Plan</h3>
+            <ol class="plan-liste" data-rolle="liste"></ol>
+          </div>
+
+          <div class="knopf-reihe">
+            <button type="button" class="knopf knopf-zweitrangig" data-rolle="anpassungen-zuruecksetzen" data-text="plan.anpassungenZuruecksetzen">Anpassungen zurücksetzen</button>
+            <button type="button" class="knopf knopf-gefahr-rand" data-rolle="plan-loeschen" data-text="plan.loeschen">Plan löschen</button>
           </div>
         </div>
-        <fieldset class="segment segment-zwei">
-          <legend data-text="plan.arbeitsweise">Arbeitsweise</legend>
-          <div class="segment-optionen">
-            <label><input type="radio" name="plan-arbeitsweise" value="reihen"><span data-text="plan.reihen">In Reihen (gewendet)</span></label>
-            <label><input type="radio" name="plan-arbeitsweise" value="runden"><span data-text="plan.runden">In Runden</span></label>
-          </div>
-        </fieldset>
-        <div class="feld">
-          <label for="plan-startReihe" data-rolle="startReihe-label">Frühestens ab Reihe</label>
-          <input id="plan-startReihe" type="text" inputmode="numeric" autocomplete="off" maxlength="6" data-planfeld="startReihe" data-regel="startReihe" aria-describedby="plan-startReihe-hinweis fehler-plan-startReihe">
-          <p class="feldhinweis" id="plan-startReihe-hinweis" data-rolle="startReihe-hinweis"></p>
-          <p class="fehler" id="fehler-plan-startReihe" hidden></p>
-        </div>
-        <div class="schalter-feld">
-          <label class="schalter"><input type="checkbox" data-planfeld="jedeZweite" aria-describedby="plan-jedeZweite-hinweis"><span data-text="plan.jedeZweite">Nur jede 2. Reihe/Runde</span></label>
-          <p class="feldhinweis" id="plan-jedeZweite-hinweis" data-text="plan.jedeZweiteHinweis">Dann nur jede zweite Reihe bzw. Runde, ab der ersten.</p>
-        </div>
-
-        <div class="hinweis" data-rolle="probe-fehlt" hidden>
-          <p data-text="plan.probeFehlt">Bitte zuerst die eigene Probe vollständig ausfüllen.</p>
-          <a class="link" data-rolle="probe-link" href="#/" data-text="hinweis.probenLink">Zu den Maschenproben</a>
-        </div>
-
-        <div class="plan-werte" data-rolle="werte"></div>
-
-        <fieldset class="plan-auswahl" data-rolle="auswahl" hidden>
-          <legend data-rolle="auswahl-frage"></legend>
-          <div class="optionen" data-rolle="optionen"></div>
-        </fieldset>
-
-        <div class="ergebnis plan-ergebnis">
-          <p class="plan-zusammenfassung"><output data-rolle="zusammenfassung">–</output></p>
-          <p class="visuell-versteckt" aria-live="polite" data-rolle="plan-ansage"></p>
-          <p class="hinweis hinweis-warnung" data-rolle="status" hidden></p>
-          <h3 class="visuell-versteckt" data-text="plan.listeTitel">Plan</h3>
-          <ol class="plan-liste" data-rolle="liste"></ol>
-        </div>
-
-        <div class="knopf-reihe">
-          <button type="button" class="knopf knopf-zweitrangig" data-rolle="anpassungen-zuruecksetzen" data-text="plan.anpassungenZuruecksetzen">Anpassungen zurücksetzen</button>
-          <button type="button" class="knopf knopf-gefahr-rand" data-rolle="plan-loeschen" data-text="plan.loeschen">Plan löschen</button>
-        </div>
-      </div>
+      </details>
     </section>
   </template>
 

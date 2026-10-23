@@ -171,6 +171,8 @@ export const SPRACHEN = Object.freeze({
 
       // Strickstück (US-10)
       'stueck.zaehlen': 'Reihen zählen',
+      // Kurzfassung einer zugeklappten Karte (US-38 AK5)
+      'stueck.kurzfassung': '{titel}: {wert}',
       'stueck.zaehlerStand': 'Reihe {n}',
       'stueck.proben': 'Maschenproben des Projekts',
       'stueck.probeZeile': '{name}: {m} M auf {mb} {einheit} · {r} R auf {rb} {einheit}',
