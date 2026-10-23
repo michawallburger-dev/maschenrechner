@@ -249,3 +249,60 @@ test('planEingabenAusTexten: leere Anpassung = 0', () => {
   const e = planEingabenAusTexten({ ...TEXTE, anpassung: {} }, 'cm');
   assert.deepEqual(e.anpassung, { anfang: 0, ende: 0, reihen: 0 });
 });
+
+// ---------------------------------------------------------------- Maschenzahl je Ereignis (US-37, Architektur Sprint 4, Abschnitt 4.2)
+
+test('US-37 Referenz: 50 Anfangsmaschen, 17 Zunahmen → 52, 54 … 84', () => {
+  const r = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  const danach = r.ereignisse.map((e) => e.maschenDanach);
+  assert.equal(danach[0], 52);
+  assert.equal(danach[1], 54);
+  assert.equal(danach.at(-1), 84, 'nach dem letzten Ereignis genau die Endmaschenzahl');
+  assert.deepEqual(danach, Array.from({ length: 17 }, (_, i) => 50 + 2 * (i + 1)));
+});
+
+test('US-37 Abnahme: Maschenzahl fällt und endet genau bei der Endmaschenzahl', () => {
+  const r = berechnePlan({ anfangCm: 34, endCm: 20, laengeCm: 45, proEreignis: 2, ereignisWahl: 'weniger' }, PROBE);
+  assert.equal(r.status, 'plan');
+  assert.equal(r.richtung, 'ab');
+  const danach = r.ereignisse.map((e) => e.maschenDanach);
+  assert.equal(danach[0], r.anfang - 2);
+  assert.equal(danach.at(-1), r.ende);
+  for (let i = 1; i < danach.length; i++) assert.ok(danach[i] < danach[i - 1], 'streng fallend');
+});
+
+test('US-37 AK5: die Anpassung der Anfangsmaschen verschiebt alle Maschenzahlen', () => {
+  const ohne = berechnePlan({ ...REF, ereignisWahl: 'weniger' }, PROBE);
+  const mit = berechnePlan({ ...REF, ereignisWahl: 'weniger', anpassung: { anfang: 4 } }, PROBE);
+  assert.equal(mit.anfang, ohne.anfang + 4);
+  assert.equal(mit.ereignisse[0].maschenDanach, ohne.ereignisse[0].maschenDanach + 4);
+  assert.equal(mit.ereignisse.at(-1).maschenDanach, mit.ende, 'Invariante gilt auch mit Anpassung');
+});
+
+test('US-37 Eigenschaften: letzte Maschenzahl = Endmaschenzahl, Folge streng monoton', () => {
+  let faelle = 0;
+  for (let ende = 5; ende <= 60; ende += 0.7) {
+    for (const pro of [1, 2, 3, 5]) {
+      for (const jedeZweite of [false, true]) {
+        for (const wahl of ['weniger', 'mehr']) {
+          const r = berechnePlan(
+            { anfangCm: 20, endCm: ende, laengeCm: 45, proEreignis: pro, jedeZweite, ereignisWahl: wahl },
+            PROBE,
+          );
+          if (r.status !== 'plan') continue;
+          faelle++;
+          const danach = r.ereignisse.map((e) => e.maschenDanach);
+          assert.equal(danach.at(-1), r.ende, `Ende bei ende=${ende} pro=${pro}`);
+          const auf = r.richtung === 'zu';
+          for (let i = 0; i < danach.length; i++) {
+            const vorher = i === 0 ? r.anfang : danach[i - 1];
+            assert.equal(danach[i] - vorher, r.ereignisse[i].maschen, 'Schrittweite = Maschen des Ereignisses');
+            assert.ok(auf ? danach[i] > vorher : danach[i] < vorher, 'streng monoton');
+          }
+          assert.ok(danach.every((m) => m >= 1), 'nie unter 1 Masche');
+        }
+      }
+    }
+  }
+  assert.ok(faelle > 200, `zu wenige Fälle: ${faelle}`);
+});

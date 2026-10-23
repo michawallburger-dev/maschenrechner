@@ -125,13 +125,14 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       reihe: formatGanzzahl(e.reihe, ctx.locale()),
       pro: Math.abs(e.maschen),
       art: planArt(ctx.t, e.maschen < 0 ? 'ab' : 'zu'),
+      danach: formatGanzzahl(e.maschenDanach, ctx.locale()),
     });
   }
 
   /** Baut die Liste nur neu, wenn sie sich geändert hat; lange Listen verzögert. */
   function zeigeListe(r) {
     const ereignisse = r?.status === 'plan' ? r.ereignisse : [];
-    const schluessel = ereignisse.length === 0 ? '' : `${r.runden}|${ereignisse.map((e) => `${e.reihe}:${e.maschen}`).join(',')}`;
+    const schluessel = ereignisse.length === 0 ? '' : `${r.runden}|${ereignisse.map((e) => `${e.reihe}:${e.maschen}:${e.maschenDanach}`).join(',')}`;
     if (schluessel === letzteListe) return;
     clearTimeout(listenTimer);
     const aufbauen = () => {

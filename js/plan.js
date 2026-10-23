@@ -11,6 +11,10 @@
  * - Ereignis i (0 … E−1) liegt auf dem Platz floor((i+1)·(n+1)/(E+1)) − 1
  *   der n erlaubten Reihen. Nur Ganzzahl-Arithmetik, keine Listen der Länge n,
  *   damit auch sehr lange Teile keinen Speicher kosten.
+ *
+ * Seit Sprint 4 (Architektur Sprint 4, Abschnitt 4.2):
+ * - Jedes Ereignis nennt zusätzlich „maschenDanach“ – die Maschenzahl, mit der
+ *   danach weitergestrickt wird (US-37).
  */
 
 import { runden, cmZuAnzahl, anzahlZuCm } from './rechner.js';
@@ -154,9 +158,13 @@ export function berechnePlan(e, probe) {
   }
 
   // 8. Verteilung (AK6)
-  const liste = verteile(ereignisse, erlaubt.anzahl).map((platz) => ({
+  // „maschenDanach“ ist die Maschenzahl nach diesem Ereignis (US-37). Bezug ist
+  // „anfang“, also der Wert nach der Anpassung aus US-16. Nach dem letzten
+  // Ereignis ist der Wert genau „ende“, weil ereignisse · proEreignis = |ende − anfang|.
+  const liste = verteile(ereignisse, erlaubt.anzahl).map((platz, i) => ({
     reihe: erlaubt.reihe(platz),
     maschen: vorzeichen * e.proEreignis,
+    maschenDanach: anfang + vorzeichen * e.proEreignis * (i + 1),
   }));
   let abstandMin = null;
   let abstandMax = null;

@@ -114,3 +114,38 @@ test('zaehlerDaten: Anpassung mit Ergebnis < 1 → Quelle ungültig', () => {
   s.rechner.laengeZuReihen.anpassung = '-50';
   assert.deepEqual(zaehlerDaten(s, PROBE, 'cm').quellen, []);
 });
+
+// ---------------------------------------------------------------- Maschenzahl je Ereignis (US-37 AK2)
+
+test('US-37 AK2: ereignisseUm gibt maschenDanach in allen vier Einträgen durch', () => {
+  // Zähler-Referenz aus US-15 bei 50 Anfangsmaschen: 49, 47, 44 Maschen
+  const mitDanach = [
+    { reihe: 16, maschen: -1, maschenDanach: 49 },
+    { reihe: 22, maschen: -2, maschenDanach: 47 },
+    { reihe: 25, maschen: -3, maschenDanach: 44 },
+  ];
+  const bei20 = ereignisseUm(mitDanach, 20);
+  assert.equal(bei20.letzte.maschenDanach, 49);
+  assert.equal(bei20.naechste.maschenDanach, 47);
+  assert.equal(bei20.uebernaechste.maschenDanach, 44);
+
+  const bei22 = ereignisseUm(mitDanach, 22);
+  assert.equal(bei22.jetzt.maschenDanach, 47, 'auch im Eintrag „jetzt“');
+
+  // ziel.js baut die Ereignisse nicht um, sondern gibt dieselben Objekte zurück
+  assert.equal(bei20.letzte, mitDanach[0]);
+});
+
+test('US-37: der Plan eines Strickstücks liefert maschenDanach bis in den Zähler', () => {
+  const plan = {
+    anfangBreite: '20', endBreite: '34', laenge: '45', maschenProEreignis: '2',
+    arbeitsweise: 'reihen', jedeZweite: false, ereignisWahl: 'weniger',
+    anpassung: { anfang: '0', ende: '0', reihen: '0' },
+  };
+  const d = zaehlerDaten(stueck({ plan }), PROBE, 'cm');
+  assert.equal(d.plan.status, 'plan');
+  const erstes = d.plan.ereignisse[0];
+  const um = ereignisseUm(d.plan.ereignisse, erstes.reihe);
+  assert.equal(um.jetzt.maschenDanach, d.plan.anfang + erstes.maschen);
+  assert.equal(d.plan.ereignisse.at(-1).maschenDanach, d.plan.ende);
+});
