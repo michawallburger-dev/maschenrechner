@@ -6,9 +6,11 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version 0.3.0 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** 3 **abgeschlossen** – Praxistest MAS-56 am 21.10.2026 bestanden, Epic MAS-3
   geschlossen
-- **Rolle:** Entwickler **abgeschlossen** – alle vier Vorgänge von Sprint 4 sind umgesetzt,
-  Version auf 0.4.0 gehoben. Als Nächstes ist die QA dran.
-- **Tests:** 245 Tests, alle grün (vorher 224)
+- **Rolle:** QA **abgeschlossen** (23.10.2026) – Ergebnis **Zurück an Entwickler**. Bericht:
+  `docs/qa/sprint-4-testbericht.md`. Keine kritischen oder hohen Befunde; zwei mittlere an der
+  Klapp-Funktion (MAS-64, MAS-65), vier niedrige (MAS-66, MAS-67, MAS-68).
+- **Tests:** 287 Tests, 285 grün, 0 rot, 2 `todo` (vorher 245), davon 42 neue in
+  `tests/qa-sprint4.test.js`
 - **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
   US-38 gemeinsam planen (22.10.2026)
 - **Tests:** 224 Tests, alle grün (Node.js 22.16); CI läuft bei jedem Push
@@ -17,9 +19,22 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
-**Rolle QA.** Den Subagenten `qa` (`.claude/agents/qa.md`) starten. Er prüft gegen die Stories in
-Jira, `docs/entscheidungen.md` und `docs/architektur/sprint-4-architektur.md` v4.2 und schreibt
-`docs/qa/sprint-4-testbericht.md`.
+**Rolle Entwickler, Nachbesserung.** Die QA hat am 23.10.2026 **„Zurück an Entwickler“** gegeben.
+Zu beheben sind mindestens die beiden mittleren Befunde:
+
+| Befund | Jira | Schwere | Kurz |
+|---|---|---|---|
+| S4-01 | MAS-64 | mittel | `summary { display: flex }` nimmt das Aufklapp-Dreieck weg – nicht erkennbar, dass und ob eine Karte klappt |
+| S4-02 | MAS-65 | mittel | Zugeklappte Karte verbirgt die Statusmeldung (z. B. „keine passende Reihe“) vollständig; Kurzfassung bleibt leer |
+| S4-03 | MAS-66 | niedrig | Karte mit sichtbarem Eingabefehler lässt sich wieder zuklappen und bleibt zu |
+| S4-04/05 | MAS-67 | niedrig | „ab der ersten“ am Schalter „nur jede 2.“ und „Länge in Reihen“ als Zielquelle im Zähler |
+| S4-06 | MAS-68 | niedrig | 0.3.0 liest Daten von 0.4.0, löscht Startreihe und Klapp-Zustand aber beim nächsten Speichern (R13) |
+
+Alle fünf Vorgänge hängen an Epic MAS-60, Label `qa-sprint-4`, Version 0.4.0.
+
+**Außerdem offen:** Die vier Sprint-Vorgänge MAS-57, MAS-58, MAS-62 und MAS-59 stehen in Jira noch
+auf „Zu erledigen“ und gehören auf „Erledigt“. Die Testzahl im `CHANGELOG` (245) ist auf 287 zu
+heben.
 
 **Zwei Punkte brauchen die Bestätigung des Product Owners** (im Entwickler-Commit zu MAS-62
 ausführlich begründet):
