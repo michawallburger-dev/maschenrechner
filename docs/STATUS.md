@@ -2,52 +2,54 @@
 
 Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gilt `git log`.
 
-- **Aktiver Branch:** `sprint-4`
-- **Veröffentlicht:** Version 0.3.0 auf https://michawallburger-dev.github.io/maschenrechner/
-- **Sprint:** 3 **abgeschlossen** – Praxistest MAS-56 am 21.10.2026 bestanden, Epic MAS-3
-  geschlossen
-- **Rolle:** QA, **Nachtest zu `cf49a64` abgeschlossen** – Ergebnis **Freigabe** für 0.4.0.
-  Bericht: Abschnitt „Nachtest" in `docs/qa/sprint-4-testbericht.md`.
-  S4-01 bis S4-05 behoben, S4-06 dokumentiert; vier neue niedrige Befunde S4-07 bis S4-10
-  (ohne Jira-Vorgang, der Product Owner entscheidet).
+- **Aktiver Branch:** keiner – `sprint-4` ist nach `main` gemergt (`cab2f97`). Der nächste
+  Sprint beginnt mit einem neuen Branch `sprint-5`.
+- **Veröffentlicht:** Version **0.4.0** am 23.10.2026 auf https://michawallburger-dev.github.io/maschenrechner/
+- **Sprint:** 4 **abgeschlossen** – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen,
+  Jira-Release 0.4.0 freigegeben. Der Praxistest mit der Enduserin steht noch aus.
+- **Rolle:** keine aktiv. Sprint 4 ist durch alle vier Rollen gelaufen. Der nächste Sprint
+  beginnt beim **Product Owner**.
+- **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
+  von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
+  vier neue niedrige Befunde S4-07 bis S4-10 offen und ohne Jira-Vorgang.
 - **Tests:** 311 Tests, 307 grün, 0 rot, 4 `todo` (die vier neuen Befunde), davon 24 neue in
   `tests/qa-sprint4-nachtest.test.js`. Ohne die Nachtest-Datei: 287 grün, 0 `todo`.
 - **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
   US-38 gemeinsam planen (22.10.2026)
 - **CI:** läuft bei jedem Push (`.github/workflows/test.yml`)
-- **Jira-Releases:** 0.1.0 (16.10.), 0.2.0 (16.10.), 0.3.0 (17.10.) angelegt; alle 40 erledigten
-  Vorgänge zugeordnet
+- **Jira-Releases:** 0.1.0 (16.10.), 0.2.0 (16.10.), 0.3.0 (17.10.), 0.4.0 (23.10.) – alle vier
+  als freigegeben markiert
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 
-**1. Jira-Buchführung ist nachgeholt (23.10.2026).** Alle neun Vorgänge stehen auf
-**Erledigt**, jeder mit Kommentar und Commit-Beleg: MAS-57 (`56941ef`), MAS-58 (`de71e8b`),
-MAS-62 (`aa3e57d`), MAS-59 (`df3d59c`), MAS-64 bis MAS-67 (`cf49a64`), MAS-68 als
-Dokumentationsänderung mit Verweis auf R13. Vor dem Schreiben abgefragt, nichts doppelt
-eingetragen.
+Sprint 4 ist fertig und veröffentlicht. Offen sind drei Dinge:
 
-Zwei Punkte stehen als Kommentar am Vorgang, damit sie nicht untergehen: **MAS-57 AK4 ist
-offen** – die Enduserin hat die neuen Kartentitel noch nicht bestätigt, das leistet erst der
-Praxistest von 0.4.0. **MAS-59 AK6** ist in der neuen Lesart vermerkt (Kurzfassung statt
-erzwungenem Aufklappen, Architektur v4.3 Abschnitt 5.4).
+**1. Praxistest von 0.4.0 am iPhone mit der Enduserin.** Zu prüfen: die neuen Kartentitel
+(**MAS-57 AK4** ist bis dahin offen), die Maschenzahlen im Plan und im Zähler, die selbst
+gesetzte Startreihe und das Klappverhalten der Karten. Ergebnis als Jira-Vorgang mit Label
+`praxistest` anlegen, so wie MAS-56 für 0.3.0.
 
-Das Epic **MAS-60 bleibt offen** – es schließt nach der Freigabe des Merges, nicht vorher.
+**2. Über S4-07 bis S4-10 entscheiden** (Rolle Product Owner). Vier Befunde aus dem
+QA-Nachtest, alle niedrig bzw. kosmetisch, bewusst nicht in 0.4.0 behoben und noch **ohne
+Jira-Vorgang**. Der gewichtigste ist **S4-07**: Eine zugeklappte Plan-Karte verbirgt den
+eigenen Hinweis „Bitte zuerst die eigene Probe … ausfüllen", weil `problemText()` in
+`js/ansichten/plankarte.js` nur `.fehler` und `[data-rolle="status"]` kennt. Damit ist der
+Zweck von US-38 AK6 noch nicht ganz erfüllt; die QA nennt den Fix eine Zeile. S4-08 ist
+derselbe Mechanismus bei offener Auswahl, S4-09 ist Altbestand aus `bad253d`, S4-10 rein
+kosmetisch. Einzelheiten im Abschnitt „Nachtest" des Testberichts.
 
-**2. Nachtest durch die QA – erledigt am 23.10.2026: Freigabe.** Geprüft gegen Commit `cf49a64`,
-am Code und im Browser bei 360 × 640 px. Die Messwerte des Entwicklers sind bestätigt, bis auf
-die Höhe der Zähleransicht mit Wachhalter-Hinweis (gemessen 749 px statt 773 px; dass sie
-scrollt, stimmt). Offen bleiben die neuen niedrigen Befunde S4-07 bis S4-10.
-
-**3. Danach:** Merge nach `main` – das veröffentlicht 0.4.0 über GitHub Pages –, Datum im
-CHANGELOG eintragen, Praxistest am iPhone mit der Enduserin.
+**3. Sprint 5 planen** (Rolle Product Owner). Offene Entscheidungen stehen am Ende von
+`docs/entscheidungen.md`. Im Backlog liegt unter anderem MAS-29 (US-25, Proben automatisch
+einklappen); sie kann den Klapp-Mechanismus aus US-38 ohne Umbau nutzen (E30).
 
 ## Stand der Nachbesserung (23.10.2026, Commit cf49a64)
 
 287 Tests, alle grün, keine `todo`-Tests mehr. Behoben: S4-01 bis S4-05. S4-06 nur dokumentiert.
 
-**Im Browser bei 360 × 640 px nachgemessen** – diese Werte soll der Nachtest bestätigen oder
-widerlegen:
+**Im Browser bei 360 × 640 px nachgemessen.** Der QA-Nachtest hat diese Werte unabhängig
+bestätigt – mit einer Ausnahme: Die Zähleransicht mit Wachhalter-Hinweis ist **749 px**
+hoch, nicht 773 px. Dass sie dann scrollt, stimmt.
 
 - Dreieck 7 px in `--text-leise`, bei offener Karte um 90° gedreht, bei zugeklappter nicht.
   `summary` weiter 44 px hoch, kein Querscrollen.
@@ -106,8 +108,9 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 - **E24 hängt an US-39:** Wird sie umgesetzt, ist „erste Reihe bleibt frei" nur noch eine
   Vorbelegung. Beim Umsetzen in `docs/entscheidungen.md` nachtragen. Die Zählerfeld-Variante a
   aus E22 ist unverändert bestätigt.
-- **Tags:** v0.2.0 und v0.3.0 fehlen (wird später nachgezogen).
-- **Branch `setup/projektregeln`** ist gemergt und kann auf GitHub gelöscht werden.
+- **Tags:** v0.2.0, v0.3.0 und v0.4.0 fehlen (wird später nachgezogen).
+- **Gemergte Branches** `setup/projektregeln` und `sprint-4` können auf GitHub gelöscht
+  werden.
 
 ## Jira ist abgeglichen (23.10.2026)
 
