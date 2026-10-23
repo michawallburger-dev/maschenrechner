@@ -43,28 +43,19 @@ export function leeren(e) {
  *
  * @param {HTMLDetailsElement} klappe
  * @param {{offen:boolean, aufToggle?:(offen:boolean)=>void}} optionen
- * @returns {{setzeOffen:(offen:boolean)=>void, istOffen:()=>boolean}}
  */
 export function klappbar(klappe, { offen, aufToggle }) {
-  // „gemeldet“ ist der Stand, den der Aufrufer kennt. Ein Setzen von .open löst
-  // ebenfalls ein toggle-Ereignis aus; ohne diesen Abgleich würde jedes
-  // programmatische Auf- und Zuklappen als Wunsch der Nutzerin gemeldet und
-  // immer wieder gespeichert.
+  // „gemeldet“ ist der Stand, den der Aufrufer kennt. Das Setzen von .open löst
+  // ebenfalls ein toggle-Ereignis aus; ohne diesen Abgleich würde der
+  // Anfangszustand als Wunsch der Nutzerin gemeldet und gespeichert.
   let gemeldet = offen !== false;
   klappe.open = gemeldet;
-  if (aufToggle) {
-    klappe.addEventListener('toggle', () => {
-      if (klappe.open === gemeldet) return;
-      gemeldet = klappe.open;
-      aufToggle(klappe.open);
-    });
-  }
-  return {
-    // Erzwungenes Aufklappen (z. B. bei einem Eingabefehler) überschreibt den
-    // gespeicherten Zustand nicht, weil es nicht gemeldet wird.
-    setzeOffen: (wert) => { gemeldet = wert; klappe.open = wert; },
-    istOffen: () => klappe.open,
-  };
+  if (!aufToggle) return;
+  klappe.addEventListener('toggle', () => {
+    if (klappe.open === gemeldet) return;
+    gemeldet = klappe.open;
+    aufToggle(klappe.open);
+  });
 }
 
 export function texteFuellen(wurzel, t) {

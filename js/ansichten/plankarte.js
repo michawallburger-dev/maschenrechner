@@ -103,7 +103,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
   }
 
   // Karte auf Wunsch zuklappen; der Zustand liegt am Strickstück (US-38)
-  const klappe = klappbar(karte.querySelector('[data-rolle="klappe"]'), {
+  klappbar(karte.querySelector('[data-rolle="klappe"]'), {
     offen: aktuell()?.stueck.eingeklappt?.plan !== true,
     aufToggle: (offen) => {
       const ergebnis = strickstueckAendern(ctx.daten(), projektId, stueckId, { eingeklappt: { plan: !offen } }, ctx.jetzt());
@@ -127,8 +127,27 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     zeile.querySelector('[data-rolle="info"]').textContent = info;
   }
 
-  /** Kurzfassung für den zugeklappten Zustand: dieselbe Aussage wie die Zusammenfassung (US-38 AK5). */
+  /** Text eines sichtbaren Fehlers oder Hinweises der Karte, sonst null. */
+  function problemText() {
+    for (const e of karte.querySelectorAll('.fehler')) if (!e.hidden && e.textContent) return e.textContent;
+    if (!status.hidden && status.textContent) return status.textContent;
+    return null;
+  }
+
+  /**
+   * Kurzfassung für den zugeklappten Zustand (US-38 AK5).
+   *
+   * Ein Fehler oder Hinweis hat Vorrang vor der Zusammenfassung und ist damit
+   * auch bei zugeklappter Karte sichtbar (Befunde S4-02, S4-03).
+   */
   function zeigeKurzfassung(text) {
+    const problem = problemText();
+    if (problem) {
+      kurzfassung.textContent = ctx.t('stueck.kurzfassungProblem', { text: problem });
+      kurzfassung.dataset.problem = '';
+      return;
+    }
+    delete kurzfassung.dataset.problem;
     kurzfassung.textContent = text && text !== LEER_ANZEIGE ? text : '';
   }
 
@@ -224,10 +243,6 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     for (const input of karte.querySelectorAll('[data-anpassung]')) {
       pruefeUndZeige(input, document.getElementById(`fehler-${input.id}`), 'anpassung', { t, beruehrt: beruehrt.has(input) });
     }
-
-    // Ein sichtbarer Fehler darf nicht hinter einer zugeklappten Karte verschwinden
-    // (US-38 AK6). Der gespeicherte Zustand bleibt dabei unberührt.
-    if ([...karte.querySelectorAll('.fehler')].some((e) => !e.hidden)) klappe.setzeOffen(true);
 
     const probe = probeVon(g.projekt, g.stueck);
     const probeOk = Boolean(probeAusTexten(probe?.eigen, 'maschen', einheit) && probeAusTexten(probe?.eigen, 'reihen', einheit));

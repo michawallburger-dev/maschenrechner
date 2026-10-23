@@ -1,4 +1,18 @@
-# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.2)
+# Architekturdokument – Maschenrechner, Sprint 4 (Version 4.3)
+
+**Änderungen in v4.3** (23.10.2026, Rückmeldung aus der QA):
+
+- **Abschnitt 5.4, Fehler in zugeklappten Karten:** Das erzwungene Aufklappen ist ersetzt. Ein
+  Fehler oder eine Statusmeldung geht in die **Kurzfassung** und ist damit auch bei zugeklappter
+  Karte sichtbar; das Zuklappen bleibt der Nutzerin. Grund: Die erste Regel prüfte nur auf
+  `.fehler` und verbarg die Statusmeldungen (Befund S4-02), und sie ließ sich durch erneutes
+  Zuklappen aushebeln (S4-03). Vom Auftraggeber am 23.10.2026 freigegeben. **US-38 AK6 ist
+  entsprechend zu lesen:** Der Hinweis darf nicht verborgen bleiben – das leistet die Kurzfassung,
+  nicht das Aufklappen.
+- **Abschnitt 5.4, Dreieck:** Es wird selbst gezeichnet. `display: flex` auf einem `<summary>`
+  entfernt den Marker des Browsers in Chromium und WebKit (Befund S4-01). Die Annahme in v4.0 bis
+  v4.2, das Dreieck bleibe von allein sichtbar, war falsch.
+- **Risiko R13 berichtigt:** Die Rückrichtung verliert Daten (Befund S4-06). Siehe Abschnitt 8.
 
 **Änderungen in v4.2** (23.10.2026, Rückmeldung aus der Entwicklung): Die Beschriftung des
 Startreihen-Feldes heißt **„Frühestens ab Reihe"**, nicht „Erste Reihe mit Zu-/Abnahme". Grund:
@@ -216,9 +230,13 @@ Er setzt den Anfangszustand, meldet Änderungen und kennt den Speicher nicht –
 
 **Kurzfassung im zugeklappten Zustand** (MAS-59 AK5): Die Ansicht füllt `[data-rolle="kurzfassung"]` mit dem Hauptergebnis der Karte – bei den Rechnern „Deine Maschen: 235", bei der Plan-Karte die bestehende Zusammenfassung („17 × 2 M zunehmen"). Ist die Eingabe leer oder ungültig, bleibt die Kurzfassung leer.
 
-**Fehler dürfen nicht verborgen werden** (MAS-59 AK6): Enthält eine Karte einen sichtbaren Eingabefehler, wird sie aufgeklappt und bleibt es, solange der Fehler besteht. Der gespeicherte Zustand wird dabei **nicht** überschrieben – nur die Anzeige weicht ab, bis der Fehler behoben ist.
+**Fehler dürfen nicht verborgen werden** (MAS-59 AK6). Umgesetzt über die Kurzfassung, nicht über erzwungenes Aufklappen: Solange ein Fehler oder eine Statusmeldung sichtbar ist, zeigt die Kurzfassung sie an, mit dem Vorspann „Bitte prüfen:" und einem Datenattribut `data-problem` für die Gestaltung. Das Wort trägt die Aussage, nicht die Farbe. Die Nutzerin darf die Karte zugeklappt lassen; sie sieht trotzdem, dass etwas zu klären ist.
 
-**Touch-Ziel:** `summary` erhält eine Mindesthöhe von 44 px. Das Dreieck bleibt sichtbar als Zustandsanzeige neben dem Text, Farbe nie allein.
+Berücksichtigt werden **beide** Quellen: die Feldfehler (`.fehler`) und die Statusmeldungen der Karte (`[data-rolle="status"]`). Die erste Fassung prüfte nur auf `.fehler` und verbarg damit „keine passende Reihe", „Maschenproben fehlen" und „Ergebnis zu klein" (Befund S4-02).
+
+**Touch-Ziel:** `summary` erhält eine Mindesthöhe von 44 px.
+
+**Das Dreieck wird selbst gezeichnet**, als Rahmen-Dreieck in `.kartenkopf::before`, und dreht sich bei `details[open]` um 90°. Der Marker des Browsers ist dafür nicht brauchbar: `display: flex` auf einem `<summary>` entfernt ihn in Chromium und WebKit, weil `::marker` nur bei `display: list-item` entsteht (Befund S4-01). Ein Rahmen-Dreieck hat keinen Textinhalt und wird deshalb nicht vorgelesen – den Zustand melden `<details>`/`<summary>` ohnehin selbst. Titel und Kurzfassung liegen in `.kartenkopf-text`, damit sie umbrechen können und das Dreieck daneben stehen bleibt.
 
 ## 6. Datenschutz
 
@@ -255,10 +273,10 @@ Unverändert gegenüber Sprint 1, Abschnitt 7: kein Backend, keine Konten, keine
 
 | # | Risiko / Hinweis | Umgang |
 |---|---|---|
-| R13 | Schema 3 wird erweitert statt ersetzt. Eine noch installierte 0.3.0 liest Daten, die 0.4.0 geschrieben hat. | Nur additive, optionale Felder mit festgelegter Bedeutung bei Abwesenheit. 0.3.0 ignoriert sie und rechnet unverändert. Dafür kein neuer Schlüssel und keine Migration – das Risiko aus R6 und R10 entsteht gar nicht. |
+| R13 | Schema 3 wird erweitert statt ersetzt. Eine noch installierte 0.3.0 liest Daten, die 0.4.0 geschrieben hat. | Nur additive, optionale Felder mit festgelegter Bedeutung bei Abwesenheit. **Berichtigt am 23.10.2026 nach Befund S4-06:** 0.3.0 liest fehlerfrei und rechnet – **verliert die beiden neuen Felder aber beim nächsten Speichern**, weil ihr `pruefeDaten` unbekannte Felder wegschneidet. Die Startreihe ist danach weg und der Plan rechnet mit dem Standard. Die Zusicherung „rechnet unverändert" galt nur für das Lesen. **Bewusst hingenommen** (MAS-68): Der Fall tritt nur ein, wenn ein zweites Gerät ohne Update weiterläuft. Eine künftige `pruefeDaten`-Fassung sollte unbekannte Felder am Objekt belassen. |
 | R14 | Die Startreihe ändert `erlaubteReihen` und damit die Kernformel der Verteilung. | Leeres Feld bedeutet „automatisch" und ergibt bitgleiches Verhalten; alle Referenzwerte aus Sprint 1 bis 3 werden als Regressionstests mitgeführt; die Eigenschaftstests bleiben unverändert gültig. |
 | R15 | Mehr Inhalt in der Zähleransicht bei 360 × 640 px (Fortführung von R9). | Die Maschenzahl steht in derselben Zeile wie das Ereignis, kompakt als „→ 48 M"; QA misst. Reicht der Platz nicht, wandert sie in eine zweite Zeile, bevor etwas entfällt. |
-| R16 | Eine zugeklappte Karte könnte einen Eingabefehler verbergen. | Karte mit sichtbarem Fehler wird aufgeklappt, solange der Fehler besteht; der gespeicherte Zustand bleibt unberührt (Abschnitt 5.4). |
+| R16 | Eine zugeklappte Karte könnte einen Eingabefehler oder Hinweis verbergen. | **Fassung ab 23.10.2026:** Die Kurzfassung zeigt Fehler und Statusmeldungen an, solange sie bestehen; die Karte darf zugeklappt bleiben (Abschnitt 5.4). Die erste Fassung – erzwungenes Aufklappen bei `.fehler` – verbarg die Statusmeldungen (S4-02) und liess sich aushebeln (S4-03). |
 | H3 | **MAS-62 AK1 war zu berichtigen.** „Vorbelegt ist 2" stimmt nur ohne „jede 2. Reihe/Runde"; mit der Option beginnt das heutige Verhalten bei Reihe 3. | **Erledigt.** Am 23.10.2026 als **E31** entschieden: leeres Feld bedeutet „automatisch" (Abschnitt 4.1). AK1 in Jira berichtigt, abgestimmt mit der Enduserin. |
 | H4 | Mit eigener Startreihe können Zu-/Abnahmen auf geraden Reihen liegen, also auf Rückreihen. Fachlich ist das beim gewendeten Stricken unüblich – die Enduserin hat die Hinreihen-Logik selbst eingebracht. | Bewusst zugelassen, weil sie ausdrücklich um die Kontrolle gebeten hat. Ein Hinweis am Feld wäre denkbar; der Product Owner entscheidet, ob er gewünscht ist. |
 

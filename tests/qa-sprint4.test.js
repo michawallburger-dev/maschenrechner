@@ -95,16 +95,29 @@ test('MAS-57: die unveränderten Titel der beiden anderen Rechner nennen weiter 
   assert.equal(text('de', 'rechner.reihenAusAnleitung.titel', {}), 'Reihen aus der Anleitung');
 });
 
-test('BEFUND S4-05: die Zielquelle im Zähler trägt noch den alten Kartennamen', { todo: 'Befund S4-05' }, () => {
-  // Der Zähler nennt seine Quelle „Länge in Reihen“ – so heißt seit MAS-57
+test('S4-05 behoben: die Zielquelle im Zähler trägt denselben Namen wie die Karte', () => {
+  // Der Zähler nannte seine Quelle „Länge in Reihen“ – so heißt seit MAS-57
   // keine Karte mehr. Die Beschriftung soll zum Kartentitel passen.
-  assert.equal(text('de', 'zaehler.quelle.laengeZuReihen', {}), text('de', 'rechner.laengeZuReihen.titel', { einheit: 'cm' }));
+  //
+  // Der Aufruf gibt beiden Texten die Einheit mit: In der App füllt ctx.t
+  // {einheit} immer (js/app.js), der Vergleich muss das nachbilden.
+  assert.equal(
+    text('de', 'zaehler.quelle.laengeZuReihen', { einheit: 'cm' }),
+    text('de', 'rechner.laengeZuReihen.titel', { einheit: 'cm' }),
+  );
+  // Der zweite Rechner heißt in Karte und Auswahl schon immer gleich
+  assert.equal(
+    text('de', 'zaehler.quelle.reihenAusAnleitung', { einheit: 'cm' }),
+    text('de', 'rechner.reihenAusAnleitung.titel', { einheit: 'cm' }),
+  );
 });
 
-test('BEFUND S4-04: der Hinweis am Schalter „nur jede 2.“ verspricht „ab der ersten“', { todo: 'Befund S4-04' }, () => {
+test('S4-04 behoben: der Hinweis am Schalter „nur jede 2.“ nennt die Startreihe', () => {
   // Mit leerer Startreihe beginnt der erlaubte Bereich bei Reihe 3, nicht bei
   // der ersten Reihe. Dieselbe Art von Irreführung, die P3-01 beschreibt.
-  assert.ok(!/ab der ersten/.test(text('de', 'plan.jedeZweiteHinweis', {})));
+  const hinweis = text('de', 'plan.jedeZweiteHinweis', {});
+  assert.ok(!/ab der ersten/.test(hinweis), 'kein „ab der ersten“');
+  assert.match(hinweis, /Startreihe/, 'verweist auf die Startreihe');
 });
 
 // ================================================================ MAS-58: Maschenzahl je Ereignis

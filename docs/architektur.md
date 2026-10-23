@@ -78,10 +78,10 @@ Aus dem Entwurf von Sprint 4 (noch nicht gebaut):
 
 | # | Risiko / Hinweis | Umgang | Quelle |
 |---|---|---|---|
-| R13 | Schema 3 wird erweitert statt ersetzt. Eine noch installierte 0.3.0 liest Daten, die 0.4.0 geschrieben hat. | Nur additive, optionale Felder mit festgelegter Bedeutung bei Abwesenheit; kein neuer Schlüssel, keine Migration. | Sprint 4, Abschnitt 3 |
+| R13 | Schema 3 wird erweitert statt ersetzt. Eine noch installierte 0.3.0 liest Daten, die 0.4.0 geschrieben hat. | Additive, optionale Felder, kein neuer Schlüssel, keine Migration. **Berichtigt nach Befund S4-06:** 0.3.0 liest fehlerfrei, verliert die neuen Felder aber beim nächsten Speichern. Bewusst hingenommen (MAS-68). | Sprint 4, Abschnitt 3 |
 | R14 | Die einstellbare Startreihe ändert `erlaubteReihen` und damit die Kernformel der Verteilung. | Leeres Feld bedeutet „automatisch" und ergibt bitgleiches Verhalten; alle Referenzwerte aus Sprint 1 bis 3 als Regressionstests. | Sprint 4, Abschnitt 4.1 |
 | R15 | Mehr Inhalt in der Zähleransicht bei 360 × 640 px – Fortführung von R9. | Maschenzahl in derselben Zeile, kompakt als „→ 48 M"; QA misst. | Sprint 4, Abschnitt 5.3 |
-| R16 | Eine zugeklappte Karte könnte einen Eingabefehler verbergen. | Karte mit Fehler klappt auf, solange der Fehler besteht; der gespeicherte Zustand bleibt unberührt. | Sprint 4, Abschnitt 5.4 |
+| R16 | Eine zugeklappte Karte könnte einen Eingabefehler oder Hinweis verbergen. | Die Kurzfassung zeigt Fehler und Statusmeldungen an, solange sie bestehen; die Karte darf zugeklappt bleiben. Erste Fassung (erzwungenes Aufklappen) war Befund S4-02/S4-03. | Sprint 4, Abschnitt 5.4 |
 | H3 | MAS-62 AK1 („vorbelegt ist 2") stimmt nur ohne „jede 2. Reihe/Runde". | **Mit E31 entschieden am 23.10.2026:** Feld leer vorbelegt, leer bedeutet „automatisch". AK1 in Jira berichtigt. | Sprint 4, Abschnitt 4.1 |
 | H4 | Mit eigener Startreihe können Zu-/Abnahmen auf Rückreihen liegen, was beim gewendeten Stricken unüblich ist. | Bewusst zugelassen, weil die Enduserin um diese Kontrolle gebeten hat. | Sprint 4, Abschnitt 8 |
 

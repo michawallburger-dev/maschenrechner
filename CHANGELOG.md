@@ -19,7 +19,17 @@ Alle Punkte kommen aus dem Praxistest von 0.3.0 am 21.10.2026 mit der Enduserin.
 
 ### Technisch
 - Schema 3 bleibt. Die zwei neuen Felder sind optional; ihr Fehlen bedeutet das bisherige Verhalten. Kein neuer Speicherschlüssel, keine Migration – und eine noch installierte 0.3.0 kann Daten von 0.4.0 lesen und unverändert rechnen.
-- 245 automatische Tests (vorher 224), darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
+- 287 automatische Tests (vorher 224), darunter ein Regressionstest, der die Reihenformeln aus Sprint 3 noch einmal ausschreibt und über 400 Reihenzahlen gegen die neue Funktion vergleicht.
+
+### Behoben nach der QA von Sprint 4
+- S4-01: Die klappbaren Karten zeigen wieder ein Dreieck. `display: flex` auf dem `<summary>` hatte den Marker des Browsers entfernt – ohne ihn war nicht erkennbar, dass der Kartentitel antippbar ist.
+- S4-02: Eine zugeklappte Karte verbarg Statusmeldungen wie „keine passende Reihe". Fehler und Hinweise stehen jetzt in der Kurzfassung und sind auch zugeklappt sichtbar.
+- S4-03: Eine Karte mit Fehler ließ sich wieder zuklappen und blieb zu. Durch die Kurzfassung ist das jetzt unschädlich; das Zuklappen bleibt erlaubt.
+- S4-04: Der Hinweis am Schalter „nur jede 2." sagte „ab der ersten", gemeint war die Startreihe.
+- S4-05: Die Zielquelle im Zähler hieß weiter „Länge in Reihen" – so heißt seit dieser Version keine Karte mehr. Sie trägt jetzt denselben Namen wie die Karte.
+
+### Bewusst nicht umgesetzt
+- S4-06 (MAS-68): Eine noch installierte 0.3.0 liest Daten von 0.4.0 fehlerfrei, verliert beim nächsten Speichern aber Startreihe und Klapp-Zustand. Hingenommen und in Risiko R13 dokumentiert, weil der Fall nur bei einem zweiten Gerät ohne Update eintritt.
 
 ## 0.3.0 – 17.10.2026 (Sprint 3 „Zu- und Abnahmen & Proben je Strickstück“)
 

@@ -173,6 +173,8 @@ export const SPRACHEN = Object.freeze({
       'stueck.zaehlen': 'Reihen zählen',
       // Kurzfassung einer zugeklappten Karte (US-38 AK5)
       'stueck.kurzfassung': '{titel}: {wert}',
+      // Hinweis oder Fehler einer zugeklappten Karte (Befunde S4-02, S4-03)
+      'stueck.kurzfassungProblem': 'Bitte prüfen: {text}',
       'stueck.zaehlerStand': 'Reihe {n}',
       'stueck.proben': 'Maschenproben des Projekts',
       'stueck.probeZeile': '{name}: {m} M auf {mb} {einheit} · {r} R auf {rb} {einheit}',
@@ -276,7 +278,7 @@ export const SPRACHEN = Object.freeze({
       'plan.reihen': 'In Reihen (gewendet)',
       'plan.runden': 'In Runden',
       'plan.jedeZweite': 'Nur jede 2. Reihe/Runde',
-      'plan.jedeZweiteHinweis': 'Dann nur jede zweite Reihe bzw. Runde, ab der ersten.',
+      'plan.jedeZweiteHinweis': 'Dann nur jede zweite Reihe bzw. Runde ab der Startreihe.',
       // Erste Reihe mit Zu-/Abnahme; leer bedeutet „automatisch“ (US-39, E31)
       'plan.startReihe': 'Frühestens ab {einheitReihe}',
       'plan.startReiheAuto': 'Vorher wird nicht zu- oder abgenommen. Leer lassen für automatisch: {einheitReihe} {reihe}.',
@@ -331,7 +333,8 @@ export const SPRACHEN = Object.freeze({
       'zaehler.laenge': '{ist} {einheit} gestrickt',
       'zaehler.zielAus': 'Ziel aus',
       'zaehler.quelle.plan': 'Zu-/Abnahmeplan',
-      'zaehler.quelle.laengeZuReihen': 'Länge in Reihen',
+      // Gleicher Wortlaut wie der Kartentitel, damit die Quelle wiederzufinden ist (Befund S4-05)
+      'zaehler.quelle.laengeZuReihen': 'Aus Länge ({einheit}) → Reihen',
       'zaehler.quelle.reihenAusAnleitung': 'Reihen aus der Anleitung',
       'zaehler.zielErreicht': 'Ziel erreicht',
       'zaehler.ereignisse': 'Zu- und Abnahmen',

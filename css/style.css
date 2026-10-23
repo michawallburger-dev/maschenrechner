@@ -225,16 +225,51 @@ body > .hinweis {
 }
 
 /* Klappbare Karten (US-38, Architektur Sprint 4, Abschnitt 5.4).
-   Das Dreieck des <summary> bleibt sichtbar: Es zeigt den Zustand,
-   und Farbe allein darf nie der einzige Hinweis sein. */
+
+   Das Dreieck ist selbst gezeichnet, nicht das des Browsers: „display: flex“
+   auf einem <summary> entfernt den Marker in Chromium und WebKit (Befund
+   S4-01). Ein eigenes Dreieck aus Rahmen hat keinen Textinhalt, wird also von
+   Screenreadern nicht vorgelesen – den Zustand melden <details>/<summary>
+   ohnehin selbst. Es zeigt den Zustand sichtbar an, damit das nicht allein an
+   der Farbe hängt. */
 .kartenkopf {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 4px 8px;
   min-height: 44px;
   padding: 2px 0;
   cursor: pointer;
+  list-style: none;
+}
+
+/* Marker des Browsers ausschalten, falls display je wieder list-item wird */
+.kartenkopf::-webkit-details-marker {
+  display: none;
+}
+
+.kartenkopf::before {
+  content: '';
+  flex: 0 0 auto;
+  align-self: center;
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--text-leise);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+details[open] > .kartenkopf::before {
+  transform: rotate(90deg);
+}
+
+/* Titel und Kurzfassung dürfen umbrechen, das Dreieck bleibt daneben stehen */
+.kartenkopf-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
 }
 
 .kartenkopf h2 {
@@ -250,6 +285,13 @@ body > .hinweis {
 .kartenkopf .kurzfassung {
   color: var(--text-leise);
   font-size: 0.95rem;
+}
+
+/* Hinweis oder Fehler einer zugeklappten Karte (Befunde S4-02, S4-03).
+   Das Wort „Bitte prüfen“ im Text trägt die Aussage, nicht die Farbe. */
+.kartenkopf .kurzfassung[data-problem] {
+  color: var(--warnung-text);
+  font-weight: 600;
 }
 
 /* Zugeklappt reicht die Kurzfassung; aufgeklappt wäre sie doppelt */

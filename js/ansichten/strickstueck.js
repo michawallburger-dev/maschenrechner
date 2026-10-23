@@ -101,13 +101,12 @@ export function zeige(ctx, route, wurzel) {
   for (const name of RECHNER_NAMEN) raster.append(baueKarte(ctx, name, gefunden.stueck.rechner[name]));
 
   // Karten auf Wunsch zuklappen; der Zustand liegt am Strickstück (US-38, AK1–AK3)
-  const klappen = new Map();
   for (const karte of raster.querySelectorAll('[data-karte]')) {
     const name = karte.dataset.karte;
-    klappen.set(name, klappbar(karte.querySelector('[data-rolle="klappe"]'), {
+    klappbar(karte.querySelector('[data-rolle="klappe"]'), {
       offen: gefunden.stueck.eingeklappt?.[name] !== true,
       aufToggle: (offen) => speichereKlapp(name, !offen),
-    }));
+    });
   }
 
   const projektHash = hashFuer({ ansicht: 'projekt', projektId });
@@ -149,8 +148,39 @@ export function zeige(ctx, route, wurzel) {
     karte.querySelector('[data-rolle="status-link"]').hidden = !mitLink;
   }
 
-  /** Berechnet eine Karte – Logik wie in Sprint 1. */
+  /** Text eines sichtbaren Fehlers oder Hinweises der Karte, sonst null. */
+  function problemText(karte) {
+    for (const e of karte.querySelectorAll('.fehler')) if (!e.hidden && e.textContent) return e.textContent;
+    const box = karte.querySelector('[data-rolle="status"]');
+    if (box && !box.hidden) {
+      const t = karte.querySelector('[data-rolle="status-text"]');
+      if (t && t.textContent) return t.textContent;
+    }
+    return null;
+  }
+
+  /**
+   * Berechnet eine Karte und setzt danach ihre Kurzfassung.
+   *
+   * Ein Fehler oder Hinweis geht in die Kurzfassung und ist damit auch bei
+   * zugeklappter Karte sichtbar (Befunde S4-02, S4-03). Die Karte wird dafür
+   * nicht mehr erzwungen aufgeklappt – das Zuklappen bleibt der Nutzerin.
+   */
   function berechneKarte(karte, proben) {
+    const kurz = karte.querySelector('[data-rolle="kurzfassung"]');
+    const ergebnis = berechneKarteInhalt(karte, proben);
+    const problem = problemText(karte);
+    if (problem) {
+      kurz.textContent = ctx.t('stueck.kurzfassungProblem', { text: problem });
+      kurz.dataset.problem = '';
+      return;
+    }
+    delete kurz.dataset.problem;
+    kurz.textContent = ergebnis ?? '';
+  }
+
+  /** Berechnet eine Karte – Logik wie in Sprint 1. Gibt die Kurzfassung zurück. */
+  function berechneKarteInhalt(karte, proben) {
     const name = karte.dataset.karte;
     const { richtung, art } = KARTEN[name];
     const eingabeInput = karte.querySelector('[data-rolle="eingabe"]');
@@ -166,12 +196,6 @@ export function zeige(ctx, route, wurzel) {
 
     for (const feld of ERGEBNIS_FELDER) setze(karte, feld, LEER_ANZEIGE);
     status(karte, null);
-    karte.querySelector('[data-rolle="kurzfassung"]').textContent = '';
-
-    // Ein sichtbarer Fehler darf nicht hinter einer zugeklappten Karte verschwinden
-    // (US-38 AK6). Der gespeicherte Zustand bleibt dabei unberührt.
-    if ([...karte.querySelectorAll('.fehler')].some((e) => !e.hidden)) klappen.get(name)?.setzeOffen(true);
-
     if (!eingabe.gueltig) return;
 
     const probeAnleitung = proben.anleitung[richtung];
@@ -203,7 +227,7 @@ export function zeige(ctx, route, wurzel) {
     setze(karte, 'tatsaechlich', formatZahl(vonCm(r.cmTatsaechlich, e), loc));
     setze(karte, 'abweichung', formatAbweichung(vonCm(r.abweichungCm, e), loc));
     // Hauptergebnis in Kurzform, sichtbar wenn die Karte zugeklappt ist (US-38 AK5)
-    karte.querySelector('[data-rolle="kurzfassung"]').textContent = ctx.t('stueck.kurzfassung', {
+    return ctx.t('stueck.kurzfassung', {
       titel: ctx.t(`rechner.${name}.endgueltig`),
       wert: formatGanzzahl(r.endgueltig, loc),
     });
