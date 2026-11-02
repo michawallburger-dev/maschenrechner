@@ -2,47 +2,67 @@
 
 Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gilt `git log`.
 
-- **Aktiver Branch:** keiner – `sprint-4` ist nach `main` gemergt (`cab2f97`). Der nächste
-  Sprint beginnt mit einem neuen Branch `sprint-5`.
+- **Aktiver Branch:** `sprint-5` (am 02.11.2026 von `main` abgezweigt). `sprint-4` ist gemergt.
 - **Veröffentlicht:** Version **0.4.0** am 23.10.2026 auf https://michawallburger-dev.github.io/maschenrechner/
-- **Sprint:** 4 **abgeschlossen** – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen,
-  Jira-Release 0.4.0 freigegeben. Der Praxistest mit der Enduserin steht noch aus.
-- **Rolle:** keine aktiv. Sprint 4 ist durch alle vier Rollen gelaufen. Der nächste Sprint
-  beginnt beim **Product Owner**.
+- **Sprint:** **5 geplant** „Englisch und Zoll“ (Epic MAS-73, Ziel 0.5.0). Sprint 4 ist
+  abgeschlossen – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen, Release 0.4.0
+  freigegeben. Der Praxistest von 0.4.0 mit der Enduserin steht noch aus.
+- **Rolle:** **Product Owner** – Planung von Sprint 5 **abgeschlossen**, wartet auf Freigabe.
+  Als Nächstes die Rolle **Architekt**.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
 - **Tests:** 311 Tests, 307 grün, 0 rot, 4 `todo` (die vier neuen Befunde), davon 24 neue in
   `tests/qa-sprint4-nachtest.test.js`. Ohne die Nachtest-Datei: 287 grün, 0 `todo`.
-- **Letzte Freigabe:** Sprint-4-Umfang, E24 bestätigt, E25 mit der Enduserin klären, US-25 und
-  US-38 gemeinsam planen (22.10.2026)
+- **Letzte Freigabe:** Sprint-5-Zuschnitt (02.11.2026) – Englisch, Zoll und die Bruch**anzeige**
+  als Einstellung; die Bruch**eingabe** ausdrücklich geschoben. Bezugsmaß 4 Zoll bestätigt.
 - **CI:** läuft bei jedem Push (`.github/workflows/test.yml`)
-- **Jira-Releases:** 0.1.0 (16.10.), 0.2.0 (16.10.), 0.3.0 (17.10.), 0.4.0 (23.10.) – alle vier
-  als freigegeben markiert
+- **Jira-Releases:** 0.1.0, 0.2.0, 0.3.0, 0.4.0 freigegeben; **0.5.0 angelegt** (02.11.2026,
+  noch nicht veröffentlicht), zugeordnet sind MAS-27, MAS-28, MAS-73 und MAS-74
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 
-Sprint 4 ist fertig und veröffentlicht. Offen sind drei Dinge:
+**1. Rolle Architekt** für Sprint 5, sobald die Planung freigegeben ist: neues
+`docs/architektur/sprint-5-architektur.md`, aufbauend auf v4.3. Zu entwerfen sind der
+`en`-Eintrag in `js/texte.js`, der `in`-Eintrag in `js/einheiten.js`, die Bruchformatierung in
+`js/format.js`, das dritte Einstellungsfeld im Datenmodell und die Umrechnung beim Umschalten.
+Offene Punkte für den Architekten: **`en-GB` oder `en-US`** als Locale (der Dateikopf von
+`texte.js` schlägt en-GB vor, amerikanische Maße sprechen für en-US), und ob die sechs
+Längen-Aufrufstellen durch **eine** gemeinsame Funktion ersetzt werden.
 
-**1. Praxistest von 0.4.0 am iPhone mit der Enduserin.** Zu prüfen: die neuen Kartentitel
-(**MAS-57 AK4** ist bis dahin offen), die Maschenzahlen im Plan und im Zähler, die selbst
-gesetzte Startreihe und das Klappverhalten der Karten. Ergebnis als Jira-Vorgang mit Label
+**2. Zwei Entscheidungen bestätigen oder ändern:** **E34** (Umschalten rechnet um) und **E35**
+(Nadelstärke bleibt mm) sind als **vorläufig** eingetragen. E34 deckt sich mit dem Entwurf von
+US-24 aus Sprint 1, ist also gut begründet; bestätigt ist sie trotzdem noch nicht.
+
+**3. Praxistest von 0.4.0** am iPhone mit der Enduserin steht weiter aus. Damit hängt
+**MAS-57 AK4** (Bestätigung der neuen Kartentitel). Ergebnis als Jira-Vorgang mit Label
 `praxistest` anlegen, so wie MAS-56 für 0.3.0.
 
-**2. Über S4-07 bis S4-10 entscheiden** (Rolle Product Owner). Vier Befunde aus dem
-QA-Nachtest, alle niedrig bzw. kosmetisch, bewusst nicht in 0.4.0 behoben. Angelegt am
-23.10.2026 als **MAS-69** (S4-07), **MAS-70** (S4-08), **MAS-71** (S4-09) und **MAS-72**
-(S4-10), mit Label `qa-sprint-4` am Backlog-Epic MAS-4. Der gewichtigste ist **S4-07**: Eine zugeklappte Plan-Karte verbirgt den
-eigenen Hinweis „Bitte zuerst die eigene Probe … ausfüllen", weil `problemText()` in
-`js/ansichten/plankarte.js` nur `.fehler` und `[data-rolle="status"]` kennt. Damit ist der
-Zweck von US-38 AK6 noch nicht ganz erfüllt; die QA nennt den Fix eine Zeile. S4-08 ist
-derselbe Mechanismus bei offener Auswahl, S4-09 ist Altbestand aus `bad253d`, S4-10 rein
-kosmetisch. Einzelheiten im Abschnitt „Nachtest" des Testberichts.
+## Sprint 5 „Englisch und Zoll“ – Epic MAS-73, Ziel Version 0.5.0
 
-**3. Sprint 5 planen** (Rolle Product Owner). Offene Entscheidungen stehen am Ende von
-`docs/entscheidungen.md`. Im Backlog liegt unter anderem MAS-29 (US-25, Proben automatisch
-einklappen); sie kann den Klapp-Mechanismus aus US-38 ohne Umbau nutzen (E30).
+Ziel: Die App lässt sich auf Englisch bedienen und mit amerikanischen Maßen benutzen. Sprache,
+Längeneinheit und Zahlendarstellung sind **drei unabhängige Einstellungen** (E9, E32) – deutsche
+Oberfläche mit Zoll ist also ausdrücklich möglich und der Fall der Enduserin, die nach
+amerikanischen Anleitungen strickt.
+
+| # | Jira | Was | Priorität |
+|---|---|---|---|
+| 1 | MAS-28 | **US-24** Längeneinheit Zoll, Bezugsmaß 4 Zoll (E33), Umschalten rechnet um (E34) | Muss |
+| 2 | MAS-74 | **US-41** Längen wahlweise dezimal oder als Bruch anzeigen (E32) | Muss |
+| 3 | MAS-27 | **US-23** Oberfläche auf Englisch, 261 Texte | Muss |
+| – | MAS-75 | **US-42** Brucheingabe – **nicht** in Sprint 5, vorgemerkt für Sprint 6 (E36) | Soll |
+
+**Die Vorarbeit aus Sprint 1 trägt weit.** `js/texte.js` hat das Sprachgerüst mit 261 Schlüsseln,
+von denen keiner eine Einheit fest enthält; `js/einheiten.js` sieht den Zoll-Eintrag wörtlich vor;
+`js/modell.js` speichert und prüft Sprache und Einheit schon. **Die Lücke ist die Oberfläche:**
+Die Einstellungen bieten nur Farbschema, Datensicherung und Version. Der eigentliche Aufwand sind
+die 261 Übersetzungen.
+
+**Warum die Brucheingabe draußen bleibt (E36):** Die Anzeige ist gut gekapselt – sechs
+Aufrufstellen von `formatZahl` und eine reine Funktion. Die Eingabe bräuchte `UNVOLLSTAENDIG_MUSTER`
+in `js/eingabe.js`, den Code, aus dem MAS-30 und MAS-31 stammen, während der Nutzen fast
+vollständig im Lesen liegt.
 
 ## Stand der Nachbesserung (23.10.2026, Commit cf49a64)
 
@@ -98,7 +118,8 @@ gebraucht – ihre Formeln und Referenzwerte stehen in `docs/anforderungen/excel
 ## Offen
 - **MAS-46** (S2-09): doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
   Einziger offener Fehler.
-- **21 offene Jira-Vorgänge** (gezählt am 23.10.2026, einschließlich MAS-69 bis MAS-72). Aus Sprint 4 ist nur noch das Epic
+- **25 offene Jira-Vorgänge** (02.11.2026). Davon vier in Sprint 5: Epic MAS-73 mit MAS-27,
+  MAS-28 und MAS-74. Aus Sprint 4 ist nur noch das Epic
   **MAS-60** offen; es schließt nach der Freigabe des Merges.
 - **Vier neue QA-Befunde S4-07 bis S4-10** aus dem Nachtest als **MAS-69 bis MAS-72** angelegt,
   alle niedrig bzw. kosmetisch. MAS-70 ist zuerst eine Produktentscheidung, kein Auftrag.
