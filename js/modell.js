@@ -14,7 +14,7 @@
  * halbfertige Eingaben erhalten bleiben. Nur der Reihenzähler ist eine Zahl.
  */
 
-import { STANDARD_LAENGENEINHEIT, istBekannteEinheit, standardBezug } from './einheiten.js';
+import { STANDARD_LAENGENEINHEIT, istBekannteEinheit, standardBezug, umrechneWert } from './einheiten.js';
 import { STANDARD_SPRACHE, istBekannteSprache, text as uiText } from './texte.js';
 import { ARBEITSWEISEN, EREIGNIS_WAHLEN } from './plan.js';
 import { ZIEL_QUELLEN } from './ziel.js';
@@ -22,6 +22,13 @@ import { ZIEL_QUELLEN } from './ziel.js';
 export const SCHEMA_VERSION = 3;
 
 export const FARBSCHEMATA = Object.freeze(['system', 'hell', 'dunkel']);
+
+/**
+ * Darstellung der Längen (E32). Drei Zustände, kein Wahrheitswert: „auto“
+ * folgt der Einheit, eine eigene Wahl überlebt den Einheitenwechsel
+ * (Architektur Sprint 5, Abschnitt 3.1).
+ */
+export const DARSTELLUNGEN = Object.freeze(['auto', 'dezimal', 'bruch']);
 
 export const RECHNER_NAMEN = Object.freeze([
   'maschenAusAnleitung',
@@ -84,7 +91,80 @@ export function bereinigeEinstellungen(einstellungen) {
     sprache: istBekannteSprache(e.sprache) ? e.sprache : STANDARD_SPRACHE,
     laengeneinheit: istBekannteEinheit(e.laengeneinheit) ? e.laengeneinheit : STANDARD_LAENGENEINHEIT,
     farbschema: FARBSCHEMATA.includes(e.farbschema) ? e.farbschema : 'system',
+    laengenDarstellung: DARSTELLUNGEN.includes(e.laengenDarstellung) ? e.laengenDarstellung : 'auto',
   };
+}
+
+/**
+ * Welche Darstellung gilt gerade – „dezimal“ oder „bruch“?
+ *
+ * Nur diese Funktion entscheidet das. Die Ansichten fragen nie selbst die
+ * Einheit ab, um auf die Darstellung zu schließen (Architektur Sprint 5,
+ * Abschnitt 3.1).
+ *
+ * @param {object} einstellungen
+ * @returns {'dezimal'|'bruch'}
+ */
+export function darstellungFuer(einstellungen) {
+  const d = einstellungen?.laengenDarstellung;
+  if (d === 'dezimal' || d === 'bruch') return d;
+  return einstellungen?.laengeneinheit === 'in' ? 'bruch' : 'dezimal';
+}
+
+/** Bezugsmaße einer Probe umrechnen; eine leere Probe bekommt das Standardmaß. */
+function umgestellteProbe(probe, von, nach) {
+  const leer = (wert) => String(wert ?? '').trim() === '';
+  const bezug = (anzahl, wert) => (leer(anzahl) ? String(standardBezug(nach)) : umrechneWert(wert, von, nach));
+  return {
+    ...probe,
+    maschenBezug: bezug(probe.maschenAnzahl, probe.maschenBezug),
+    reihenBezug: bezug(probe.reihenAnzahl, probe.reihenBezug),
+  };
+}
+
+/**
+ * Stellt die Längeneinheit um und rechnet alle gespeicherten Längen um (US-24,
+ * E34, Risiko R4). Umgerechnet wird genau das, was in Architektur Sprint 5,
+ * Abschnitt 4.2 steht: die Bezugsmaße der Proben, die beiden Längeneingaben
+ * der Rechner und die drei Maße eines Plans.
+ *
+ * Stückzahlen, Nadelstärke, Reihennummern und Anpassungen bleiben unberührt.
+ * Ungültige und halb getippte Eingaben bleiben stehen (siehe `umrechneWert`).
+ *
+ * `geaendert` der Projekte wird **nicht** angefasst: Das Umstellen ist eine
+ * Anzeigeeinstellung für alles, keine Änderung an einzelnen Projekten – sonst
+ * würde die Projektliste neu sortiert.
+ *
+ * @param {object} daten
+ * @param {string} neueEinheit
+ * @returns {object} neue Daten, ohne Seiteneffekt
+ */
+export function einheitUmstellen(daten, neueEinheit) {
+  const alt = daten.einstellungen.laengeneinheit;
+  if (!istBekannteEinheit(neueEinheit) || neueEinheit === alt) return daten;
+
+  const u = (wert) => umrechneWert(wert, alt, neueEinheit);
+  const projekte = daten.projekte.map((projekt) => ({
+    ...projekt,
+    proben: projekt.proben.map((probe) => ({
+      ...probe,
+      anleitung: umgestellteProbe(probe.anleitung, alt, neueEinheit),
+      eigen: umgestellteProbe(probe.eigen, alt, neueEinheit),
+    })),
+    strickstuecke: projekt.strickstuecke.map((stueck) => ({
+      ...stueck,
+      rechner: {
+        ...stueck.rechner,
+        breiteZuMaschen: { ...stueck.rechner.breiteZuMaschen, eingabe: u(stueck.rechner.breiteZuMaschen.eingabe) },
+        laengeZuReihen: { ...stueck.rechner.laengeZuReihen, eingabe: u(stueck.rechner.laengeZuReihen.eingabe) },
+      },
+      plan: stueck.plan
+        ? { ...stueck.plan, anfangBreite: u(stueck.plan.anfangBreite), endBreite: u(stueck.plan.endBreite), laenge: u(stueck.plan.laenge) }
+        : stueck.plan,
+    })),
+  }));
+
+  return { ...daten, einstellungen: { ...daten.einstellungen, laengeneinheit: neueEinheit }, projekte };
 }
 
 function bereinigeHinweise(hinweise) {

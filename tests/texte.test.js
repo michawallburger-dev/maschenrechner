@@ -44,8 +44,12 @@ test('Fehlertexte existieren für alle Fehlercodes aus eingabe.js', () => {
 });
 
 test('Unabhängigkeit von der Einheit: Kein Text enthält „cm“ fest (außer dem Kürzel selbst)', () => {
-  const mitCm = Object.entries(SPRACHEN.de.texte).filter(([k, v]) => k !== 'einheit.cm' && /\bcm\b/.test(v));
-  assert.deepEqual(mitCm, []);
+  // Ausgenommen sind die Kuerzel selbst und die Beschriftungen der Einheitenauswahl.
+  const erlaubt = (k) => k.startsWith('einheit.') || k === 'einst.cm' || k === 'einst.zoll';
+  for (const [sprache, eintrag] of Object.entries(SPRACHEN)) {
+    const mitCm = Object.entries(eintrag.texte).filter(([k, v]) => !erlaubt(k) && /cm/.test(v));
+    assert.deepEqual(mitCm, [], `${sprache}: Einheit fest im Text`);
+  }
 });
 
 test('Für jeden Rechner gibt es alle Beschriftungen', () => {
@@ -60,4 +64,47 @@ test('Für jeden Rechner gibt es alle Beschriftungen', () => {
       assert.ok(`rechner.${karte}.${f}` in SPRACHEN.de.texte, `rechner.${karte}.${f} fehlt`);
     }
   }
+});
+
+// ---------------------------------------------------------------- Sprint 5: Englisch (US-23)
+
+test('US-23 AK3: de und en haben genau dieselben Schluessel', () => {
+  const de = Object.keys(SPRACHEN.de.texte);
+  const en = Object.keys(SPRACHEN.en.texte);
+  assert.deepEqual(de.filter((k) => !en.includes(k)), [], 'fehlt auf Englisch');
+  assert.deepEqual(en.filter((k) => !de.includes(k)), [], 'auf Englisch zuviel');
+});
+
+test('US-23: dieselben Platzhalter in beiden Sprachen', () => {
+  const muster = (s) => [...new Set(s.match(/\{[a-zA-Z]+\}/g) ?? [])].sort();
+  for (const [schluessel, deutsch] of Object.entries(SPRACHEN.de.texte)) {
+    assert.deepEqual(muster(SPRACHEN.en.texte[schluessel]), muster(deutsch), schluessel);
+  }
+});
+
+test('US-23: en-US als Locale, Rueckfall auf Deutsch bleibt', () => {
+  assert.equal(localeFuer('en'), 'en-US');
+  assert.equal(istBekannteSprache('en'), true);
+  assert.equal(text('en', 'gibt.es.nicht'), 'gibt.es.nicht');
+  assert.equal(localeFuer('xx'), SPRACHEN[STANDARD_SPRACHE].locale);
+});
+
+test('US-23: die Zielquelle im Zaehler heisst wie der Kartentitel, in jeder Sprache', () => {
+  for (const sprache of Object.keys(SPRACHEN)) {
+    assert.equal(
+      SPRACHEN[sprache].texte['zaehler.quelle.laengeZuReihen'],
+      SPRACHEN[sprache].texte['rechner.laengeZuReihen.titel'],
+      sprache + ': Befund S4-05 gilt auch hier',
+    );
+  }
+});
+
+test('US-23: englische Texte sind uebersetzt, nicht kopiert', () => {
+  const gleich = Object.keys(SPRACHEN.de.texte).filter(
+    (k) => SPRACHEN.de.texte[k] === SPRACHEN.en.texte[k] && SPRACHEN.de.texte[k].length > 12,
+  );
+  // Gleich bleiben darf nur, was keine Sprache hat: Vorlagen aus Platzhaltern
+  // app.titel ist ein Eigenname, titel.seite und stueck.kurzfassung bestehen nur aus
+  // Platzhaltern, und „Version“ heisst auf Englisch genauso.
+  assert.deepEqual(gleich, ['app.titel', 'titel.seite', 'stueck.kurzfassung', 'einst.version']);
 });

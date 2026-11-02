@@ -31,7 +31,7 @@ test('US-27 AK1: Proben, Nadelstärke und Rechner werden vollständig übernomme
 });
 
 test('US-27: Einstellungen werden übernommen, Farbschema = system', () => {
-  assert.deepEqual(vonSchema1(v1Zustand(), OPT).daten.einstellungen, { sprache: 'de', laengeneinheit: 'cm', farbschema: 'system' });
+  assert.deepEqual(vonSchema1(v1Zustand(), OPT).daten.einstellungen, { sprache: 'de', laengeneinheit: 'cm', farbschema: 'system', laengenDarstellung: 'auto' });
 });
 
 test('US-27 AK3: leerer Zustand aus 0.1 → kein Projekt', () => {

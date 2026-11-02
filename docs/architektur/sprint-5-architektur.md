@@ -1,4 +1,22 @@
-# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.1)
+# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.2)
+
+**Änderungen in v5.2** (02.11.2026, Rückmeldung aus der Entwicklung):
+
+- **Hinweis H5 ist entschieden, und zwar anders als in v5.0 vorgeschlagen: Zoll bekommt drei
+  Nachkommastellen, nicht zwei.** Der Grund ist gemessen, nicht geschätzt: Mit zwei Stellen
+  runden Bezugsmaß und Länge beide, die Fehler summieren sich, und der Referenzfall aus
+  Sprint 3 (Probe 37 R auf 10 cm, Länge 45 cm) ergibt nach einem Wechsel nach Zoll
+  **166 statt 167 Reihen** – im Browser nachgestellt. Mit drei Stellen bleibt er bei 167, und
+  der Weg zurück nach cm ist exakt. H5 war damit keine Kosmetikfrage, sondern eine Frage der
+  Richtigkeit; die Abwägung in v5.0 hat den Preis von zwei Stellen unterschätzt. Abschnitt 4.3
+  ist neu gefasst.
+- **Abschnitt 6.2 eingeschränkt:** Nur der **Sprachwechsel** baut die Ansicht neu auf. Einheit
+  und Darstellung tun das nicht – die Einstellungen zeigen selbst keine Längen, und ein
+  Neuaufbau bei jedem Klick auf ein Auswahlfeld würde den Fokus auf den Seitentitel ziehen und
+  nach oben scrollen. Das wäre ein Barrierefreiheitsfehler: Der Fokus verlässt das Bedienelement,
+  während man es bedient.
+- **Zahl berichtigt:** Es sind **285 Textschlüssel je Sprache**, nicht 261. Die Zahl in v5.0 kam
+  aus einer Zählung per Textsuche, die Schlüssel übersprungen hat.
 
 **Änderungen in v5.1** (02.11.2026, Rückmeldung des Auftraggebers): **R18 ist entschärft.** Der
 Einwand lautete, es habe noch niemand Zoll benutzt, also könne es auch keine Daten in Zoll geben,
@@ -21,7 +39,7 @@ umnumeriert.
 
 | Bereich | Sprint 4 | Sprint 5 |
 |---|---|---|
-| Sprachen | nur `de` | `de` und **`en`** (MAS-27), 261 Schlüssel je Sprache |
+| Sprachen | nur `de` | `de` und **`en`** (MAS-27), 285 Schlüssel je Sprache |
 | Längeneinheiten | nur `cm` | `cm` und **`in`** (MAS-28), Bezugsmaß 4 Zoll (E33) |
 | Zahlendarstellung | immer dezimal, 2 Stellen | **dezimal oder Bruch**, einstellbar (MAS-74, E32) |
 | Einstellungen (Oberfläche) | Farbschema, Datensicherung, Version | zusätzlich **Sprache, Einheit, Darstellung** (E10) |
@@ -47,7 +65,7 @@ Formatierung.
 Dieser Sprint füllt vorbereitete Fächer. Nachgeprüft am 02.11.2026:
 
 - `js/texte.js` trägt im Dateikopf die Anleitung, wie eine Sprache ergänzt wird, und **keiner der
-  261 Schlüssel enthält eine Einheit fest** – überall steht der Platzhalter `{einheit}`.
+  285 Schlüssel enthält eine Einheit fest** – überall steht der Platzhalter `{einheit}`.
 - `js/einheiten.js` beschreibt den Zoll-Eintrag wörtlich: `in: { faktorZuCm: 2.54, standardBezug: 4 }`.
 - `js/format.js` hängt bewusst keine Einheiten an; das erledigt `app.js` über `{einheit}`.
 - `bereinigeEinstellungen` in `js/modell.js` prüft `sprache` und `laengeneinheit` bereits, mit
@@ -65,7 +83,7 @@ Datensicherung und Version.
 index.html                     ✎  Vorlage: drei neue Auswahlgruppen in tpl-einstellungen
 sw.js                          ✎  nur CACHE_NAME und Version
 js/app.js                      ✎  Darstellung im ctx, Sprachwechsel zur Laufzeit
-js/texte.js                    ✎  en-Eintrag (261 Schlüssel), einheit.in, Texte der Einstellungen
+js/texte.js                    ✎  en-Eintrag (285 Schlüssel), einheit.in, Texte der Einstellungen
 js/einheiten.js                ✎  in-Eintrag, stellen, umrechneWert
 js/format.js                   ✎  formatBruch, formatLaenge, formatLaengeAbweichung, bruchVorlesbar
 js/modell.js                   ✎  laengenDarstellung, DARSTELLUNGEN, darstellungFuer, einheitUmstellen
@@ -210,21 +228,24 @@ Schritt zusammen mit `einstellungAendern`. Kein anderer Ort stellt Einheiten um.
 
 ### 4.3 Rundung und die Rückrichtung eines Wechsels
 
-Mit `stellen: 2` für beide Einheiten driftet ein Hin-und-Zurück-Wechsel sichtbar:
-10 cm → 3.94 in → 10.01 cm. MAS-28 AK5 lässt das zu („bis auf Rundung"), aber es ist messbar, und
-bei mehrfachem Wechseln summiert es sich.
+**Festlegung (v5.2):** `stellen: 2` für cm, **`stellen: 3` für Zoll.**
 
-**Festlegung:** `stellen: 2` für beide Einheiten. Begründung: Es passt zu E5, zu den
-Eingabefeldern und zu dem, was eine Strickerin selbst eintippen würde. Der Drift von einem
-Hundertstel Zentimeter ist fachlich bedeutungslos – er liegt weit unter der Genauigkeit, mit der
-man ein Strickstück messen kann.
+Der Entwurf in v5.0 sah zwei Stellen für beide vor und nannte den Drift von 0,01 cm fachlich
+bedeutungslos. Die Messung in der Entwicklung widerlegt das: Beim Umstellen runden **zwei**
+Werte – das Bezugsmaß der Probe und die Länge –, und die Fehler summieren sich im Quotienten.
 
-**Alternative, die der Product Owner entscheiden kann:** `stellen: 3` für Zoll macht den
-Hin-und-Zurück-Wechsel bei zwei Dezimalstellen in cm exakt (10 → 3.937 → 10.00), zeigt aber
-„3.937" im Eingabefeld. Siehe **H5**.
+| | Bezug | Länge | Reihen gesamt |
+|---|---|---|---|
+| cm (Referenzfall Sprint 3) | 10 | 45 | **167** |
+| nach Zoll, 2 Stellen | 3.94 | 17.72 | 166 |
+| nach Zoll, 3 Stellen | 3.937 | 17.717 | **167** |
 
-Die QA prüft **einen** Wechsel hin und zurück und misst die Abweichung; sie prüft nicht
-zehnfaches Wechseln, weil das kein realer Anwendungsfall ist.
+Mit drei Stellen ist zusätzlich der Weg zurück exakt: `10` → `3.937` → `10`, ohne Drift.
+Der Preis ist, dass im Eingabefeld `3.937` statt `3.94` steht – sichtbar nur dort, denn die
+Anzeige zeigt bei Zoll ohnehin Brüche.
+
+Die QA prüft einen Wechsel hin und zurück und den Referenzfall in beiden Einheiten; sie prüft
+nicht zehnfaches Wechseln, weil das kein realer Anwendungsfall ist.
 
 ## 5. Zahlendarstellung
 
@@ -312,7 +333,7 @@ für **Dichten und die Nadelstärke**, nicht mehr für Längen (E32).
 ### 6.1 Der `en`-Eintrag und die Locale
 
 ```js
-en: Object.freeze({ locale: 'en-US', texte: Object.freeze({ /* 261 Schlüssel */ }) }),
+en: Object.freeze({ locale: 'en-US', texte: Object.freeze({ /* 285 Schlüssel */ }) }),
 ```
 
 **`en-US`, nicht `en-GB`.** Der Dateikopf von `texte.js` nennt `en-GB` als Beispiel; dieser Sprint
@@ -337,11 +358,16 @@ Der Farbschema-Wechsel ruft `ctx.farbschemaAnwenden()` und braucht keinen Neuauf
 CSS betrifft. Ein **Sprachwechsel betrifft jeden Text** und erfordert einen Neuaufbau der aktuellen
 Ansicht: `texteFuellen` läuft nur beim Aufbau.
 
-Festlegung: Der Wechsel von Sprache, Einheit oder Darstellung baut die **aktuelle Ansicht neu auf**
-(dieselbe Route, also die Einstellungen), und `app.js` setzt dabei `document.documentElement.lang`
-neu. Die Nutzerin bleibt in den Einstellungen und sieht sie sofort in der neuen Sprache. Ein
-vollständiges Neuladen der Seite ist **nicht** nötig und auch nicht gewollt – es würde den
-Service Worker einbeziehen und wäre auf dem Handy sichtbar langsam.
+**Festlegung (v5.2):** Nur der **Sprachwechsel** baut die aktuelle Ansicht neu auf (dieselbe
+Route, also die Einstellungen), und `app.js` setzt dabei `document.documentElement.lang` neu.
+Ein vollständiges Neuladen der Seite ist nicht nötig – es würde den Service Worker einbeziehen
+und wäre auf dem Handy sichtbar langsam.
+
+**Einheit und Darstellung bauen die Ansicht nicht neu auf.** Der Entwurf in v5.0 sah das noch
+für alle drei vor. Es ist aber unnötig – die Einstellungen zeigen selbst keine Längen, und jede
+andere Ansicht wird beim Verlassen der Einstellungen ohnehin neu gebaut – und es wäre schädlich:
+Der Neuaufbau setzt den Fokus auf den Seitentitel und scrollt nach oben. Der Fokus würde also
+das Bedienelement verlassen, während die Nutzerin es bedient.
 
 ## 7. Oberfläche: drei Auswahlgruppen in den Einstellungen
 

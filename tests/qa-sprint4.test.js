@@ -623,13 +623,15 @@ test('Datenschutz: die Content Security Policy bleibt eng', () => {
 
 // ================================================================ Offlinefähigkeit
 
-test('Offline: Version 0.4.0 steht gleichlautend in package.json, sw.js und app.js', () => {
+// Seit Sprint 5 ohne feste Versionsnummer: gepruefft wird, dass die drei
+// Stellen uebereinstimmen. Sonst waere der Test bei jeder Version rot.
+test('Offline: die Version steht gleichlautend in package.json, sw.js und app.js', () => {
   const paket = JSON.parse(readFileSync(join(WURZEL, 'package.json'), 'utf8')).version;
   const sw = readFileSync(join(WURZEL, 'sw.js'), 'utf8');
   const app = readFileSync(join(WURZEL, 'js/app.js'), 'utf8');
-  assert.equal(paket, '0.4.0');
-  assert.ok(sw.includes("CACHE_NAME = 'maschenrechner-v0.4.0'"), 'CACHE_NAME nicht erhöht');
-  assert.ok(app.includes("APP_VERSION = '0.4.0'"));
+  assert.match(paket, /^\d+\.\d+\.\d+$/);
+  assert.ok(sw.includes(`CACHE_NAME = 'maschenrechner-v${paket}'`), 'CACHE_NAME nicht erhöht');
+  assert.ok(app.includes(`APP_VERSION = '${paket}'`));
 });
 
 test('Offline: Sprint 4 hat keine neue Datei eingeführt, die in APP_DATEIEN fehlen könnte', () => {

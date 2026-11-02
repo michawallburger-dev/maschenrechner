@@ -8,8 +8,8 @@
 
 import { umrechnenAusAnleitung, umrechnenAusCm } from '../rechner.js';
 import { pruefeZahl, REGELN } from '../eingabe.js';
-import { formatZahl, formatGanzzahl, formatAbweichung, LEER_ANZEIGE } from '../format.js';
-import { zuCm, vonCm } from '../einheiten.js';
+import { formatGanzzahl, formatLaenge, formatLaengeAbweichung, LEER_ANZEIGE } from '../format.js';
+import { zuCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern, strickstueckLoeschen, leereRechner, RECHNER_NAMEN } from '../modell.js';
 import { vorlage, texteFuellen, klappbar, bestaetigen, frageName, waehle } from '../dom.js';
 import { bauePlankarte } from './plankarte.js';
@@ -207,11 +207,12 @@ export function zeige(ctx, route, wurzel) {
 
     const loc = ctx.locale();
     const e = ctx.einheit();
+    const darst = ctx.darstellung();
     const anpassungWert = anpassung.gueltig ? anpassung.wert : 0;
     let r;
     if (art === 'anleitung') {
       r = umrechnenAusAnleitung(eingabe.wert, probeAnleitung, probeEigen, anpassungWert);
-      setze(karte, 'massAnleitung', formatZahl(vonCm(r.cmLautAnleitung, e), loc));
+      setze(karte, 'massAnleitung', formatLaenge(r.cmLautAnleitung, e, loc, darst));
     } else {
       r = umrechnenAusCm(zuCm(eingabe.wert, e), probeAnleitung, probeEigen, anpassungWert);
       setze(karte, 'anleitungGerundet', formatGanzzahl(r.anleitungGerundet, loc));
@@ -224,8 +225,8 @@ export function zeige(ctx, route, wurzel) {
       return;
     }
     setze(karte, 'endgueltig', formatGanzzahl(r.endgueltig, loc));
-    setze(karte, 'tatsaechlich', formatZahl(vonCm(r.cmTatsaechlich, e), loc));
-    setze(karte, 'abweichung', formatAbweichung(vonCm(r.abweichungCm, e), loc));
+    setze(karte, 'tatsaechlich', formatLaenge(r.cmTatsaechlich, e, loc, darst));
+    setze(karte, 'abweichung', formatLaengeAbweichung(r.abweichungCm, e, loc, darst));
     // Hauptergebnis in Kurzform, sichtbar wenn die Karte zugeklappt ist (US-38 AK5)
     return ctx.t('stueck.kurzfassung', {
       titel: ctx.t(`rechner.${name}.endgueltig`),

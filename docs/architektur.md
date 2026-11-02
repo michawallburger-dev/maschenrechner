@@ -12,7 +12,7 @@ umgeschrieben, sondern je Sprint fortgeschrieben.
 | [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
 | [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **ausgeliefert als 0.3.0** |
 | [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.3 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **ausgeliefert als 0.4.0** |
-| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.1 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
+| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.2 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
 
 Der nächste Sprint bekommt `architektur/sprint-6-architektur.md`.
 
@@ -94,7 +94,7 @@ Aus dem Entwurf von Sprint 5 (noch nicht gebaut):
 | R18 | *(Entschärft am 02.11.2026.)* 0.4.0 kennt den Einheitenwert `in` nicht und würde in Zoll gespeicherte Zahlen als Zentimeter lesen. | **Kann praktisch nicht eintreten:** Es gibt keine Daten in Zoll, keine Synchronisation (E6), und der Service Worker löscht alte Caches beim Aktivieren. Bliebe allein eine von Hand übertragene Sicherungsdatei in ein Gerät, das seit der Veröffentlichung nicht online war. Keine Maßnahme im Code. | Sprint 5, Abschnitt 3.2 |
 | R19 | Die sieben Längen-Anzeigestellen werden auf zwei gemeinsame Funktionen zusammengeführt – ein Umbau an Code, der heute richtig rechnet. | `formatLaenge` mit dezimaler Darstellung muss bitgleich dasselbe liefern wie bisher; eigener Regressionstest. Kein Rechenweg wird angefasst (R7). | Sprint 5, Abschnitt 5.2 |
 | R20 | Der Einheitenwechsel schreibt **alle** Projektdaten um – der erste Schalter in den Einstellungen, der das tut. Ein Fehler darin trifft jedes Projekt gleichzeitig. | Reine Funktion ohne Seiteneffekt, vollständige Feldliste, vier eigene Tests. Ungültige und leere Eingaben bleiben unverändert. | Sprint 5, Abschnitt 4.2 |
-| H5 | **Rundung beim Umrechnen.** Mit zwei Nachkommastellen driftet ein Hin-und-Zurück-Wechsel um 0,01 cm (10 → 3.94 → 10.01). | Der Entwurf legt zwei Stellen fest. Drei Stellen für Zoll wären exakt, zeigen aber 3.937 im Eingabefeld. Der Product Owner entscheidet. | Sprint 5, Abschnitt 4.3 |
+| H5 | **Rundung beim Umrechnen.** *(Entschieden am 02.11.2026 in der Entwicklung.)* Mit zwei Nachkommastellen für Zoll runden Bezugsmaß und Länge beide; die Fehler summieren sich, und der Referenzfall aus Sprint 3 ergibt nach einem Wechsel **166 statt 167 Reihen**. | **Zoll bekommt drei Nachkommastellen**, cm behält zwei. Damit bleibt der Referenzfall bei 167 und der Weg zurück nach cm ist exakt. Preis: Im Eingabefeld steht 3.937 statt 3.94. | Sprint 5, Abschnitt 4.3 |
 | H6 | **Dezimaltrenner in umgerechneten Feldern.** Gespeicherte Werte werden mit Punkt geschrieben, damit sie nicht von der Sprache abhängen – bei deutscher Oberfläche steht dann 3.94 im Feld. | Beides ist gültige Eingabe (E13). Ein Komma je Sprache würde gespeicherte Daten von der Spracheinstellung abhängig machen und ist abgelehnt. | Sprint 5, Abschnitt 4.2 |
 | H7 | **Abweichung in Brüchen verliert Genauigkeit.** 1 mm erscheint bei Zoll als Null, weil es unter einem halben Achtel Zoll liegt. | Fachlich vertretbar; wer es genau braucht, stellt die Darstellung auf dezimal. | Sprint 5, Abschnitt 5.2 |
 
