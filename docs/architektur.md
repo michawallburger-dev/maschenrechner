@@ -11,14 +11,15 @@ umgeschrieben, sondern je Sprint fortgeschrieben.
 | [sprint-1-architektur.md](architektur/sprint-1-architektur.md) | 1.2 | Grundlage: Technologiewahl, Rechenlogik, Eingabeprüfung, Datenschutzkonzept, Offline |
 | [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
 | [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **ausgeliefert als 0.3.0** |
-| [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.0 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **entworfen, noch nicht gebaut** |
+| [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.3 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **ausgeliefert als 0.4.0** |
+| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.0 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
 
-Der nächste Sprint bekommt `architektur/sprint-5-architektur.md`.
+Der nächste Sprint bekommt `architektur/sprint-6-architektur.md`.
 
-Was unten unter „Was auf jeden Fall gilt" steht, beschreibt den **ausgelieferten** Stand 0.3.0.
-Sprint 4 ändert davon zwei Dinge, sobald er gebaut ist: Die Startreihe des Plans wird einstellbar
-(dann ist „erste Reihe bleibt frei" nur noch eine Vorbelegung), und Schema 3 bekommt zwei
-optionale Felder, ohne Schemawechsel.
+Was unten unter „Was auf jeden Fall gilt“ steht, beschreibt den **ausgelieferten** Stand 0.4.0.
+Sprint 5 ändert davon zwei Dinge, sobald er gebaut ist: Es gibt eine zweite Sprache und eine zweite
+Längeneinheit, und gespeicherte Längen liegen dann in der **eingestellten Einheit** statt immer in
+Zentimetern. Schema 3 bekommt dafür ein weiteres optionales Feld, ohne Schemawechsel.
 
 ## Was auf jeden Fall gilt
 
@@ -28,7 +29,7 @@ Die Festlegungen, die über alle Sprints tragen — Einzelheiten jeweils im gena
   Abhängigkeiten, keine externen Ressourcen. Hosting auf GitHub Pages. (Sprint 1, Abschnitt 1)
 - **Fachlogik strikt von der Oberfläche getrennt**, als reine Funktionen: kein DOM, kein
   Speicherzugriff, keine Ausnahmen, Eingaben werden nicht verändert; IDs und Zeitstempel übergibt
-  der Aufrufer. Deshalb sind 224 Tests ohne Testframework und ohne Browser möglich.
+  der Aufrufer. Deshalb sind 311 Tests ohne Testframework und ohne Browser möglich.
   (Sprint 1, Abschnitt 3.1)
 - **Kaufmännische Rundung** als verbindliche Regel, gegen Gleitkommafehler abgesichert.
   (Sprint 1, Abschnitt 3.2)
@@ -62,7 +63,7 @@ mitgeführt.
 | R1 | Safari löscht die Daten nach 7 Tagen ohne Nutzung, wenn die App nicht installiert ist. | Empfehlung in der README, die App zu installieren und regelmäßig zu sichern (US-12). | Sprint 1–3 |
 | R2 | Gleitkommafehler beim Runden | Verbindliche Regel aus Sprint 1, Abschnitt 3.2, plus Pflicht-Testfall. | Sprint 1 |
 | R3 | Datenschutzhinweis bei öffentlicher Nutzung | Als Vorschlag im Backlog. | Sprint 1 |
-| R4 | Beim Einheitenwechsel (US-24) müssen gespeicherte Längen umgerechnet werden. | Wird mit US-24 umgesetzt. | Sprint 1 |
+| R4 | Beim Einheitenwechsel (US-24) müssen gespeicherte Längen umgerechnet werden. | **Eingelöst im Entwurf von Sprint 5, Abschnitt 4.2:** vollständige Liste der betroffenen Felder, reine Funktion `einheitUmstellen`, eigene Tests. | Sprint 1, gelöst Sprint 5 |
 | R5 | Wake Lock funktioniert in Home-Bildschirm-Apps erst ab iOS 18.4 (WebKit-Bug 254545). | Einmaliger Hinweis (US-11 AK5). | Sprint 2 |
 | R6 | Das Datenmodell wächst, damit steigt das Risiko, beim Laden Daten zu verlieren. | Neuer Schlüssel statt Überschreiben, alter bleibt, Sicherheitskopie vor jedem Import; `pruefeDaten` verwirft nie still ganze Projekte, ein ungültiges Strickstück wird repariert statt gelöscht. | Sprint 2 |
 | R7 | `app.js` aus Sprint 1 wird in Ansichten zerlegt (Umbau). | Rechenwege nicht verändern; die Browser-Tests der QA aus Sprint 1 laufen erneut. | Sprint 2 |
@@ -85,15 +86,32 @@ Aus dem Entwurf von Sprint 4 (noch nicht gebaut):
 | H3 | MAS-62 AK1 („vorbelegt ist 2") stimmt nur ohne „jede 2. Reihe/Runde". | **Mit E31 entschieden am 23.10.2026:** Feld leer vorbelegt, leer bedeutet „automatisch". AK1 in Jira berichtigt. | Sprint 4, Abschnitt 4.1 |
 | H4 | Mit eigener Startreihe können Zu-/Abnahmen auf Rückreihen liegen, was beim gewendeten Stricken unüblich ist. | Bewusst zugelassen, weil die Enduserin um diese Kontrolle gebeten hat. | Sprint 4, Abschnitt 8 |
 
-Neue Risiken beginnen bei **R17**, neue Hinweise bei **H5**.
+Aus dem Entwurf von Sprint 5 (noch nicht gebaut):
+
+| # | Risiko / Hinweis | Umgang | Quelle |
+|---|---|---|---|
+| R17 | Englische Texte sind länger und könnten die Mobilansicht sprengen – Fortführung von R9 und R15. | Keine neuen Zeilen, nur Texte; die Übersetzung hält sich kurz, wo der deutsche Text kurz ist. QA misst bei 360 × 640 px in beiden Sprachen. | Sprint 5, Abschnitt 6.1 |
+| R18 | Eine noch installierte **0.4.0** kennt den Einheitenwert `in` nicht, fällt auf `cm` zurück und deutet in Zoll gespeicherte Zahlen als Zentimeter – aus 3,94 in werden 3,94 cm. | Erweiterung von R13, aber ernster: keine verlorenen Felder, sondern **falsche Werte**. Nicht im Code behebbar, ohne 0.4.0 zu ändern. Tritt nur bei zwei Geräten mit unterschiedlichem Stand auf. Gehört in den CHANGELOG. | Sprint 5, Abschnitt 3.2 |
+| R19 | Die sieben Längen-Anzeigestellen werden auf zwei gemeinsame Funktionen zusammengeführt – ein Umbau an Code, der heute richtig rechnet. | `formatLaenge` mit dezimaler Darstellung muss bitgleich dasselbe liefern wie bisher; eigener Regressionstest. Kein Rechenweg wird angefasst (R7). | Sprint 5, Abschnitt 5.2 |
+| R20 | Der Einheitenwechsel schreibt **alle** Projektdaten um – der erste Schalter in den Einstellungen, der das tut. Ein Fehler darin trifft jedes Projekt gleichzeitig. | Reine Funktion ohne Seiteneffekt, vollständige Feldliste, vier eigene Tests. Ungültige und leere Eingaben bleiben unverändert. | Sprint 5, Abschnitt 4.2 |
+| H5 | **Rundung beim Umrechnen.** Mit zwei Nachkommastellen driftet ein Hin-und-Zurück-Wechsel um 0,01 cm (10 → 3.94 → 10.01). | Der Entwurf legt zwei Stellen fest. Drei Stellen für Zoll wären exakt, zeigen aber 3.937 im Eingabefeld. Der Product Owner entscheidet. | Sprint 5, Abschnitt 4.3 |
+| H6 | **Dezimaltrenner in umgerechneten Feldern.** Gespeicherte Werte werden mit Punkt geschrieben, damit sie nicht von der Sprache abhängen – bei deutscher Oberfläche steht dann 3.94 im Feld. | Beides ist gültige Eingabe (E13). Ein Komma je Sprache würde gespeicherte Daten von der Spracheinstellung abhängig machen und ist abgelehnt. | Sprint 5, Abschnitt 4.2 |
+| H7 | **Abweichung in Brüchen verliert Genauigkeit.** 1 mm erscheint bei Zoll als Null, weil es unter einem halben Achtel Zoll liegt. | Fachlich vertretbar; wer es genau braucht, stellt die Darstellung auf dezimal. | Sprint 5, Abschnitt 5.2 |
+
+Neue Risiken beginnen bei **R21**, neue Hinweise bei **H8**.
 
 ## Verteilung der Zu- und Abnahmen
 
 Die Kernformel, weil sie fachlich am leichtesten falsch wird — vollständig in
 [Sprint 3, Abschnitt 4](architektur/sprint-3-architektur.md):
 
-- Erste und letzte Reihe bleiben frei (E24, **vorläufig**).
-- „Nur jede 2. Reihe/Runde": nur ungerade Reihen bzw. Runden ab 3 (E25).
+- **Die letzte Reihe bleibt frei** – das ist fest (E24, bestätigt am 22.10.2026). Am Anfang ist die
+  freie Reihe seit 0.4.0 nur noch eine **Vorbelegung**: Das Feld ist leer, und leer bedeutet
+  automatisch – Reihe 2, mit der Option „nur jede 2.“ Reihe 3 (E31,
+  [Sprint 4, Abschnitt 4.1](architektur/sprint-4-architektur.md)).
+- Mit der Option liegen die Ereignisse in jeder zweiten Reihe **ab der Startreihe**. Die feste Regel
+  aus E25 (ungerade Reihen ab 3) ist mit E31 **entfallen** und ergibt sich nur noch als Folge der
+  Vorbelegung.
 - Ereignis *i* (0 … E−1) liegt auf dem Platz `floor((i+1)·(n+1)/(E+1)) − 1` der *n* erlaubten
   Reihen. Nur Ganzzahl-Arithmetik, keine Liste der Länge *n* — damit kosten auch sehr lange Teile
   keinen Speicher.
@@ -101,4 +119,8 @@ Die Kernformel, weil sie fachlich am leichtesten falsch wird — vollständig in
 ## Offene Befunde
 
 - **MAS-46** (S2-09): Doppelte 64-stellige IDs in einer Sicherung ergeben eine zu lange Ersatz-ID.
-  Einziger offener Fehler.
+- **MAS-69 bis MAS-72** (S4-07 bis S4-10, QA-Nachtest Sprint 4): vier niedrige bzw. kosmetische
+  Befunde, bewusst nicht in 0.4.0 behoben. Der gewichtigste ist **MAS-69**: Eine zugeklappte
+  Plan-Karte verbirgt den eigenen Hinweis auf die fehlende Maschenprobe, weil `problemText()` nur
+  `.fehler` und die Statusmeldung kennt. Damit ist der Zweck von US-38 AK6 noch nicht ganz
+  erfüllt. Nicht in Sprint 5 (E36).

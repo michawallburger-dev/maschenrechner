@@ -7,8 +7,8 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Sprint:** **5 geplant** „Englisch und Zoll“ (Epic MAS-73, Ziel 0.5.0). Sprint 4 ist
   abgeschlossen – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen, Release 0.4.0
   freigegeben. Der Praxistest von 0.4.0 mit der Enduserin steht noch aus.
-- **Rolle:** **Product Owner** – Planung von Sprint 5 **abgeschlossen**, wartet auf Freigabe.
-  Als Nächstes die Rolle **Architekt**.
+- **Rolle:** **Architekt** – `docs/architektur/sprint-5-architektur.md` **v5.0 fertig**, wartet auf
+  Freigabe. Als Nächstes die Rolle **Entwickler**.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
@@ -23,17 +23,16 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 
 ## Nächster Schritt
 
-**1. Rolle Architekt** für Sprint 5, sobald die Planung freigegeben ist: neues
-`docs/architektur/sprint-5-architektur.md`, aufbauend auf v4.3. Zu entwerfen sind der
-`en`-Eintrag in `js/texte.js`, der `in`-Eintrag in `js/einheiten.js`, die Bruchformatierung in
-`js/format.js`, das dritte Einstellungsfeld im Datenmodell und die Umrechnung beim Umschalten.
-Offene Punkte für den Architekten: **`en-GB` oder `en-US`** als Locale (der Dateikopf von
-`texte.js` schlägt en-GB vor, amerikanische Maße sprechen für en-US), und ob die sechs
-Längen-Aufrufstellen durch **eine** gemeinsame Funktion ersetzt werden.
+**1. Rolle Entwickler**, sobald die Architektur freigegeben ist. Umsetzen in der Reihenfolge des
+Epics: MAS-28 (Einheit Zoll), MAS-74 (Darstellung), MAS-27 (Englisch). Das Architekturdokument
+gibt für jeden Schritt die Signaturen und die vollständigen Feldlisten vor; Abschnitt 9 nennt
+25 Pflichtprüfungen.
 
-**2. Zwei Entscheidungen bestätigen oder ändern:** **E34** (Umschalten rechnet um) und **E35**
-(Nadelstärke bleibt mm) sind als **vorläufig** eingetragen. E34 deckt sich mit dem Entwurf von
-US-24 aus Sprint 1, ist also gut begründet; bestätigt ist sie trotzdem noch nicht.
+**2. Vier Punkte für den Product Owner.** **E34** (Umschalten rechnet um) und **E35** (Nadelstärke
+bleibt mm) sind weiter **vorläufig** – E34 deckt sich allerdings mit dem Entwurf von US-24 aus
+Sprint 1. Dazu drei neue Hinweise aus der Architektur: **H5** Rundung beim Umrechnen (zwei oder
+drei Nachkommastellen), **H6** Punkt als Dezimaltrenner in umgerechneten Feldern, **H7** die
+Abweichung verliert in Brüchen Genauigkeit. H6 und H7 sind nur zur Kenntnis, H5 ist eine Wahl.
 
 **3. Praxistest von 0.4.0** am iPhone mit der Enduserin steht weiter aus. Damit hängt
 **MAS-57 AK4** (Bestätigung der neuen Kartentitel). Ergebnis als Jira-Vorgang mit Label
@@ -58,6 +57,16 @@ von denen keiner eine Einheit fest enthält; `js/einheiten.js` sieht den Zoll-Ei
 `js/modell.js` speichert und prüft Sprache und Einheit schon. **Die Lücke ist die Oberfläche:**
 Die Einstellungen bieten nur Farbschema, Datensicherung und Version. Der eigentliche Aufwand sind
 die 261 Übersetzungen.
+
+**Architektur v5.0 (02.11.2026) festgelegt:** dritte Einstellung `laengenDarstellung` mit den
+Werten `auto`/`dezimal`/`bruch` (Schema 3 bleibt), Zoll-Eintrag mit `standardBezug: 4`,
+Brüche auf Achtel, Locale **en-US**, Umrechnung als reine Funktion `einheitUmstellen` mit
+vollständiger Feldliste. Vier neue Risiken **R17–R20**, drei Hinweise **H5–H7**. **R4 aus
+Sprint 1 ist damit eingelöst.** Kein neues Modul, `plan.js` und `ziel.js` bleiben unverändert.
+
+**Bei der Architektur gefunden:** Es sind **sieben** Längen-Anzeigestellen, nicht sechs – die
+Abweichung in `strickstueck.js:228` läuft über `formatAbweichung` und ist ebenfalls eine Länge.
+An MAS-74 kommentiert.
 
 **Warum die Brucheingabe draußen bleibt (E36):** Die Anzeige ist gut gekapselt – sechs
 Aufrufstellen von `formatZahl` und eine reine Funktion. Die Eingabe bräuchte `UNVOLLSTAENDIG_MUSTER`
