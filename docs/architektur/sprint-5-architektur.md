@@ -1,4 +1,12 @@
-# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.0)
+# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.1)
+
+**Änderungen in v5.1** (02.11.2026, Rückmeldung des Auftraggebers): **R18 ist entschärft.** Der
+Einwand lautete, es habe noch niemand Zoll benutzt, also könne es auch keine Daten in Zoll geben,
+die eine 0.4.0 falsch deutet. Nachgeprüft und bestätigt – und der Fall ist sogar enger als der
+Einwand: Es gibt keine Synchronisation (E6), jedes Gerät hat seinen eigenen Speicher, und der
+Service Worker löscht beim Aktivieren alle alten Caches. Es bliebe allein eine von Hand
+übertragene Sicherungsdatei. Abschnitt 3.2 und die R18-Zeile sind neu gefasst, der
+CHANGELOG-Eintrag entfällt. **Am Entwurf selbst ändert sich nichts.**
 
 Rolle: Architekt · Grundlage: Epic MAS-73, Stories MAS-28 (US-24), MAS-74 (US-41), MAS-27 (US-23);
 Entscheidungen E5, E9, E10, E13, E32, E33, E34, E35, E36 · Baut auf
@@ -122,10 +130,11 @@ Daten von 0.5.0 fehlerfrei, kennt `laengenDarstellung` aber nicht und schneidet 
 Speichern weg – genau wie 0.3.0 es mit `startReihe` und `eingeklappt` tut (Befund S4-06). Das ist
 bewusst hingenommen.
 
-**Neu und schwerwiegender:** 0.4.0 kennt auch den Einheitenwert `'in'` nicht.
-`istBekannteEinheit('in')` ist dort `false`, also fällt `bereinigeEinstellungen` auf `'cm'` zurück –
-**die in Zoll gespeicherten Zahlen werden dann als Zentimeter gelesen.** Aus 3,94 Zoll werden
-3,94 cm. Das ist keine Datenverlust-, sondern eine Fehldeutungsgefahr. Siehe **R18**.
+**Zum Einheitenwert `in`:** 0.4.0 kennt ihn nicht. `istBekannteEinheit` ist dort `false`, also
+fällt `bereinigeEinstellungen` auf `cm` zurück – in Zoll gespeicherte Zahlen würden dann als
+Zentimeter gelesen. **Dieser Fall kann praktisch nicht eintreten**, siehe **R18**: Es gibt heute
+keine Daten in Zoll, und es gibt keinen Weg, auf dem sie eine 0.4.0 erreichen – außer dem
+Einlesen einer von Hand übertragenen Sicherungsdatei.
 
 ## 4. Einheiten
 
@@ -449,7 +458,7 @@ Alle neuen Funktionen sind rein und ohne DOM prüfbar. Pflicht:
 | # | Risiko / Hinweis | Umgang |
 |---|---|---|
 | **R17** | Englische Texte sind länger und könnten die Mobilansicht sprengen – Fortführung von R9 und R15. | Keine neuen Zeilen, nur Texte; die Übersetzung hält sich kurz, wo der deutsche Text kurz ist. QA misst bei 360 × 640 px in beiden Sprachen (Abschnitt 9, Punkt 23). |
-| **R18** | Eine noch installierte **0.4.0** kennt `'in'` nicht, fällt auf `'cm'` zurück und deutet in Zoll gespeicherte Zahlen als Zentimeter. Aus 3,94 in werden 3,94 cm. | Erweiterung von R13, aber ernster: keine verlorenen Felder, sondern **falsche Werte**. Nicht im Code behebbar, ohne 0.4.0 zu ändern. Tritt nur bei zwei Geräten mit unterschiedlichem Stand auf; GitHub Pages liefert allen dieselbe Version. In Abschnitt 3.2 festgehalten, gehört in den CHANGELOG. |
+| **R18** | *(Entschärft am 02.11.2026 durch den Auftraggeber.)* 0.4.0 kennt den Einheitenwert `in` nicht und würde in Zoll gespeicherte Zahlen als Zentimeter lesen. | **Kann praktisch nicht eintreten.** Erstens hat bisher niemand Zoll benutzt, es gibt also keine solchen Daten. Zweitens gibt es keine Synchronisation (E6): Jedes Gerät hat seinen eigenen Speicher, und der Service Worker löscht beim Aktivieren alle alten Caches – ein Gerät, das die App online öffnet, läuft danach auf 0.5.0. Es bleibt ein einziger Weg: eine von 0.5.0 geschriebene Sicherungsdatei von Hand in ein Gerät einlesen, das seit der Veröffentlichung nicht online war. **Keine Maßnahme im Code, kein CHANGELOG-Eintrag.** Für spätere Fassungen bleibt die Regel aus S4-06: unbekannte Werte lieber aufbewahren als still ersetzen. |
 | **R19** | Die Zusammenführung der sieben Anzeigestellen auf zwei Funktionen ist ein Umbau an Code, der heute richtig rechnet. | `formatLaenge` mit dezimaler Darstellung muss bitgleich dasselbe liefern wie bisher (Abschnitt 9, Punkt 11). Kein Rechenweg wird angefasst (R7). |
 | **R20** | Der Einheitenwechsel schreibt **alle** Projektdaten um – der erste Schalter in den Einstellungen, der das tut. Ein Fehler darin trifft jedes Projekt gleichzeitig. | Reine Funktion ohne Seiteneffekt, vollständige Feldliste in Abschnitt 4.2, Tests 5 bis 8. Ungültige und leere Eingaben bleiben unverändert. |
 | **H5** | **Rundung beim Umrechnen.** Mit zwei Nachkommastellen driftet ein Hin-und-Zurück-Wechsel um 0,01 cm (10 → 3.94 → 10.01). Drei Stellen für Zoll wären exakt, zeigen aber „3.937" im Eingabefeld. | Dieses Dokument legt **zwei** Stellen fest (Abschnitt 4.3). Der Product Owner kann drei wählen, wenn ihm der exakte Rückweg wichtiger ist als lesbare Felder. |
