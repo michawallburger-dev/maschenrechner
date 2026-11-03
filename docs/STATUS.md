@@ -7,13 +7,14 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Sprint:** **5 geplant** „Englisch und Zoll“ (Epic MAS-73, Ziel 0.5.0). Sprint 4 ist
   abgeschlossen – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen, Release 0.4.0
   freigegeben. Der Praxistest von 0.4.0 mit der Enduserin steht noch aus.
-- **Rolle:** **Entwickler** – Sprint 5 **umgesetzt**, 0.5.0 noch nicht veröffentlicht. Als
-  Nächstes die **QA**.
+- **Rolle:** **QA** – Sprint 5 geprüft, Ergebnis **Freigabe** (02.11.2026). 0.5.0 ist noch
+  nicht veröffentlicht. Als Nächstes: über die sieben Befunde entscheiden, dann Merge.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
-- **Tests:** 338 Tests, 334 grün, 0 rot, 4 `todo` (die Befunde S4-07 bis S4-10). Neu in Sprint 5:
-  `tests/modell-einheit.test.js` plus Ergänzungen in `einheiten`, `format` und `texte`.
+- **Tests:** 395 Tests, 384 grün, 0 rot, 11 `todo` – 4 aus Sprint 4 (S4-07 bis S4-10) und 7 aus
+  dem QA-Lauf von Sprint 5 (S5-01 bis S5-07). Neu: `tests/modell-einheit.test.js` und
+  `tests/qa-sprint5.test.js` (QA).
 - **Letzte Freigabe:** Sprint-5-Zuschnitt (02.11.2026) – Englisch, Zoll und die Bruch**anzeige**
   als Einstellung; die Bruch**eingabe** ausdrücklich geschoben. Bezugsmaß 4 Zoll bestätigt.
 - **CI:** läuft bei jedem Push (`.github/workflows/test.yml`)
@@ -23,16 +24,32 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 
 ## Nächster Schritt
 
-**1. QA für Sprint 5.** Den Subagenten `qa` starten; er prüft gegen Code, Jira und
-`docs/architektur/sprint-5-architektur.md` **v5.2**. Abschnitt 9 nennt 25 Pflichtprüfungen.
-Besonderes Augenmerk: alle Kombinationen aus 2 Sprachen × 2 Einheiten × 3 Darstellungen, die
-Mobilansicht mit englischen Texten (R17) und der Referenzfall in beiden Einheiten.
+**1. Über die sieben QA-Befunde entscheiden** (Rolle Product Owner). Alle sind **niedrig oder
+kosmetisch**, keiner hindert die Veröffentlichung. Die QA empfiehlt ausdrücklich, **S5-01 vor dem
+Merge** zu beheben – eine vorhandene CSS-Klasse fehlt an zwei Stellen, und der Fehler steht gut
+sichtbar auf der neuen Einstellungsseite.
 
-**2. Zwei Entscheidungen bestätigen:** **E34** (Umschalten rechnet um) und **E35** (Nadelstärke
-bleibt mm) sind weiter als **vorläufig** eingetragen, obwohl beide umgesetzt sind.
+| Befund | Was | Aufwand |
+|---|---|---|
+| **S5-01** | „Sprache“ und „Längeneinheit“ stehen im Dreierraster, ein Drittel bleibt leer. `segment-zwei` fehlt | eine Zeile je Gruppe |
+| **S5-02** | `bruchVorlesbar` wird nirgends benutzt – toter Code mit einer Zusage in Architektur 5.1 | wahlweise anschließen oder Zusage zurücknehmen |
+| **S5-03** | **Achte** Längen-Anzeigestelle übersehen: die Probenzeile zeigt „3.937 in“ als Rohtext, darunter steht „7⅞ in“ | klein |
+| **S5-04** | Eine Probe mit leerer Stückzahl verliert beim Wechsel ein selbst eingetragenes Bezugsmaß | klein |
+| **S5-05** | Umgerechnete Werte können Feldgrenzen sprengen (40 in → 101.6 cm > Höchstwert 100) | mittel |
+| **S5-06** | In englischer Schreibweise wird „1,000“ als 1 gelesen (E13 kennt nur den Punkt) | mittel |
+| **S5-07** | Nach dem Sprachwechsel springt der Fokus auf den Seitentitel | klein |
 
-**3. Praxistest von 0.4.0** am iPhone mit der Enduserin steht weiter aus; damit hängt
-**MAS-57 AK4**. Für 0.5.0 kommt der Praxistest mit einer amerikanischen Anleitung dazu.
+Alle sieben sind als `todo`-Tests in `tests/qa-sprint5.test.js` festgehalten und werden grün,
+sobald der jeweilige Befund behoben ist. **Noch keine Jira-Vorgänge angelegt.**
+
+**2. Danach Merge nach `main`** – das veröffentlicht 0.5.0 über GitHub Pages –, Datum im
+CHANGELOG eintragen, Jira-Release 0.5.0 freigeben, Epic MAS-73 schließen.
+
+**3. Praxistest:** 0.4.0 steht am iPhone weiter aus (damit hängt **MAS-57 AK4**); für 0.5.0 kommt
+der Test mit einer amerikanischen Anleitung in Zoll dazu.
+
+**4. Zwei Entscheidungen bestätigen:** **E34** und **E35** sind weiter als vorläufig eingetragen,
+obwohl beide umgesetzt und von der QA abgenommen sind.
 
 ## Sprint 5 „Englisch und Zoll“ – Epic MAS-73, Ziel Version 0.5.0
 
@@ -71,6 +88,12 @@ Sprint 1 ist damit eingelöst.** Kein neues Modul, `plan.js` und `ziel.js` bleib
 
 Dazu berichtigt: Es sind **285 Textschlüssel** je Sprache, nicht 261 – meine Zählung per
 Textsuche hatte Schlüssel übersprungen.
+
+**QA-Freigabe am 02.11.2026** (`docs/qa/sprint-5-testbericht.md`). Die QA hat beide Abweichungen
+vom Entwurf geprüft und bestätigt – die H5-Behauptung hat sie unabhängig nachgestellt und nennt
+sie **stärker, als der Entwickler sie formuliert hatte**. Die Feldliste der Einheitenumstellung
+hat sie maschinell über einen Pfad-Vergleich aller Blattwerte geprüft: vollständig und nicht zu
+groß. Sieben niedrige Befunde, siehe oben.
 
 **Warum die Brucheingabe draußen bleibt (E36):** Die Anzeige ist gut gekapselt – sechs
 Aufrufstellen von `formatZahl` und eine reine Funktion. Die Eingabe bräuchte `UNVOLLSTAENDIG_MUSTER`
