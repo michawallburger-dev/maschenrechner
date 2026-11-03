@@ -2,13 +2,14 @@
 
 Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gilt `git log`.
 
-- **Aktiver Branch:** `sprint-5` (am 02.11.2026 von `main` abgezweigt). `sprint-4` ist gemergt.
-- **Veröffentlicht:** Version **0.4.0** am 23.10.2026 auf https://michawallburger-dev.github.io/maschenrechner/
-- **Sprint:** **5 geplant** „Englisch und Zoll“ (Epic MAS-73, Ziel 0.5.0). Sprint 4 ist
-  abgeschlossen – QA-Freigabe am 23.10.2026, Epic MAS-60 geschlossen, Release 0.4.0
-  freigegeben. Der Praxistest von 0.4.0 mit der Enduserin steht noch aus.
-- **Rolle:** **Entwickler** – die QA-Befunde S5-01 bis S5-04 sind behoben (03.11.2026).
-  0.5.0 ist noch nicht veröffentlicht. Als Nächstes: **Merge nach `main`**.
+- **Aktiver Branch:** keiner – `sprint-5` ist nach `main` gemergt. Der nächste Sprint beginnt
+  mit einem neuen Branch `sprint-6`.
+- **Veröffentlicht:** Version **0.5.0** am 03.11.2026 auf https://michawallburger-dev.github.io/maschenrechner/
+- **Sprint:** 5 **abgeschlossen** „Englisch und Zoll“ – QA-Freigabe am 02.11.2026, Epic MAS-73
+  geschlossen, Jira-Release 0.5.0 freigegeben. Die Praxistests von 0.4.0 **und** 0.5.0 stehen
+  beide noch aus.
+- **Rolle:** keine aktiv. Sprint 5 ist durch alle vier Rollen gelaufen. Der nächste Sprint
+  beginnt beim **Product Owner**.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
@@ -17,34 +18,38 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Letzte Freigabe:** Sprint-5-Zuschnitt (02.11.2026) – Englisch, Zoll und die Bruch**anzeige**
   als Einstellung; die Bruch**eingabe** ausdrücklich geschoben. Bezugsmaß 4 Zoll bestätigt.
 - **CI:** läuft bei jedem Push (`.github/workflows/test.yml`)
-- **Jira-Releases:** 0.1.0, 0.2.0, 0.3.0, 0.4.0 freigegeben; **0.5.0 angelegt** (02.11.2026,
-  noch nicht veröffentlicht), zugeordnet sind MAS-27, MAS-28, MAS-73 und MAS-74
+- **Jira-Releases:** 0.1.0 bis **0.5.0** alle als freigegeben markiert
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 
-**1. Merge nach `main`** – das veröffentlicht 0.5.0 über GitHub Pages. Dazu gehören: Datum im
-CHANGELOG, Jira-Release 0.5.0 freigeben, Epic **MAS-73** schließen. **Braucht die ausdrückliche
-Freigabe.**
+**1. Praxistest – inzwischen für zwei Versionen offen.**
 
-**2. Praxistest.** Für 0.4.0 steht er weiter aus (damit hängt **MAS-57 AK4**); für 0.5.0 kommt
-der Test mit einer amerikanischen Anleitung in Zoll dazu. **Mitprüfen:** ob ein Screenreader die
-Bruchzeichen (½, ¼, ⅜) richtig vorliest – das ist der offene Punkt aus S5-02, und nur der
-Praxistest kann ihn beantworten.
+- **0.4.0:** neue Kartentitel (damit hängt **MAS-57 AK4**), Maschenzahlen im Plan und im Zähler,
+  eigene Startreihe, Klappverhalten.
+- **0.5.0:** eine amerikanische Anleitung in Zoll durchrechnen. **Mitprüfen:** ob ein
+  Screenreader die Bruchzeichen (½, ¼, ⅜) richtig vorliest – der offene Punkt aus S5-02, den
+  nur der Praxistest beantworten kann.
 
-**3. Drei offene Befunde aus Sprint 5**, alle niedrig, alle als `todo`-Test festgehalten:
+Ergebnis als Jira-Vorgang mit Label `praxistest` anlegen, so wie MAS-56 für 0.3.0.
 
-| Vorgang | Befund | Was zu entscheiden ist |
+**2. Sprint 6 planen** (Rolle Product Owner). Was bereitliegt:
+
+| Vorgang | Was | Zusammenhang |
 |---|---|---|
-| **MAS-76** | S5-05 Umgerechnete Werte sprengen Feldgrenzen (40 in → 101.6 cm) | Grenzen je Einheit, kappen oder hinnehmen |
-| **MAS-77** | S5-06 „1,000“ wird englisch als 1 gelesen | Trennerregel an die Sprache binden, Trenner fallen lassen oder hinnehmen |
-| **MAS-78** | S5-07 Fokussprung nach dem Sprachwechsel | klein, Fokus zurück aufs Auswahlfeld |
+| **MAS-75** | US-42 Brucheingabe | in Sprint 5 ausdrücklich geschoben (E36) |
+| **MAS-77** | S5-06 „1,000“ wird englisch als 1 gelesen | **derselbe Code** wie MAS-75 |
+| **MAS-76** | S5-05 Umgerechnete Werte sprengen Feldgrenzen | Entscheidung offen |
+| **MAS-78** | S5-07 Fokussprung nach dem Sprachwechsel | klein |
+| **MAS-69 bis MAS-72** | S4-07 bis S4-10 aus Sprint 4 | drei davon in derselben Datei |
+| **MAS-29** | US-25 Proben automatisch einklappen | nutzt den Mechanismus aus US-38 (E30) |
 
-**MAS-77 gehört zu MAS-75** (US-42, Brucheingabe): derselbe Code in `js/eingabe.js`. Beide
-zusammen zu planen spart einen zweiten Eingriff in die fragilste Stelle der App.
+**MAS-75 und MAS-77 gehören zusammen:** beide fassen `js/eingabe.js` an – die Stelle, aus der
+MAS-30 und MAS-31 stammen. Zweimal dort hineinzugreifen wäre die schlechtere Reihenfolge.
 
-**4. Zwei Entscheidungen bestätigen:** **E34** und **E35** sind weiter als vorläufig eingetragen,
-obwohl beide umgesetzt und von der QA abgenommen sind.
+**3. Zwei Entscheidungen bestätigen:** **E34** (Umschalten rechnet um) und **E35** (Nadelstärke
+bleibt mm) stehen weiter als *vorläufig* in `docs/entscheidungen.md`, obwohl beide umgesetzt,
+von der QA abgenommen und jetzt veröffentlicht sind.
 
 ## Sprint 5 „Englisch und Zoll“ – Epic MAS-73, Ziel Version 0.5.0
 

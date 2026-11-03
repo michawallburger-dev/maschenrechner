@@ -1,9 +1,10 @@
 # Änderungsprotokoll
 
-## 0.5.0 – unveröffentlicht (Sprint 5 „Englisch und Zoll“)
+## 0.5.0 – 03.11.2026 (Sprint 5 „Englisch und Zoll“)
 
-Das Datum wird beim Veröffentlichen eingetragen. Von der QA am 02.11.2026 freigegeben; der
-Praxistest mit der Enduserin steht noch aus.
+Von der QA am 02.11.2026 freigegeben, Befunde S5-01 bis S5-04 danach behoben. Der Praxistest
+mit der Enduserin steht noch aus – dabei ist auch zu prüfen, ob ein Screenreader die
+Bruchzeichen richtig vorliest.
 
 ### Neu
 - Die Oberfläche lässt sich auf **Englisch** umstellen. Alle 285 Texte liegen in beiden Sprachen
