@@ -12,7 +12,7 @@ umgeschrieben, sondern je Sprint fortgeschrieben.
 | [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
 | [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **ausgeliefert als 0.3.0** |
 | [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.3 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **ausgeliefert als 0.4.0** |
-| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.2 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
+| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.3 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
 
 Der nächste Sprint bekommt `architektur/sprint-6-architektur.md`.
 

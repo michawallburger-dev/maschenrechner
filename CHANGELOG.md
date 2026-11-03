@@ -2,7 +2,8 @@
 
 ## 0.5.0 – unveröffentlicht (Sprint 5 „Englisch und Zoll“)
 
-Das Datum wird beim Veröffentlichen eingetragen. QA und Praxistest stehen noch aus.
+Das Datum wird beim Veröffentlichen eingetragen. Von der QA am 02.11.2026 freigegeben; der
+Praxistest mit der Enduserin steht noch aus.
 
 ### Neu
 - Die Oberfläche lässt sich auf **Englisch** umstellen. Alle 285 Texte liegen in beiden Sprachen
@@ -34,8 +35,21 @@ Das Datum wird beim Veröffentlichen eingetragen. QA und Praxistest stehen noch 
 - Umgerechnete Werte werden mit **Punkt** als Dezimaltrenner gespeichert, damit gespeicherte Daten
   nicht von der Spracheinstellung abhängen. Komma und Punkt bleiben beide als Eingabe erlaubt
 - Die Rechenwege sind unverändert: `plan.js` und `ziel.js` wurden nicht angefasst
-- 338 automatische Tests (vorher 311), davon 334 grün und 4 als `todo` für die offenen Befunde
-  S4-07 bis S4-10
+- 393 automatische Tests (vorher 311), davon 386 grün und 7 als `todo` für die offenen Befunde
+  S4-07 bis S4-10 und S5-05 bis S5-07
+
+### Behoben nach der QA von Sprint 5
+- S5-01: Die Auswahlgruppen „Sprache“ und „Längeneinheit“ standen mit zwei Optionen im
+  Dreierraster, ein Drittel blieb leer. Die vorhandene Klasse `segment-zwei` fehlte
+- S5-02: `bruchVorlesbar` war toter Code – gebaut, getestet, nie angeschlossen. Die Funktion ist
+  entfernt und die Zusage im Architekturdokument zurückgenommen. Die vorgeschlagene Abhilfe
+  (`aria-label`) hätte an einem rollenlosen Element ohnehin nicht gewirkt; ob die Bruchzeichen
+  genügen, klärt der Praxistest
+- S5-03: Es gab eine **achte** Stelle, die eine Länge anzeigt – die Probenzeile. Dort stand nach
+  einem Wechsel „22 M auf 3.937 in“, während zwei Zeilen tiefer dieselbe Länge als „7⅞ in“
+  erschien. Sie läuft jetzt ebenfalls über die gemeinsame Formatierung
+- S5-04: Eine Probe mit leerer Stückzahl verlor beim Einheitenwechsel ein selbst eingetragenes
+  Bezugsmaß. Das Standardmaß ersetzt es jetzt nur noch, wenn dort überhaupt nichts Eigenes steht
 
 ### Bewusst nicht umgesetzt
 - Die **Brucheingabe**: Wer 4½ angezeigt bekommt, tippt weiterhin 4,5. Die Anzeige ist gut
@@ -45,6 +59,9 @@ Das Datum wird beim Veröffentlichen eingetragen. QA und Praxistest stehen noch 
 - Die Spracheinstellung des Browsers wird **nicht** ausgelesen. Sie wäre ein Merkmal zur
   Wiedererkennung, und der Gewinn wäre gering
 - Die vier offenen QA-Befunde **MAS-69 bis MAS-72** aus Sprint 4
+- Drei Befunde aus der QA von Sprint 5, alle niedrig: **MAS-76** (umgerechnete Werte können die
+  Feldgrenzen sprengen), **MAS-77** (in englischer Schreibweise wird „1,000“ als 1 gelesen) und
+  **MAS-78** (nach dem Sprachwechsel springt der Fokus auf den Seitentitel)
 
 ## 0.4.0 – 23.10.2026 (Sprint 4 „Überblick beim Stricken")
 

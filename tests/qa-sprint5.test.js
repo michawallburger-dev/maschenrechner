@@ -22,7 +22,7 @@ import { join, relative } from 'node:path';
 import { SPRACHEN, text, localeFuer, STANDARD_SPRACHE } from '../js/texte.js';
 import { zuCm, vonCm, standardBezug, umrechneWert, LAENGENEINHEITEN } from '../js/einheiten.js';
 import { parseZahl, pruefeZahl } from '../js/eingabe.js';
-import { formatZahl, formatBruch, bruchVorlesbar, formatLaenge, formatLaengeAbweichung, LEER_ANZEIGE } from '../js/format.js';
+import { formatZahl, formatBruch, formatLaenge, formatLaengeAbweichung, LEER_ANZEIGE } from '../js/format.js';
 import { planAusTexten } from '../js/plan.js';
 import { runden } from '../js/rechner.js';
 import {
@@ -454,18 +454,18 @@ test('US-41: formatLaengeAbweichung – Vorzeichen, „±0“, und dezimal unver
   }
 });
 
-test('US-41 AK10: bruchVorlesbar schreibt den Bruch aus', () => {
-  assert.equal(bruchVorlesbar(4.5, DE), '4 1/2');
-  assert.equal(bruchVorlesbar(0.5, DE), '1/2');
-  assert.equal(bruchVorlesbar(4, DE), '4');
-  assert.equal(bruchVorlesbar(0, DE), '0');
-  assert.equal(bruchVorlesbar(4.375, EN), '4 3/8');
-  assert.equal(bruchVorlesbar(Number.NaN, DE), LEER_ANZEIGE);
-});
-
-test('S5-02: die vorlesbare Fassung wird in keiner Ansicht benutzt', { todo: 'Befund S5-02 – offen' }, () => {
+// S5-02 ist anders geloest als im Bericht vorgeschlagen: Die Funktion ist
+// entfernt und die Zusage in Architektur 5.1 zurueckgenommen (v5.3). Grund:
+// aria-label an einem rollenlosen <span> wird von Screenreadern nicht
+// zuverlaessig vorgelesen - die vorgeschlagene Abhilfe haette also nicht
+// gewirkt. Ob die Bruchzeichen selbst genuegen, klaert der Praxistest.
+test('S5-02 behoben: kein toter Export, keine offene Zusage', () => {
+  const format = lies('js/format.js');
+  assert.ok(!/bruchVorlesbar/.test(format), 'die unbenutzte Funktion ist entfernt');
   const ansichten = readdirSync(join(WURZEL, 'js/ansichten')).map((n) => lies(`js/ansichten/${n}`)).join('\n');
-  assert.ok(/bruchVorlesbar/.test(ansichten), 'keine Ansicht setzt ein aria-label mit der vorlesbaren Fassung');
+  assert.ok(!/bruchVorlesbar/.test(ansichten));
+  const architektur = lies('docs/architektur/sprint-5-architektur.md');
+  assert.ok(!/für `aria-label` benutzt/.test(architektur), 'die Zusage ist zurueckgenommen');
 });
 
 test('US-41 AK3: darstellungFuer – auto folgt der Einheit, eigene Wahl bleibt', () => {
@@ -737,7 +737,7 @@ test('Die drei neuen Auswahlgruppen stehen in der Vorlage, in der festgelegten R
   assert.match(vorlage, /data-rolle="einheit-status"[^>]*role="status"/, 'US-24 AK6 braucht eine Rückmeldung');
 });
 
-test('S5-01: die zweispaltigen Auswahlgruppen benutzen das Dreierraster', { todo: 'Befund S5-01 – offen' }, () => {
+test('S5-01 behoben: die zweispaltigen Auswahlgruppen tragen segment-zwei', () => {
   const html = lies('index.html');
   const vorlage = html.match(/<template id="tpl-einstellungen">([\s\S]*?)<\/template>/)[1];
   for (const rolle of ['sprache', 'einheit']) {
@@ -746,13 +746,13 @@ test('S5-01: die zweispaltigen Auswahlgruppen benutzen das Dreierraster', { todo
   }
 });
 
-test('S5-03: die Probenzeile zeigt Bezugsmaße als Rohtext, nicht über formatLaenge', { todo: 'Befund S5-03 – offen' }, () => {
+test('S5-03 behoben: die Probenzeile gibt die Bezugsmaße über formatLaenge aus', () => {
   const quelle = lies('js/ansichten/strickstueck.js');
   const zeile = quelle.match(/function probeZeile[\s\S]*?\n}/)[0];
   assert.match(zeile, /formatLaenge/, 'auch diese Länge gehört über die gemeinsame Funktion');
 });
 
-test('S5-04: eine leere Probe verliert ein selbst eingetragenes Bezugsmaß', { todo: 'Befund S5-04 – offen' }, () => {
+test('S5-04 behoben: ein selbst eingetragenes Bezugsmaß bleibt erhalten', () => {
   const d = daten('cm');
   d.projekte[0].proben[0].eigen = { maschenAnzahl: '', maschenBezug: '15', reihenAnzahl: '', reihenBezug: '15' };
   const n = einheitUmstellen(d, 'in').projekte[0].proben[0].eigen;

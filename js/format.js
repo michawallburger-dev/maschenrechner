@@ -23,9 +23,6 @@ const MINUS = '−';
 /** Bruchzeichen für Achtel, gekürzt (E32). */
 const BRUCHZEICHEN = Object.freeze(['', '⅛', '¼', '⅜', '½', '⅝', '¾', '⅞']);
 
-/** Dieselben Brüche als Text, für aria-label (US-41 AK10). */
-const BRUCH_VORLESBAR = Object.freeze(['', '1/8', '1/4', '3/8', '1/2', '5/8', '3/4', '7/8']);
-
 function istZahl(wert) {
   return typeof wert === 'number' && Number.isFinite(wert);
 }
@@ -96,23 +93,6 @@ export function formatBruch(wert, locale) {
   const rest = achtel % 8;
   if (rest === 0) return formatGanzzahl(ganz, locale);
   return ganz === 0 ? BRUCHZEICHEN[rest] : formatGanzzahl(ganz, locale) + BRUCHZEICHEN[rest];
-}
-
-/**
- * Derselbe Bruch als vorlesbarer Text: „4 1/2“, „1/2“, „4“.
- * Für aria-label, wo das Bruchzeichen unzuverlässig vorgelesen wird.
- * @param {number} wert
- * @param {string} locale
- * @returns {string}
- */
-export function bruchVorlesbar(wert, locale) {
-  if (!istZahl(wert)) return LEER_ANZEIGE;
-  if (wert < 0) return MINUS + bruchVorlesbar(-wert, locale);
-  const achtel = Math.round(wert * 8);
-  const ganz = Math.floor(achtel / 8);
-  const rest = achtel % 8;
-  if (rest === 0) return formatGanzzahl(ganz, locale);
-  return ganz === 0 ? BRUCH_VORLESBAR[rest] : `${formatGanzzahl(ganz, locale)} ${BRUCH_VORLESBAR[rest]}`;
 }
 
 /**

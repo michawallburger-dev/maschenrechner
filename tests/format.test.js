@@ -6,7 +6,6 @@ import {
   formatGanzzahl,
   formatAbweichung,
   formatBruch,
-  bruchVorlesbar,
   formatLaenge,
   formatLaengeAbweichung,
   LEER_ANZEIGE,
@@ -87,13 +86,6 @@ test('Eigenschaft: der Bruch weicht hoechstens 1/16 ab und ist monoton', () => {
     assert.ok(gezeigt >= vorher, 'nicht monoton bei ' + x);
     vorher = gezeigt;
   }
-});
-
-test('US-41 AK10: bruchVorlesbar schreibt den Bruch aus', () => {
-  assert.equal(bruchVorlesbar(4.5, DE), '4 1/2');
-  assert.equal(bruchVorlesbar(0.5, DE), '1/2');
-  assert.equal(bruchVorlesbar(4, DE), '4');
-  assert.equal(bruchVorlesbar(4.375, DE), '4 3/8');
 });
 
 test('formatLaenge dezimal ist bitgleich zur alten Formatierung (Risiko R19)', () => {

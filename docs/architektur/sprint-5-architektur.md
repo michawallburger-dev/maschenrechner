@@ -1,4 +1,26 @@
-# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.2)
+# Architekturdokument – Maschenrechner, Sprint 5 (Version 5.3)
+
+**Änderungen in v5.3** (03.11.2026, nach der QA-Freigabe, Befunde S5-01 bis S5-04):
+
+- **Abschnitt 5.1: Die Zusage zum `aria-label` ist zurückgenommen, `bruchVorlesbar` ist
+  entfernt.** Der Entwurf versprach, die vorlesbare Fassung für `aria-label` zu benutzen; gebaut
+  wurde die Funktion, angeschlossen wurde sie nie (Befund S5-02). Die vorgeschlagene Abhilfe
+  hätte aber auch nicht gewirkt: `aria-label` an einem **rollenlosen `<span>`** wird von
+  Screenreadern nicht zuverlässig vorgelesen. Eine tragfähige Lösung bräuchte an jeder Länge
+  einen zweiten, visuell versteckten Text – ungeprüfte Maschinerie gegen ein Problem, das
+  niemand gemessen hat. **Ob die Bruchzeichen selbst genügen, klärt der Praxistest.** Bis dahin
+  bleibt es bei den Zeichen; US-41 AK10 ist in diesem Sinn zu lesen („notfalls“ ist nicht
+  eingetreten, weil der Notfall nicht festgestellt ist).
+- **Abschnitt 5.2: Es sind acht Längen-Anzeigestellen, nicht sieben.** Die Probenzeile in
+  `strickstueck.js` zeigte die Bezugsmaße als Rohtext des Eingabefeldes – nach einem Wechsel
+  stand dort „3.937 in“, während zwei Zeilen tiefer dieselbe Länge als „7⅞ in“ erschien
+  (Befund S5-03). Sie geht jetzt ebenfalls über `formatLaenge`.
+- **Abschnitt 4.2, Regel 4 geschärft:** Das Standardmaß ersetzt das Bezugsmaß nur, wenn die
+  Probe **unberührt** ist – Stückzahl leer **und** im Bezugsfeld noch die Vorbelegung der alten
+  Einheit. Vorher genügte die leere Stückzahl, womit ein selbst eingetragenes Maß verloren ging
+  (Befund S5-04, Grundsatz R6/R10).
+- Rein optisch, ohne Folgen fürs Dokument: Die beiden zweispaltigen Auswahlgruppen tragen jetzt
+  `segment-zwei` (Befund S5-01).
 
 **Änderungen in v5.2** (02.11.2026, Rückmeldung aus der Entwicklung):
 
@@ -217,9 +239,10 @@ export function umrechneWert(text, vonEinheit, nachEinheit) // → string
    locale-abhängig. Begründung: Gespeicherte Werte dürfen nicht von der Sprache abhängen, und der
    Punkt ist in Dezimalfeldern ein gültiger Dezimaltrenner (E13). Die Nutzerin sieht also nach
    einem Wechsel „3.94" im Feld, auch bei deutscher Oberfläche. Siehe **H6**.
-4. **Sonderfall leere Probe:** Ist bei einer Probe `maschenAnzahl` bzw. `reihenAnzahl` leer, wird
-   das zugehörige Bezugsmaß **nicht** umgerechnet, sondern auf `standardBezug(neueEinheit)`
-   gesetzt. Eine noch nicht ausgefüllte Probe soll „4" zeigen, nicht „3.94". MAS-28 AK3
+4. **Sonderfall unberührte Probe (geschärft in v5.3):** Ist die Stückzahl leer **und** steht im
+   Bezugsfeld noch die Vorbelegung der alten Einheit, wird das Bezugsmaß **nicht** umgerechnet,
+   sondern auf `standardBezug(neueEinheit)` gesetzt. Hat die Nutzerin dort selbst etwas
+   eingetragen, wird umgerechnet – sonst verlöre sie ihre Eingabe (Befund S5-04). Eine noch nicht ausgefüllte Probe soll „4" zeigen, nicht „3.94". MAS-28 AK3
    (Vorbelegung) und AK4 (Umrechnen) greifen damit sauber ineinander: AK3 gilt für leere, AK4 für
    ausgefüllte Werte.
 
@@ -270,21 +293,16 @@ export function formatBruch(wert, locale)  // → '4½', '½', '4', '0'
 6. Ist der Wert 0, erscheint „0".
 7. Ungültige Werte ergeben `LEER_ANZEIGE` („–"), wie bei `formatZahl`.
 
-**Vorlesbare Fassung** für Screenreader (MAS-74 AK10):
-
-```js
-export function bruchVorlesbar(wert, locale)  // → '4 1/2'
-```
-
-Dieselbe Rundung, aber mit Schrägstrich und Leerzeichen statt eines Bruchzeichens. Sie wird für
-`aria-label` benutzt, wo eine Länge allein in einem Element steht. **Welche Screenreader das
-wirklich brauchen, ist nicht geprüft** – die Entwicklung setzt das Attribut, die QA prüft die
-Auszeichnung, nicht die Aussprache.
+**Keine vorlesbare Sonderfassung** (v5.3). Der Entwurf sah dafür `bruchVorlesbar` vor; die
+Funktion ist entfernt, die Zusage zurückgenommen. Begründung oben im Kopf des Dokuments.
+Die Bruchzeichen stehen also so, wie sie sind; ob ein Screenreader sie richtig liest, ist eine
+Frage für den Praxistest, nicht für den Entwurf.
 
 ### 5.2 Die sieben Längen-Anzeigestellen
 
-**Berichtigung gegenüber der Sprintplanung:** Es sind **sieben**, nicht sechs. Sechs rufen
-`formatZahl`, eine siebte ruft `formatAbweichung` – auch sie zeigt eine Länge.
+**Zweimal berichtigt.** Die Sprintplanung sagte sechs; v5.0 machte daraus sieben (die
+Abweichung läuft über `formatAbweichung`); die QA fand eine **achte** (Befund S5-03): die
+Probenzeile, die die Bezugsmaße der beiden Proben zeigt.
 
 | Datei | Zeile (Stand `662add1`) | Was | Vorzeichen |
 |---|---|---|---|
@@ -295,9 +313,9 @@ Auszeichnung, nicht die Aussprache.
 | `ansichten/strickstueck.js` | **228** | **Abweichung** | **ja** |
 | `ansichten/zaehler.js` | 108 | gestrickte Länge | nein |
 | `ansichten/zaehler.js` | 110 | Ziellänge | nein |
+| `ansichten/strickstueck.js` | `probeZeile` | **Bezugsmaße der beiden Proben** (v5.3) | nein |
 
-Alle sieben rufen heute `format…(vonCm(x, einheit), loc)`. Sie werden durch **zwei** gemeinsame
-Funktionen in `format.js` ersetzt:
+Sie alle laufen über **zwei** gemeinsame Funktionen in `format.js`:
 
 ```js
 export function formatLaenge(wertCm, einheit, locale, darstellung)            // ohne Vorzeichen
@@ -307,6 +325,11 @@ export function formatLaengeAbweichung(wertCm, einheit, locale, darstellung)  //
 Beide rechnen selbst mit `vonCm` um und wählen dann `formatZahl`/`formatAbweichung` oder
 `formatBruch`. Damit verschwindet `vonCm` aus den Ansichten, und es gibt genau zwei Stellen, an
 denen über die Darstellung entschieden wird.
+
+Die Probenzeile ist dabei der einzige Sonderfall: Ihre Werte stehen als **Text eines
+Eingabefeldes** im Modell, nicht als Zentimeter. Sie werden mit `pruefeZahl` gelesen und mit
+`zuCm` umgerechnet, bevor sie durch `formatLaenge` gehen; was sich nicht als Zahl lesen
+lässt, bleibt als Eingabe stehen.
 
 **Die Einheit wird weiterhin nicht angehängt.** Das bleibt bei `app.js` über `{einheit}` – so wie
 der Kopf von `format.js` es seit Sprint 1 festlegt. Die Textschlüssel der sieben Stellen bleiben

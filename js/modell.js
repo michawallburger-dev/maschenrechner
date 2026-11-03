@@ -111,10 +111,20 @@ export function darstellungFuer(einstellungen) {
   return einstellungen?.laengeneinheit === 'in' ? 'bruch' : 'dezimal';
 }
 
-/** Bezugsmaße einer Probe umrechnen; eine leere Probe bekommt das Standardmaß. */
+/**
+ * Bezugsmaße einer Probe umrechnen.
+ *
+ * Eine **unberührte** leere Probe bekommt das Standardmaß der neuen Einheit,
+ * damit dort „4“ steht und nicht „3.937“. Unberührt heißt: Die Stückzahl ist
+ * leer **und** im Bezugsfeld steht noch die Vorbelegung der alten Einheit.
+ * Hat die Nutzerin dort selbst etwas eingetragen, wird umgerechnet – sonst
+ * verlöre sie ihre Eingabe (Befund S5-04, Grundsatz R6/R10).
+ */
 function umgestellteProbe(probe, von, nach) {
   const leer = (wert) => String(wert ?? '').trim() === '';
-  const bezug = (anzahl, wert) => (leer(anzahl) ? String(standardBezug(nach)) : umrechneWert(wert, von, nach));
+  const unberuehrt = (anzahl, wert) => leer(anzahl) && String(wert ?? '').trim() === String(standardBezug(von));
+  const bezug = (anzahl, wert) =>
+    (unberuehrt(anzahl, wert) ? String(standardBezug(nach)) : umrechneWert(wert, von, nach));
   return {
     ...probe,
     maschenBezug: bezug(probe.maschenAnzahl, probe.maschenBezug),
