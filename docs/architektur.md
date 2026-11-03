@@ -12,14 +12,17 @@ umgeschrieben, sondern je Sprint fortgeschrieben.
 | [sprint-2-architektur.md](architektur/sprint-2-architektur.md) | 2.0 | Schema 2, Projekte und Strickstücke, Zähler, Sicherung, Hash-Routing |
 | [sprint-3-architektur.md](architektur/sprint-3-architektur.md) | 3.1 | Schema 3, Proben je Strickstück, Zu-/Abnahmeplan, Ziel im Zähler — **ausgeliefert als 0.3.0** |
 | [sprint-4-architektur.md](architektur/sprint-4-architektur.md) | 4.3 | Startreihe der Zu-/Abnahmen, Maschenzahl je Ereignis, klappbare Karten — **ausgeliefert als 0.4.0** |
-| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.3 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **entworfen, noch nicht gebaut** |
+| [sprint-5-architektur.md](architektur/sprint-5-architektur.md) | 5.3 | Englische Oberfläche, Längeneinheit Zoll, Zahlendarstellung dezimal oder Bruch — **ausgeliefert als 0.5.0** |
+| [sprint-6-architektur.md](architektur/sprint-6-architektur.md) | 6.0 | Tausendertrenner entfällt, Brucheingabe, Rundung auf Muster, erste Zu-/Abnahme genau in einer Reihe — **entworfen, noch nicht gebaut** |
 
-Der nächste Sprint bekommt `architektur/sprint-6-architektur.md`.
+Der nächste Sprint bekommt `architektur/sprint-7-architektur.md`.
 
-Was unten unter „Was auf jeden Fall gilt“ steht, beschreibt den **ausgelieferten** Stand 0.4.0.
-Sprint 5 ändert davon zwei Dinge, sobald er gebaut ist: Es gibt eine zweite Sprache und eine zweite
-Längeneinheit, und gespeicherte Längen liegen dann in der **eingestellten Einheit** statt immer in
-Zentimetern. Schema 3 bekommt dafür ein weiteres optionales Feld, ohne Schemawechsel.
+Was unten unter „Was auf jeden Fall gilt“ steht, beschreibt den **ausgelieferten** Stand 0.5.0.
+Sprint 6 ändert davon zwei Dinge, sobald er gebaut ist: Die kaufmännische Rundung auf eine ganze
+Zahl ist nur noch die Vorbelegung — je Strickstück lässt sich auf eine gerade Zahl oder ein
+Vielfaches von n mit Versatz m runden (E37). Und in Längenfeldern sind neben Dezimalzahlen auch
+Brüche gültige Eingaben („4 1/2“, „4½“), während der Tausendertrenner aus E13 entfällt (E38).
+Schema 3 bekommt dafür zwei weitere optionale Felder, ohne Schemawechsel.
 
 ## Was auf jeden Fall gilt
 
@@ -29,10 +32,12 @@ Die Festlegungen, die über alle Sprints tragen — Einzelheiten jeweils im gena
   Abhängigkeiten, keine externen Ressourcen. Hosting auf GitHub Pages. (Sprint 1, Abschnitt 1)
 - **Fachlogik strikt von der Oberfläche getrennt**, als reine Funktionen: kein DOM, kein
   Speicherzugriff, keine Ausnahmen, Eingaben werden nicht verändert; IDs und Zeitstempel übergibt
-  der Aufrufer. Deshalb sind 311 Tests ohne Testframework und ohne Browser möglich.
+  der Aufrufer. Deshalb sind 393 Tests ohne Testframework und ohne Browser möglich.
   (Sprint 1, Abschnitt 3.1)
 - **Kaufmännische Rundung** als verbindliche Regel, gegen Gleitkommafehler abgesichert.
-  (Sprint 1, Abschnitt 3.2)
+  (Sprint 1, Abschnitt 3.2) Mit Sprint 6 kommt eine **einstellbare Musterrundung** darüber: gerade
+  Zahl oder Vielfaches von n mit Versatz m, je Strickstück, Vorbelegung „keine". Ohne Regel rechnet
+  sie bitgleich wie bisher. (Sprint 6, Abschnitte 5.1 und 5.2)
 - **Datenschutz nach DSGVO:** kein Backend, keine Konten, keine Cookies, keine Tracker, keine
   externen Schriften oder Bibliotheken, keine Analytics. Eine Content Security Policy erzwingt das
   technisch. Abweichungen sind ausdrücklich zu begründen; derzeit gibt es keine.
@@ -98,7 +103,20 @@ Aus dem Entwurf von Sprint 5 (noch nicht gebaut):
 | H6 | **Dezimaltrenner in umgerechneten Feldern.** Gespeicherte Werte werden mit Punkt geschrieben, damit sie nicht von der Sprache abhängen – bei deutscher Oberfläche steht dann 3.94 im Feld. | Beides ist gültige Eingabe (E13). Ein Komma je Sprache würde gespeicherte Daten von der Spracheinstellung abhängig machen und ist abgelehnt. | Sprint 5, Abschnitt 4.2 |
 | H7 | **Abweichung in Brüchen verliert Genauigkeit.** 1 mm erscheint bei Zoll als Null, weil es unter einem halben Achtel Zoll liegt. | Fachlich vertretbar; wer es genau braucht, stellt die Darstellung auf dezimal. | Sprint 5, Abschnitt 5.2 |
 
-Neue Risiken beginnen bei **R21**, neue Hinweise bei **H8**.
+Aus dem Entwurf von Sprint 6 (noch nicht gebaut):
+
+| # | Risiko / Hinweis | Umgang | Quelle |
+|---|---|---|---|
+| R21 | **`inputmode="text"` in sieben Längenfeldern.** Ohne die Umstellung ist die Brucheingabe auf dem iPhone unbenutzbar (keine Taste für Leerzeichen oder Schrägstrich); mit ihr verlieren dieselben Felder den Ziffernblock für die dezimale Eingabe. | Festlegung mit der verworfenen Alternative (Knopfreihe mit Bruchzeichen) und ihrem Preis. QA prüft es auf dem Handy, der **Praxistest entscheidet**, ob es bleibt. | Sprint 6, Abschnitt 4.5 |
+| R22 | Eine als **Bruch** gespeicherte Länge ist für 0.5.0 keine Zahl – Fortführung von R13/R18. | Der Ausfall ist **sichtbar**, nicht still: Die ältere Fassung zeigt keinen Wert und rechnet nicht, statt falsch zu rechnen. Derselbe einzige Weg wie bei R18 (von Hand übertragene Sicherungsdatei). Keine Maßnahme im Code. | Sprint 6, Abschnitt 3.3 |
+| R23 | **Zwei Pfade zum Plan:** `plankarte.js` und `ziel.js` rechnen denselben Plan getrennt. Wird die Rundungsregel nur im einen durchgereicht, zeigt der Zähler ein anderes Ziel als die Karte. | Beide Aufrufe von `planAusTexten` bekommen die Regel; die Vorgabe `KEINE_RUNDUNG` am neuen Parameter ist nur Schutz gegen stille Bedeutungswechsel, keine Erlaubnis, `ziel.js` auszulassen. Eigener Test. | Sprint 6, Abschnitt 6.2 |
+| R24 | Die **Verteilungsformel** wird zum zweiten Mal angefasst (nach R14) – diesmal zusammen mit der Rundung, die die Maschenzahlen ändert. | `verteile` bleibt unverändert; geändert wird nur der Bereich, über den verteilt wird. „Frühestens ab" ist buchstäblich der alte Code. Nachgerechnete Referenzlisten als Pflicht-Testfälle, Breitentest aus Sprint 3 erneut. | Sprint 6, Abschnitt 6.2 |
+| H8 | **Sechzehntel werden angenommen, aber als Achtel angezeigt.** Wer „3/16" eingibt, liest „¼"; im Feld bleibt „3/16" stehen. | Dieselbe bewusste Unschärfe wie H7 – gerechnet wird mit dem genauen Wert, nur die Anzeige rundet (E32). Zur Kenntnis. | Sprint 6, Abschnitt 4.4 |
+| H9 | **Mit Rapport liegen die Endmaschen-Angebote weiter auseinander.** Bei Rapport 4 und 5 Maschen je Zu-/Abnahme sind es 70 oder 90 Maschen, weil dazwischen keine Zahl beide Bedingungen erfüllt. | Unvermeidlich. E28 wird damit **sichtbarer** als geplant: häufiger und mit größeren Sprüngen. Mögliche Folgestory: die passende Maschenzahl je Zu-/Abnahme vorschlagen. | Sprint 6, Abschnitt 6.1 |
+| H10 | **Der erste Abstand kann aus der Spanne fallen**, z. B. „alle 6–59 Reihen" bei „erste genau in Reihe 60". | Der Product Owner hat vorgeschlagen, es so zu lassen (MAS-63, offener Punkt 1); der Entwurf folgt dem. Alternative, falls es im Praxistest stört: Spanne nur über die Ereignisse nach dem ersten. | Sprint 6, Abschnitt 6.3 |
+| H11 | **Die Brucheingabe ist nirgends angekündigt.** Dass „4 1/2" geht, erfährt die Nutzerin nur aus dem Versuch oder der Fehlermeldung. | Bewusst kein dauerhafter Hinweis unter sieben Feldern (R9). Die Meldung `KEIN_BRUCH` nennt die Form. Der Praxistest zeigt, ob das genügt. | Sprint 6, Abschnitt 4.4 |
+
+Neue Risiken beginnen bei **R25**, neue Hinweise bei **H12**.
 
 ## Verteilung der Zu- und Abnahmen
 
@@ -115,6 +133,14 @@ Die Kernformel, weil sie fachlich am leichtesten falsch wird — vollständig in
 - Ereignis *i* (0 … E−1) liegt auf dem Platz `floor((i+1)·(n+1)/(E+1)) − 1` der *n* erlaubten
   Reihen. Nur Ganzzahl-Arithmetik, keine Liste der Länge *n* — damit kosten auch sehr lange Teile
   keinen Speicher.
+- Der Entwurf von Sprint 6 stellt daneben die zweite Bedeutung „**erste genau in** Reihe s“
+  (MAS-63): Das erste Ereignis liegt in s, die übrigen E−1 werden mit **derselben** Formel über die
+  erlaubten Reihen **nach** s verteilt. `verteile` selbst bleibt unverändert; nur der Bereich
+  ändert sich ([Sprint 6, Abschnitt 6.2](architektur/sprint-6-architektur.md)).
+- Ebenfalls aus Sprint 6: Bei aktiver Rundungsregel folgt die **Auswahl der Endmaschenzahl** (E28)
+  der Schrittweite `kgV(n, maschenProEreignis)` statt `maschenProEreignis`, damit beide Angebote im
+  Muster bleiben. Ohne Regel ist das dieselbe Rechnung wie bisher
+  ([Sprint 6, Abschnitt 6.1](architektur/sprint-6-architektur.md)).
 
 ## Offene Befunde
 
@@ -124,3 +150,5 @@ Die Kernformel, weil sie fachlich am leichtesten falsch wird — vollständig in
   Plan-Karte verbirgt den eigenen Hinweis auf die fehlende Maschenprobe, weil `problemText()` nur
   `.fehler` und die Statusmeldung kennt. Damit ist der Zweck von US-38 AK6 noch nicht ganz
   erfüllt. Nicht in Sprint 5 (E36).
+- **MAS-76 und MAS-78** (QA Sprint 5): niedrig, nicht in Sprint 6 (E39). **MAS-77** (S5-06,
+  Tausendertrenner) ist dagegen Teil von Sprint 6 und mit E38 entschieden.

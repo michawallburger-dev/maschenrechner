@@ -6,8 +6,9 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version **0.5.0** am 03.11.2026 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** **6 geplant** „Muster und Eingabe“ (Epic MAS-79, Ziel 0.6.0). Sprint 5 ist
   abgeschlossen und veröffentlicht; die Praxistests von 0.4.0 **und** 0.5.0 stehen beide aus.
-- **Rolle:** **Architekt** – die Sprint-6-Planung ist am 03.11.2026 **freigegeben**.
-  Der Entwurf `docs/architektur/sprint-6-architektur.md` ist noch nicht geschrieben.
+- **Rolle:** **Architekt – fertig.** `docs/architektur/sprint-6-architektur.md` **v6.0** liegt
+  vor (03.11.2026), das Risikoregister ist bis **R24 / H11** fortgeschrieben.
+  **Wartet auf die Freigabe des Auftraggebers**; die Entwicklerrolle ist noch nicht begonnen.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
@@ -22,29 +23,44 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 
 ## Nächster Schritt
 
-**1. Rolle Architekt** für Sprint 6 – **die Planung ist freigegeben**: neues
-`docs/architektur/sprint-6-architektur.md`, aufbauend auf v5.3. Zu entwerfen sind die
-Brucherkennung und der Wegfall des Tausendertrenners in `js/eingabe.js`, die Rundungsregel in
-`js/rechner.js` und die neue Verteilung in `js/plan.js`.
+**1. Architekturentwurf freigeben.** `docs/architektur/sprint-6-architektur.md` **v6.0** ist
+fertig. Danach beginnt die **Entwicklerrolle** mit der Reihenfolge aus dem Dokument: erst die
+Eingabe (MAS-77 vor MAS-75, Abschnitt 1.1), dann die Maschenzahlen (MAS-21), zuletzt die Reihen
+(MAS-63).
 
-**Offene Punkte für den Architekten**, aus den Stories:
+**Die drei offenen Punkte des Architekten sind entschieden:**
 
-- **MAS-75:** Soll „4 3/2“ abgelehnt oder als 5,5 gelesen werden? Sollen Sechzehntel
-  eingegeben werden können, obwohl die Anzeige auf Achtel rundet (E32)?
-- **MAS-63:** Zwei Felder oder ein Feld mit Umschalter? Die Plan-Karte ist auf 360 px schon
-  voll (R9) – und mit US-17 kommen womöglich weitere Felder dazu.
-- **MAS-21:** Wo in der Oberfläche steht die Rundungsregel? Sie gilt je Strickstück, betrifft
-  aber fünf Karten.
+- **MAS-75:** „4 3/2“ wird **abgelehnt** – als Teil der allgemeinen Regel „Zähler kleiner als
+  Nenner“, die auch das vergessene Leerzeichen in „41/2“ abfängt (Abschnitt 4.4).
+  **Sechzehntel sind erlaubt**; die Anzeige rundet weiter auf Achtel (H8).
+- **MAS-63:** **ein Feld mit Umschalter**, nicht zwei Felder – zwei Felder könnten sich
+  widersprechen, und der Umschalter ist eine Zeile im vorhandenen `segment segment-zwei`
+  (Abschnitt 7.3).
+- **MAS-21:** eine eigene, kompakte **Karte „Muster“** in der Strickstück-Ansicht über den vier
+  Rechnern; die fünf Karten zeigen nur eine nicht bedienbare Rundungszeile, die ohne Regel
+  verborgen bleibt (Abschnitte 7.1 und 7.2).
 
-**2. Eine Produktfrage ist noch offen** und steht als Vorschlag in MAS-21: **Gilt die
-Rundungsregel auch für Reihen?** Vorschlag des Product Owners: nein, nur für Maschen – ein
-Rapport ist ein Maschenmuster. Widerspricht der Auftraggeber, ändert das AK5.
+**2. Eine Produktfrage gehört vor den Baubeginn** (MAS-21, offener Punkt 1): **Gilt die
+Rundungsregel auch für Reihen?** Vorschlag des Product Owners: nein, nur für Maschen. Der Entwurf
+setzt „nur Maschen“ um und kapselt die Zuordnung in `rundungFuer`. Eine Umkehrung ist aber **nicht
+nur eine Zeile**: Bei „auch Reihen“ muss die Regel bis in `ziel.js`, sonst weicht das Ziel des
+Zählers von der Rechnung ab (**R23**).
 
-**3. Praxistest – offen für zwei Versionen**, 0.4.0 und 0.5.0. Damit hängen MAS-57 AK4 und
-die Frage aus S5-02, ob ein Screenreader die Bruchzeichen richtig vorliest. Je länger das
-läuft, desto mehr sammelt sich für einen Termin an.
+**3. Zwei Funde des Architekten, die beim Bauen nicht untergehen dürfen:**
 
-**4. Zwei Entscheidungen bestätigen:** **E34** und **E35** stehen weiter als vorläufig,
+- **`umrechneWert` liest heute mit `parseZahl` und kennt keine Brüche.** Ohne Gegenmaßnahme würden
+  aus 4½ Zoll beim Einheitenwechsel lautlos 4½ Zentimeter. Regel 1 aus Sprint 5, Abschnitt 4.2 ist
+  deshalb neu gefasst: gelesen wird mit `parseLaenge` (Abschnitt 4.6). Die **Feldliste** bleibt
+  unverändert.
+- **`inputmode="decimal"` macht die Brucheingabe auf dem iPhone unmöglich** – die Tastatur hat
+  weder Leerzeichen noch Schrägstrich. Sieben Felder bekommen `inputmode="text"`; Preis und
+  verworfene Alternative stehen in Abschnitt 4.5 (**R21**).
+
+**4. Praxistest – offen für zwei Versionen**, 0.4.0 und 0.5.0, mit 0.6.0 werden es drei. Damit
+hängen MAS-57 AK4, die Frage aus S5-02 (liest ein Screenreader die Bruchzeichen richtig?) und jetzt
+auch R21 und H11.
+
+**5. Zwei Entscheidungen bestätigen:** **E34** und **E35** stehen weiter als vorläufig,
 obwohl beide umgesetzt, von der QA abgenommen und veröffentlicht sind.
 
 ## Sprint 6 „Muster und Eingabe“ – Epic MAS-79, Ziel Version 0.6.0
@@ -83,7 +99,21 @@ vergessen):
    bricht ein Einheitenwechsel die Angabe still – genau das war Befund S5-03.
 
 Für diesen Sprint gilt: Die neuen Felder sind **Stückzahlen und Reihennummern**, keine Längen.
-Sie gehören also **nicht** in die Umrechnungsliste. Das ist zu prüfen, nicht anzunehmen.
+Sie gehören also **nicht** in die Umrechnungsliste. **Geprüft am 03.11.2026 und bestätigt**
+(Architektur Sprint 6, Abschnitt 7.4): Es kommt keine neue Länge hinzu, es bleiben acht
+Anzeigestellen, und die Feldliste von `einheitUmstellen` bleibt unverändert.
+
+**Architektur v6.0 festgelegt (03.11.2026).** Zwei additive optionale Felder, Schema 3 bleibt:
+`rundung` am Strickstück (`art`/`n`/`m` als Texte, Vorbelegung „keine“) und `startArt` am Plan
+(`frueheste`/`genau`). Kein neues Modul, keine neue Datei. Die Eingabeprüfung liest künftig
+**erst** die Zahl und prüft **dann** auf Tippzwischenstand – damit ist `UNVOLLSTAENDIG_MUSTER`
+nicht mehr das genaue Komplement der gültigen Eingaben, und genau diese Bedingung hat MAS-30 und
+MAS-31 erzeugt. Für Dezimalzahlen ändert die Umstellung nachweislich nichts, weil `ZAHL_MUSTER` und
+`UNVOLLSTAENDIG_MUSTER` disjunkt sind. Die Rundung wird `rundeAufMuster` in `js/rechner.js`; ohne
+Regel ist sie über 200 001 Werte **bitgleich** `runden`. Bei aktiver Regel folgt die Auswahl nach
+E28 der Schrittweite **kgV(n, Maschen je Zu-/Abnahme)**, damit beide Angebote im Muster bleiben –
+ohne Regel ist das dieselbe Rechnung wie bisher. Vier neue Risiken **R21–R24**, vier Hinweise
+**H8–H11**.
 
 **Nicht in diesem Sprint:** Garnbedarf (MAS-22) – er bräuchte zuerst eine Entscheidung über
 Garn-Einheiten (Lauflänge und Knäuelgewicht, Meter/Gramm oder Yards/Ounces), für die
