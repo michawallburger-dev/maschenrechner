@@ -41,7 +41,7 @@ test('leereDaten: aktuelles Schema, leere Liste, Standard-Einstellungen', () => 
   const d = leereDaten();
   assert.equal(d.schemaVersion, SCHEMA_VERSION);
   assert.deepEqual(d.projekte, []);
-  assert.deepEqual(d.einstellungen, { sprache: 'de', laengeneinheit: 'cm', farbschema: 'system' });
+  assert.deepEqual(d.einstellungen, { sprache: 'de', laengeneinheit: 'cm', farbschema: 'system', laengenDarstellung: 'auto' });
   assert.deepEqual(d.hinweise, { projektlisteErklaert: false, wachhaltenNichtMoeglich: false });
 });
 
@@ -50,6 +50,7 @@ test('bereinigeEinstellungen: unbekannte Werte → Standard, Felder unabhängig'
     sprache: 'de',
     laengeneinheit: 'cm',
     farbschema: 'system',
+    laengenDarstellung: 'auto',
   });
   assert.equal(bereinigeEinstellungen({ farbschema: 'dunkel' }).farbschema, 'dunkel');
   assert.equal(bereinigeEinstellungen(null).farbschema, 'system');

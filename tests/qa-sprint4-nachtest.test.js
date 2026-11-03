@@ -257,7 +257,8 @@ test('Datenschutz: die Content Security Policy bleibt eng', () => {
 
 test('Offline: die Nachbesserung hat keine neue Datei eingeführt, die im Cache fehlt', () => {
   const sw = lies('sw.js');
-  assert.match(sw, /CACHE_NAME = 'maschenrechner-v0\.4\.0'/);
+  // Ohne feste Version, sonst ist der Test bei jeder neuen Version rot (Sprint 5)
+  assert.match(sw, /CACHE_NAME = 'maschenrechner-v\d+\.\d+\.\d+'/);
   for (const datei of ['./css/style.css', './js/dom.js', './js/texte.js', './js/ansichten/plankarte.js', './js/ansichten/strickstueck.js']) {
     assert.ok(sw.includes(`'${datei}'`), `fehlt in APP_DATEIEN: ${datei}`);
   }

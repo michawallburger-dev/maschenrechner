@@ -2,7 +2,7 @@
  * Ansicht „Einstellungen“ (US-26 Farbschema, US-12 Datensicherung).
  */
 
-import { einstellungAendern, anzahlStrickstuecke } from '../modell.js';
+import { einstellungAendern, anzahlStrickstuecke, einheitUmstellen } from '../modell.js';
 import { erzeugeSicherung, leseSicherung, MAX_GROESSE } from '../sicherung.js';
 import { speichereDaten, sichereVorImport } from '../speicher.js';
 import { vorlage, texteFuellen, bestaetigen } from '../dom.js';
@@ -21,16 +21,47 @@ export function zeige(ctx, route, wurzel) {
 
   ansicht.querySelector('[data-rolle="version"]').textContent = ctx.t('einst.version', { version: ctx.appVersion });
 
+  /** Eine Auswahlgruppe vorbelegen und auf Änderungen hören. */
+  const gruppe = (name, wert, beiWahl) => {
+    for (const radio of ansicht.querySelectorAll(`input[name="${name}"]`)) {
+      radio.checked = radio.value === wert;
+      radio.addEventListener('change', () => {
+        if (radio.checked) beiWahl(radio.value);
+      });
+    }
+  };
+
+  const einstellungen = ctx.daten().einstellungen;
+
+  // ---------------------------------------------------------------- Sprache (US-23)
+  // Der Sprachwechsel baut die Ansicht neu auf, weil texteFuellen nur beim
+  // Aufbau wirkt. Einheit und Darstellung brauchen das nicht: Diese Ansicht
+  // zeigt selbst keine Längen (Architektur Sprint 5, Abschnitt 6.2).
+  gruppe('sprache', einstellungen.sprache, (wert) => {
+    ctx.aendern(einstellungAendern(ctx.daten(), { sprache: wert }), { sofort: true });
+    ctx.spracheAnwenden();
+  });
+
+  // ---------------------------------------------------------------- Längeneinheit (US-24)
+  const einheitStatus = ansicht.querySelector('[data-rolle="einheit-status"]');
+  gruppe('einheit', einstellungen.laengeneinheit, (wert) => {
+    // Ein Schritt: Einheit setzen und alle gespeicherten Längen umrechnen (E34).
+    ctx.aendern(einheitUmstellen(ctx.daten(), wert), { sofort: true });
+    // Dass umgerechnet wurde, darf nicht unbemerkt bleiben (US-24 AK6).
+    einheitStatus.textContent = ctx.t('einst.umgerechnet');
+    einheitStatus.hidden = false;
+  });
+
+  // ---------------------------------------------------------------- Darstellung (US-41)
+  gruppe('darstellung', einstellungen.laengenDarstellung, (wert) => {
+    ctx.aendern(einstellungAendern(ctx.daten(), { laengenDarstellung: wert }), { sofort: true });
+  });
+
   // ---------------------------------------------------------------- Farbschema (US-26)
-  const aktuell = ctx.daten().einstellungen.farbschema;
-  for (const radio of ansicht.querySelectorAll('input[name="farbschema"]')) {
-    radio.checked = radio.value === aktuell;
-    radio.addEventListener('change', () => {
-      if (!radio.checked) return;
-      ctx.aendern(einstellungAendern(ctx.daten(), { farbschema: radio.value }), { sofort: true });
-      ctx.farbschemaAnwenden();
-    });
-  }
+  gruppe('farbschema', einstellungen.farbschema, (wert) => {
+    ctx.aendern(einstellungAendern(ctx.daten(), { farbschema: wert }), { sofort: true });
+    ctx.farbschemaAnwenden();
+  });
 
   // ---------------------------------------------------------------- Sichern (US-12, AK1)
   ansicht.querySelector('[data-rolle="sichern"]').addEventListener('click', async () => {

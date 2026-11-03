@@ -8,8 +8,8 @@
 
 import { umrechnenAusAnleitung, umrechnenAusCm } from '../rechner.js';
 import { pruefeZahl, REGELN } from '../eingabe.js';
-import { formatZahl, formatGanzzahl, formatAbweichung, LEER_ANZEIGE } from '../format.js';
-import { zuCm, vonCm } from '../einheiten.js';
+import { formatGanzzahl, formatLaenge, formatLaengeAbweichung, LEER_ANZEIGE } from '../format.js';
+import { zuCm } from '../einheiten.js';
 import { finde, probeVon, strickstueckAendern, strickstueckLoeschen, leereRechner, RECHNER_NAMEN } from '../modell.js';
 import { vorlage, texteFuellen, klappbar, bestaetigen, frageName, waehle } from '../dom.js';
 import { bauePlankarte } from './plankarte.js';
@@ -26,15 +26,30 @@ const KARTEN = {
 
 const ERGEBNIS_FELDER = ['massAnleitung', 'anleitungGerundet', 'eigenGerundet', 'endgueltig', 'tatsaechlich', 'abweichung'];
 
-/** Kurzfassung einer Probe: „Laut Anleitung: 34 M auf 10 cm · 52 R auf 10 cm“. */
+/**
+ * Kurzfassung einer Probe: „Laut Anleitung: 34 M auf 10 cm · 52 R auf 10 cm“.
+ *
+ * Die beiden Bezugsmaße sind **Längen** und gehen deshalb über `formatLaenge`
+ * wie die sieben anderen Anzeigestellen auch (Befund S5-03). Sonst stünde hier
+ * nach einem Einheitenwechsel „3.937 in“, während dieselbe Länge zwei Zeilen
+ * tiefer als „7⅞ in“ erscheint. Was sich nicht als Zahl lesen lässt, bleibt als
+ * Eingabe stehen – die Nutzerin soll sehen, was sie getippt hat.
+ */
 function probeZeile(ctx, nameSchluessel, probe) {
+  const loc = ctx.locale();
+  const e = ctx.einheit();
+  const darst = ctx.darstellung();
   const wert = (s) => (s.trim() === '' ? LEER_ANZEIGE : s.trim());
+  const laenge = (s) => {
+    const geprueft = pruefeZahl(s, 'bezugsmass');
+    return geprueft.gueltig ? formatLaenge(zuCm(geprueft.wert, e), e, loc, darst) : wert(s);
+  };
   return ctx.t('stueck.probeZeile', {
     name: ctx.t(nameSchluessel),
     m: wert(probe.maschenAnzahl),
-    mb: wert(probe.maschenBezug),
+    mb: laenge(probe.maschenBezug),
     r: wert(probe.reihenAnzahl),
-    rb: wert(probe.reihenBezug),
+    rb: laenge(probe.reihenBezug),
   });
 }
 
@@ -207,11 +222,12 @@ export function zeige(ctx, route, wurzel) {
 
     const loc = ctx.locale();
     const e = ctx.einheit();
+    const darst = ctx.darstellung();
     const anpassungWert = anpassung.gueltig ? anpassung.wert : 0;
     let r;
     if (art === 'anleitung') {
       r = umrechnenAusAnleitung(eingabe.wert, probeAnleitung, probeEigen, anpassungWert);
-      setze(karte, 'massAnleitung', formatZahl(vonCm(r.cmLautAnleitung, e), loc));
+      setze(karte, 'massAnleitung', formatLaenge(r.cmLautAnleitung, e, loc, darst));
     } else {
       r = umrechnenAusCm(zuCm(eingabe.wert, e), probeAnleitung, probeEigen, anpassungWert);
       setze(karte, 'anleitungGerundet', formatGanzzahl(r.anleitungGerundet, loc));
@@ -224,8 +240,8 @@ export function zeige(ctx, route, wurzel) {
       return;
     }
     setze(karte, 'endgueltig', formatGanzzahl(r.endgueltig, loc));
-    setze(karte, 'tatsaechlich', formatZahl(vonCm(r.cmTatsaechlich, e), loc));
-    setze(karte, 'abweichung', formatAbweichung(vonCm(r.abweichungCm, e), loc));
+    setze(karte, 'tatsaechlich', formatLaenge(r.cmTatsaechlich, e, loc, darst));
+    setze(karte, 'abweichung', formatLaengeAbweichung(r.abweichungCm, e, loc, darst));
     // Hauptergebnis in Kurzform, sichtbar wenn die Karte zugeklappt ist (US-38 AK5)
     return ctx.t('stueck.kurzfassung', {
       titel: ctx.t(`rechner.${name}.endgueltig`),

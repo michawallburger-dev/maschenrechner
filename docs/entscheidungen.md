@@ -1,4 +1,4 @@
-# Produktentscheidungen E1 bis E28
+# Produktentscheidungen E1 bis E36
 
 Fachliche Festlegungen der Auftraggeberseite. Sie begründen, **warum** die App etwas so tut, und
 sind damit die Grundlage für jede Weiterentwicklung. Jira sagt, *was* gebaut wird; diese Datei
@@ -45,6 +45,11 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E29 | Sprint-4-Umfang | Sprint 4 „Überblick beim Stricken" (Epic MAS-60, Version 0.4.0) umfasst MAS-57 (Kartentitel berichtigen), US-37 (Maschenzahl je Ereignis), **US-39 (Startreihe selbst festlegen)** und US-38 (Kacheln zusammenklappen). **Noch am 22.10.2026 getauscht:** US-39 kam hinzu, US-25 ging dafür zurück in den Backlog. Begründung: US-39 ist ein fachlicher Wunsch der Enduserin, US-25 nur Bequemlichkeit – und so wird `js/plan.js` nur einmal angefasst statt zweimal. |
 | E31 | Startreihe: Vorbelegung | Das Feld für die Startreihe der Zu-/Abnahmen ist **leer** vorbelegt, und leer bedeutet **„automatisch"**: Reihe 2 ohne „nur jede 2. Reihe/Runde", Reihe 3 mit der Option – genau das bisherige Verhalten. Setzt die Nutzerin einen eigenen Wert, gilt er unverändert, und die Parität folgt ihrer Wahl. Berichtigt AK1 von US-39 (MAS-62); Hintergrund ist der Architekturbefund H3. Abgestimmt mit der Enduserin. |
 | E30 | Klapp-Mechanismus | US-25 und US-38 nutzen **einen gemeinsamen** Mechanismus und bleiben zwei Stories mit eigenen Akzeptanzkriterien: in der Projektansicht klappt automatisch ein, in der Strickstück-Ansicht nur auf Wunsch. Nach dem Tausch in E29 baut **US-38 den Mechanismus so, dass US-25 ihn später ohne Umbau nutzen kann**; US-25 liegt bis dahin im Backlog. |
+| E32 | Darstellung der Längen | Längen können **dezimal oder als Bruch** angezeigt werden – eine dritte Einstellung, **unabhängig** von Sprache und Längeneinheit (E9). Umgesetzt als US-41 (MAS-74). Vorbelegt ist cm dezimal, Zoll als Bruch. Brüche werden auf **Achtel** gerundet und gekürzt dargestellt (½, ¼, ⅜ …). **Schränkt E5 ein:** Die zwei Nachkommastellen gelten künftig nur noch für **Dichten** (Maschen bzw. Reihen pro Einheit), nicht für Längen. Entschieden am 02.11.2026. |
+| E33 | Bezugsmaß bei Zoll | Die Maschenprobe bezieht sich bei Zoll auf **4 Zoll** statt auf 10 cm – der US-Standard. Entspricht dem `standardBezug`, den `js/einheiten.js` seit Sprint 1 dafür vorsieht. Bestätigt am 02.11.2026; der Entwurf von US-24 (MAS-28) sah es schon so vor. |
+| E34 | Umschalten der Einheit (**vorläufig**) | Beim Wechsel der Längeneinheit werden vorhandene Werte **umgerechnet**, nicht umgedeutet: Aus „10 cm“ wird „3,94 in“ bzw. „3⅞ in“. Der physische Wert bleibt also gleich, auch wenn krumme Zahlen entstehen. Ausdrücklich verworfen: die Zahlen stehen lassen und nur neu deuten – das verfälscht vorhandene Projekte still und widerspricht dem Grundsatz aus R6/R10. Eine Rückfrage beim Umschalten wurde nicht gewählt, weil ihre Option „Zahlen behalten“ genau diesen Fehler anbietet. **Deckt sich mit dem Entwurf von US-24 (MAS-28) aus Sprint 1**, der dasselbe schon vorsah – die Entscheidung bestätigt also eine alte Festlegung. **Noch nicht bestätigt.** |
+| E35 | Nadelstärke (**vorläufig**) | Die Nadelstärke bleibt **immer in mm**, unabhängig von Sprache und Längeneinheit; E5 gilt in diesem Punkt unverändert. Begründung: Auch amerikanische Anleitungen nennen heute meist Millimeter mit, und die Tabelle der US-Größen ist nicht linear und nicht überall eindeutig. Die US-Größe zusätzlich anzuzeigen ist eine eigene Backlog-Story. **Noch nicht bestätigt.** |
+| E36 | Sprint-5-Umfang | Sprint 5 „Englisch und Zoll“ (Version 0.5.0) umfasst **US-23** (Oberfläche auf Englisch, MAS-27), **US-24** (Längeneinheit Zoll, MAS-28) und **US-41** (wählbare Darstellung aus E32, MAS-74), Epic **MAS-73**. Die **Bruch­eingabe ist ausdrücklich nicht enthalten** und geht als **US-42 (MAS-75)** in Sprint 6: Sie berührt `UNVOLLSTAENDIG_MUSTER` in `js/eingabe.js` – den Code, aus dem die Befunde MAS-30 und MAS-31 stammen –, während der Nutzen fast vollständig im Lesen liegt. Entschieden am 02.11.2026. |
 
 ## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
 
@@ -58,20 +63,17 @@ Datei gepflegt**, nicht der Schnappschuss.
 
 ## Noch offen
 
-- **E25 ist beantwortet, aber nicht entschieden.** Die Enduserin möchte die Startreihe der
-  Zu-/Abnahmen selbst festlegen (MAS-61, abgeschlossen). Die Umsetzung steht als **US-39
-  (MAS-62)** im Backlog. Offen ist, ob sie in Sprint 4 oder später kommt. Solange sie nicht
-  umgesetzt ist, gilt E25 unverändert.
-- **E24 hängt daran.** Kommt US-39, wird „erste Reihe bleibt frei" von einer festen Regel zur
-  Vorbelegung. Das ist beim Umsetzen in E24 nachzutragen.
-- *(Geklärt am 22.10.2026)* Die Enduserin möchte **nur** die Startreihe selbst festlegen, **nicht**
-  den Abstand zwischen den Zu-/Abnahmen – den zu berechnen ist gerade die Aufgabe der App. Ihr
-  Wunsch „selbst entscheiden, ob in jeder zweiten Reihe abgenommen wird" meint den vorhandenen
-  Schalter aus US-13 AK1. Daran ist also nichts zu bauen.
+- **E34 und E35 sind vorläufig** und gehören auf die Tagesordnung: das Verhalten beim Umschalten
+  der Längeneinheit und die Nadelstärke. Beide sind so eingetragen, dass Sprint 5 damit arbeiten
+  kann – eine andere Entscheidung ändert aber die Akzeptanzkriterien von US-24 (MAS-28).
+- **US-25 (MAS-29)** liegt weiter im Backlog. Mit E30 ist geklärt, dass sie den Mechanismus aus
+  US-38 ohne Umbau nutzen kann; offen ist nur, wann sie kommt.
+- *(Erledigt mit 0.4.0)* **E25 und die Startreihe.** US-39 ist umgesetzt; E24 und E31 geben den
+  neuen Stand wieder. Die frühere Frage, ob US-39 in Sprint 4 kommt, ist damit beantwortet.
 
 ## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E32**) und wird hier eingetragen,
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E37**) und wird hier eingetragen,
   sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.

@@ -9,7 +9,8 @@
 import { text, localeFuer } from './texte.js';
 import { ladeDaten, speichereDaten } from './speicher.js';
 import { neueId, jetztIso, erzeugeWachhalter, teileDatei, leseDatei, systemIstDunkel, beiSystemFarbwechsel } from './geraet.js';
-import { starteRouter, navigiere, hashFuer } from './router.js';
+import { starteRouter, navigiere, hashFuer, routeAus } from './router.js';
+import { darstellungFuer } from './modell.js';
 import { texteFuellen, leeren, schliesseDialoge } from './dom.js';
 import * as projektliste from './ansichten/projektliste.js';
 import * as projekt from './ansichten/projekt.js';
@@ -17,7 +18,7 @@ import * as strickstueck from './ansichten/strickstueck.js';
 import * as zaehler from './ansichten/zaehler.js';
 import * as einstellungen from './ansichten/einstellungen.js';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 
 const SPEICHER_VERZOEGERUNG_MS = 300;
 const THEME_FARBE = { hell: '#7a2e4a', dunkel: '#1d1a19' };
@@ -66,6 +67,7 @@ function zeigeSpeicherHinweis() {
 
 const sprache = () => daten.einstellungen.sprache;
 const einheit = () => daten.einstellungen.laengeneinheit;
+const darstellung = () => darstellungFuer(daten.einstellungen);
 const locale = () => localeFuer(sprache());
 
 /** Text in der eingestellten Sprache; {einheit} wird immer mit dem Kürzel gefüllt. */
@@ -123,6 +125,19 @@ const ctx = {
   t,
   locale,
   einheit,
+  darstellung,
+  /**
+   * Nach einem Sprachwechsel: Sprachkennung, feste Texte und die laufende
+   * Ansicht neu aufbauen – `texteFuellen` wirkt nur beim Aufbau (US-23 AK1).
+   * Einheit und Darstellung brauchen das nicht, siehe Architektur v5.2,
+   * Abschnitt 6.2.
+   */
+  spracheAnwenden() {
+    document.documentElement.lang = sprache();
+    texteFuellen(document.querySelector('.kopf'), t);
+    texteFuellen(document.querySelector('[data-hinweis="speicher"]'), t);
+    zeigeAnsicht(routeAus(location.hash));
+  },
   jetzt: jetztIso,
   neueId,
   navigiere,

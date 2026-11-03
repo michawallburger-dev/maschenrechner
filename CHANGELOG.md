@@ -1,5 +1,69 @@
 # Änderungsprotokoll
 
+## 0.5.0 – 03.11.2026 (Sprint 5 „Englisch und Zoll“)
+
+Von der QA am 02.11.2026 freigegeben, Befunde S5-01 bis S5-04 danach behoben. Der Praxistest
+mit der Enduserin steht noch aus – dabei ist auch zu prüfen, ob ein Screenreader die
+Bruchzeichen richtig vorliest.
+
+### Neu
+- Die Oberfläche lässt sich auf **Englisch** umstellen. Alle 285 Texte liegen in beiden Sprachen
+  vor, mit den üblichen englischen Fachbegriffen (gauge, stitch, row, cast on, increase). Die
+  Umstellung wirkt sofort, ohne Neuladen (US-23)
+- **Zoll** als Längeneinheit. Die Maschenprobe bezieht sich dabei auf 4 Zoll statt 10 cm, wie in
+  amerikanischen Anleitungen üblich. Beim Umschalten werden alle gespeicherten Maße umgerechnet,
+  nicht einfach umgedeutet (US-24, E33, E34)
+- **Zahlen wahlweise als Bruch**: 4½ statt 4,50, gerundet auf Achtel. Vorbelegt ist Bruch bei
+  Zoll und dezimal bei Zentimetern; die eigene Wahl bleibt erhalten (US-41, E32)
+- Sprache, Einheit und Darstellung sind **drei unabhängige Einstellungen** hinter dem Zahnrad
+  (E9, E10). Deutsche Oberfläche mit Zoll ist also möglich – der Fall, wenn man nach einer
+  amerikanischen Anleitung strickt
+
+### Geändert
+- Entscheidung E5: Die zwei Nachkommastellen gelten nur noch für **Dichten** (Maschen bzw. Reihen
+  pro Einheit) und die Nadelstärke, nicht mehr für Längen (E32)
+- Die Nadelstärke bleibt in jeder Einheit und Sprache in **mm** (E35)
+
+### Technisch
+- Schema 3 bleibt. Ein weiteres optionales Feld für die Darstellung; fehlt es, gilt „automatisch“.
+  Kein neuer Speicherschlüssel, keine Migration. Sicherungen aus 0.4.0 werden unverändert gelesen
+- Die sieben Stellen, die eine Länge anzeigen, laufen jetzt über **zwei** gemeinsame Funktionen in
+  `format.js`. Mit dezimaler Darstellung liefern sie bitgleich dasselbe wie bisher; ein eigener
+  Regressionstest hält das fest
+- **Zoll rechnet mit drei Nachkommastellen**, cm mit zweien. Mit zwei Stellen runden Bezugsmaß
+  und Länge beide, die Fehler summieren sich, und der Referenzfall aus Sprint 3 ergibt nach einem
+  Wechsel 166 statt 167 Reihen. Deshalb drei – dafür steht im Eingabefeld 3.937 statt 3.94
+- Umgerechnete Werte werden mit **Punkt** als Dezimaltrenner gespeichert, damit gespeicherte Daten
+  nicht von der Spracheinstellung abhängen. Komma und Punkt bleiben beide als Eingabe erlaubt
+- Die Rechenwege sind unverändert: `plan.js` und `ziel.js` wurden nicht angefasst
+- 393 automatische Tests (vorher 311), davon 386 grün und 7 als `todo` für die offenen Befunde
+  S4-07 bis S4-10 und S5-05 bis S5-07
+
+### Behoben nach der QA von Sprint 5
+- S5-01: Die Auswahlgruppen „Sprache“ und „Längeneinheit“ standen mit zwei Optionen im
+  Dreierraster, ein Drittel blieb leer. Die vorhandene Klasse `segment-zwei` fehlte
+- S5-02: `bruchVorlesbar` war toter Code – gebaut, getestet, nie angeschlossen. Die Funktion ist
+  entfernt und die Zusage im Architekturdokument zurückgenommen. Die vorgeschlagene Abhilfe
+  (`aria-label`) hätte an einem rollenlosen Element ohnehin nicht gewirkt; ob die Bruchzeichen
+  genügen, klärt der Praxistest
+- S5-03: Es gab eine **achte** Stelle, die eine Länge anzeigt – die Probenzeile. Dort stand nach
+  einem Wechsel „22 M auf 3.937 in“, während zwei Zeilen tiefer dieselbe Länge als „7⅞ in“
+  erschien. Sie läuft jetzt ebenfalls über die gemeinsame Formatierung
+- S5-04: Eine Probe mit leerer Stückzahl verlor beim Einheitenwechsel ein selbst eingetragenes
+  Bezugsmaß. Das Standardmaß ersetzt es jetzt nur noch, wenn dort überhaupt nichts Eigenes steht
+
+### Bewusst nicht umgesetzt
+- Die **Brucheingabe**: Wer 4½ angezeigt bekommt, tippt weiterhin 4,5. Die Anzeige ist gut
+  gekapselt, die Eingabe bräuchte den Code, aus dem die Befunde MAS-30 und MAS-31 stammen.
+  Vorgemerkt als US-42 (MAS-75) für Sprint 6 (E36)
+- **US-Nadelgrößen** als zusätzliche Anzeige (E35)
+- Die Spracheinstellung des Browsers wird **nicht** ausgelesen. Sie wäre ein Merkmal zur
+  Wiedererkennung, und der Gewinn wäre gering
+- Die vier offenen QA-Befunde **MAS-69 bis MAS-72** aus Sprint 4
+- Drei Befunde aus der QA von Sprint 5, alle niedrig: **MAS-76** (umgerechnete Werte können die
+  Feldgrenzen sprengen), **MAS-77** (in englischer Schreibweise wird „1,000“ als 1 gelesen) und
+  **MAS-78** (nach dem Sprachwechsel springt der Fokus auf den Seitentitel)
+
 ## 0.4.0 – 23.10.2026 (Sprint 4 „Überblick beim Stricken")
 
 Von der QA am 23.10.2026 freigegeben (Nachtest zu Commit `cf49a64`). Der Praxistest mit der

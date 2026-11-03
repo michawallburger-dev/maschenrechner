@@ -6,8 +6,7 @@
  */
 
 import { pruefeZahl, REGELN } from '../eingabe.js';
-import { formatZahl, formatGanzzahl, LEER_ANZEIGE } from '../format.js';
-import { vonCm } from '../einheiten.js';
+import { formatGanzzahl, formatLaenge, LEER_ANZEIGE } from '../format.js';
 import { finde, probeVon, strickstueckAendern } from '../modell.js';
 import { planAusTexten, probeAusTexten, standardStartReihe } from '../plan.js';
 import { vorlage, texteFuellen, el, leeren, klappbar, bestaetigen } from '../dom.js';
@@ -190,6 +189,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
     }
     const loc = ctx.locale();
     const einheit = ctx.einheit();
+    const darst = ctx.darstellung();
     auswahl.hidden = false;
     auswahl.querySelector('[data-rolle="auswahl-frage"]').textContent = ctx.t('plan.auswahlFrage', {
       differenz: Math.abs(r.ende - r.anfang),
@@ -209,7 +209,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       optionen.append(
         el('label', { klasse: 'option' }, [
           radio,
-          el('span', { text: ctx.t('plan.auswahlOption', { maschen: o.endMaschen, breite: formatZahl(vonCm(o.endCm, einheit), loc), anzahl }) }),
+          el('span', { text: ctx.t('plan.auswahlOption', { maschen: o.endMaschen, breite: formatLaenge(o.endCm, einheit, loc, darst), anzahl }) }),
         ]),
       );
     }
@@ -234,6 +234,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
 
     const loc = ctx.locale();
     const einheit = ctx.einheit();
+    const darst = ctx.darstellung();
     const t = ctx.t;
 
     // Feldprüfung mit Meldungen am Feld (Regeln aus Sprint 1)
@@ -270,7 +271,7 @@ export function bauePlankarte(ctx, { projektId, stueckId, behaelter }) {
       return;
     }
 
-    const cm = (wert) => (wert === null ? LEER_ANZEIGE : formatZahl(vonCm(wert, einheit), loc));
+    const cm = (wert) => (wert === null ? LEER_ANZEIGE : formatLaenge(wert, einheit, loc, darst));
     const info = (gerundet, schluessel, wert) => `${t('plan.berechnet', { n: formatGanzzahl(gerundet, loc) })} · ${t(schluessel, { wert: cm(wert) })}`;
     const ganz = (n) => (n >= 1 ? formatGanzzahl(n, loc) : LEER_ANZEIGE);
     setzeWert('anfang', ganz(r.anfang), info(r.anfangGerundet, 'plan.tatsaechlichBreite', r.anfangCm));

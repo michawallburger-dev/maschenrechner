@@ -6,8 +6,7 @@
  * Der Zählerstand gilt als „Reihe, in der ich gerade bin“ (Architektur R11).
  */
 
-import { formatGanzzahl, formatZahl } from '../format.js';
-import { vonCm } from '../einheiten.js';
+import { formatGanzzahl, formatLaenge } from '../format.js';
 import { finde, probeVon, strickstueckAendern, hinweisGesehen } from '../modell.js';
 import { zaehlerPlus, zaehlerMinus, zaehlerAusText } from '../zaehler.js';
 import { zaehlerDaten, waehleZiel, ereignisseUm, gestrickteLaengeCm, zielErreicht } from '../ziel.js';
@@ -105,9 +104,9 @@ export function zeige(ctx, route, wurzel) {
     const laenge = gestrickteLaengeCm(n, l.probeReihen);
     laengeEl.hidden = laenge === null;
     if (laenge !== null) {
-      const ist = formatZahl(vonCm(laenge, einheit), loc);
+      const ist = formatLaenge(laenge, einheit, loc, ctx.darstellung());
       laengeEl.textContent = l.ziel
-        ? ctx.t('zaehler.laengeVon', { ist, ziel: formatZahl(vonCm(l.ziel.cm, einheit), loc) })
+        ? ctx.t('zaehler.laengeVon', { ist, ziel: formatLaenge(l.ziel.cm, einheit, loc, ctx.darstellung()) })
         : ctx.t('zaehler.laenge', { ist });
     }
     erreichtEl.hidden = !zielErreicht(n, l.ziel);

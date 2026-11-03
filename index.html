@@ -375,6 +375,34 @@
   <template id="tpl-einstellungen">
     <div class="ansicht ansicht-einstellungen">
       <section class="karte">
+        <!-- Sprachnamen werden nie übersetzt: Wer die Oberfläche in einer fremden
+             Sprache sieht, muss die eigene finden können (Architektur Sprint 5, 7). -->
+        <fieldset class="segment segment-zwei" data-rolle="sprache">
+          <legend data-text="einst.sprache">Sprache</legend>
+          <div class="segment-optionen">
+            <label><input type="radio" name="sprache" value="de"><span>Deutsch</span></label>
+            <label><input type="radio" name="sprache" value="en"><span>English</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="segment segment-zwei" data-rolle="einheit">
+          <legend data-text="einst.einheit">Längeneinheit</legend>
+          <div class="segment-optionen">
+            <label><input type="radio" name="einheit" value="cm"><span data-text="einst.cm">Zentimeter (cm)</span></label>
+            <label><input type="radio" name="einheit" value="in"><span data-text="einst.zoll">Zoll (in)</span></label>
+          </div>
+        </fieldset>
+        <p class="hinweis" data-rolle="einheit-status" role="status" hidden></p>
+
+        <fieldset class="segment" data-rolle="darstellung">
+          <legend data-text="einst.darstellung">Zahlen</legend>
+          <div class="segment-optionen">
+            <label><input type="radio" name="darstellung" value="auto"><span data-text="einst.auto">Automatisch</span></label>
+            <label><input type="radio" name="darstellung" value="dezimal"><span data-text="einst.dezimal">Dezimal (4,5)</span></label>
+            <label><input type="radio" name="darstellung" value="bruch"><span data-text="einst.bruch">Bruch (4½)</span></label>
+          </div>
+        </fieldset>
+
         <fieldset class="segment" data-rolle="farbschema">
           <legend data-text="einst.farbschema">Farbschema</legend>
           <div class="segment-optionen">
