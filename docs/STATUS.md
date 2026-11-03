@@ -2,14 +2,12 @@
 
 Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gilt `git log`.
 
-- **Aktiver Branch:** keiner – `sprint-5` ist nach `main` gemergt. Der nächste Sprint beginnt
-  mit einem neuen Branch `sprint-6`.
+- **Aktiver Branch:** `sprint-6` (am 03.11.2026 von `main` abgezweigt). `sprint-5` ist gemergt.
 - **Veröffentlicht:** Version **0.5.0** am 03.11.2026 auf https://michawallburger-dev.github.io/maschenrechner/
-- **Sprint:** 5 **abgeschlossen** „Englisch und Zoll“ – QA-Freigabe am 02.11.2026, Epic MAS-73
-  geschlossen, Jira-Release 0.5.0 freigegeben. Die Praxistests von 0.4.0 **und** 0.5.0 stehen
-  beide noch aus.
-- **Rolle:** keine aktiv. Sprint 5 ist durch alle vier Rollen gelaufen. Der nächste Sprint
-  beginnt beim **Product Owner**.
+- **Sprint:** **6 geplant** „Muster und Eingabe“ (Epic MAS-79, Ziel 0.6.0). Sprint 5 ist
+  abgeschlossen und veröffentlicht; die Praxistests von 0.4.0 **und** 0.5.0 stehen beide aus.
+- **Rolle:** **Product Owner** – Planung von Sprint 6 **abgeschlossen**, wartet auf Freigabe.
+  Als Nächstes die Rolle **Architekt**.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
@@ -18,38 +16,79 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Letzte Freigabe:** Sprint-5-Zuschnitt (02.11.2026) – Englisch, Zoll und die Bruch**anzeige**
   als Einstellung; die Bruch**eingabe** ausdrücklich geschoben. Bezugsmaß 4 Zoll bestätigt.
 - **CI:** läuft bei jedem Push (`.github/workflows/test.yml`)
-- **Jira-Releases:** 0.1.0 bis **0.5.0** alle als freigegeben markiert
+- **Jira-Releases:** 0.1.0 bis 0.5.0 freigegeben; **0.6.0 angelegt** (03.11.2026, noch nicht
+  veröffentlicht), zugeordnet sind MAS-79, MAS-21, MAS-63, MAS-75 und MAS-77
 - **Branches:** `sprint-2` und `sprint-3` auf GitHub gelöscht (beide ohne eigene Arbeit)
 
 ## Nächster Schritt
 
-**1. Praxistest – inzwischen für zwei Versionen offen.**
+**1. Rolle Architekt** für Sprint 6, sobald die Planung freigegeben ist: neues
+`docs/architektur/sprint-6-architektur.md`, aufbauend auf v5.3. Zu entwerfen sind die
+Brucherkennung und der Wegfall des Tausendertrenners in `js/eingabe.js`, die Rundungsregel in
+`js/rechner.js` und die neue Verteilung in `js/plan.js`.
 
-- **0.4.0:** neue Kartentitel (damit hängt **MAS-57 AK4**), Maschenzahlen im Plan und im Zähler,
-  eigene Startreihe, Klappverhalten.
-- **0.5.0:** eine amerikanische Anleitung in Zoll durchrechnen. **Mitprüfen:** ob ein
-  Screenreader die Bruchzeichen (½, ¼, ⅜) richtig vorliest – der offene Punkt aus S5-02, den
-  nur der Praxistest beantworten kann.
+**Offene Punkte für den Architekten**, aus den Stories:
 
-Ergebnis als Jira-Vorgang mit Label `praxistest` anlegen, so wie MAS-56 für 0.3.0.
+- **MAS-75:** Soll „4 3/2“ abgelehnt oder als 5,5 gelesen werden? Sollen Sechzehntel
+  eingegeben werden können, obwohl die Anzeige auf Achtel rundet (E32)?
+- **MAS-63:** Zwei Felder oder ein Feld mit Umschalter? Die Plan-Karte ist auf 360 px schon
+  voll (R9) – und mit US-17 kommen womöglich weitere Felder dazu.
+- **MAS-21:** Wo in der Oberfläche steht die Rundungsregel? Sie gilt je Strickstück, betrifft
+  aber fünf Karten.
 
-**2. Sprint 6 planen** (Rolle Product Owner). Was bereitliegt:
+**2. Eine Produktfrage ist noch offen** und steht als Vorschlag in MAS-21: **Gilt die
+Rundungsregel auch für Reihen?** Vorschlag des Product Owners: nein, nur für Maschen – ein
+Rapport ist ein Maschenmuster. Widerspricht der Auftraggeber, ändert das AK5.
 
-| Vorgang | Was | Zusammenhang |
-|---|---|---|
-| **MAS-75** | US-42 Brucheingabe | in Sprint 5 ausdrücklich geschoben (E36) |
-| **MAS-77** | S5-06 „1,000“ wird englisch als 1 gelesen | **derselbe Code** wie MAS-75 |
-| **MAS-76** | S5-05 Umgerechnete Werte sprengen Feldgrenzen | Entscheidung offen |
-| **MAS-78** | S5-07 Fokussprung nach dem Sprachwechsel | klein |
-| **MAS-69 bis MAS-72** | S4-07 bis S4-10 aus Sprint 4 | drei davon in derselben Datei |
-| **MAS-29** | US-25 Proben automatisch einklappen | nutzt den Mechanismus aus US-38 (E30) |
+**3. Praxistest – offen für zwei Versionen**, 0.4.0 und 0.5.0. Damit hängen MAS-57 AK4 und
+die Frage aus S5-02, ob ein Screenreader die Bruchzeichen richtig vorliest. Je länger das
+läuft, desto mehr sammelt sich für einen Termin an.
 
-**MAS-75 und MAS-77 gehören zusammen:** beide fassen `js/eingabe.js` an – die Stelle, aus der
-MAS-30 und MAS-31 stammen. Zweimal dort hineinzugreifen wäre die schlechtere Reihenfolge.
+**4. Zwei Entscheidungen bestätigen:** **E34** und **E35** stehen weiter als vorläufig,
+obwohl beide umgesetzt, von der QA abgenommen und veröffentlicht sind.
 
-**3. Zwei Entscheidungen bestätigen:** **E34** (Umschalten rechnet um) und **E35** (Nadelstärke
-bleibt mm) stehen weiter als *vorläufig* in `docs/entscheidungen.md`, obwohl beide umgesetzt,
-von der QA abgenommen und jetzt veröffentlicht sind.
+## Sprint 6 „Muster und Eingabe“ – Epic MAS-79, Ziel Version 0.6.0
+
+Ziel: Die App rechnet auf das Muster, mit dem tatsächlich gestrickt wird, und nimmt Maße so an,
+wie sie in der Anleitung stehen. Nach zwei Sprints an der Oberfläche wieder **Rechenfunktionen**
+– sie wirken für deutschsprachige Nutzerinnen sofort und brauchen kaum neue Texte.
+
+| # | Jira | Was | Priorität |
+|---|---|---|---|
+| 1 | MAS-77 | **S5-06** Tausendertrenner entfällt (E38, ersetzt E13) | Muss |
+| 2 | MAS-75 | **US-42** Längen als Bruch eingeben | Muss |
+| 3 | MAS-21 | **US-17** Rundung auf gerade Zahl oder Musterrapport (E37, löst E4 ein) | Muss |
+| 4 | MAS-63 | **US-40** Erste Zu-/Abnahme genau in einer bestimmten Reihe | Muss |
+
+**Die Reihenfolge geht durch die Schichten:** erst die Eingabe (MAS-77 und MAS-75 fassen
+**dieselbe Datei** an – `js/eingabe.js`, die Stelle, aus der MAS-30 und MAS-31 stammen; zweimal
+dort einzugreifen wäre die schlechtere Reihenfolge), dann die **Maschenzahlen** (MAS-21),
+zuletzt die **Reihen** (MAS-63).
+
+**Zwei Wechselwirkungen, die in den AK stehen:**
+
+- **MAS-21 × E28:** Gerundete Anfangs- und Endmaschen können eine Differenz ergeben, die nicht
+  durch die Maschen je Zu-/Abnahme teilbar ist – dann greift die Auswahl aus E28 häufiger. Die
+  angebotenen Endmaschenzahlen müssen dann **ebenfalls** der Rundungsregel folgen.
+- **MAS-21 × MAS-63:** Beide fassen den Plan an. Der Referenzfall muss nach **beiden** Änderungen
+  stimmen, nicht nur nach einer – mit abgeschalteter Rundungsregel und „frühestens ab“.
+
+**Was Zweisprachigkeit jetzt für jedes neue Feld heißt** (seit Sprint 5, beide leicht zu
+vergessen):
+
+1. Jeder neue Text liegt in `de` **und** `en` vor; ein Test erzwingt gleiche Schlüsselmengen
+   und gleiche Platzhalter.
+2. Jede neue **Länge** muss **zweimal** eingetragen werden: in die Anzeige über `formatLaenge`
+   (acht Stellen) **und** in die Feldliste von `einheitUmstellen`. Wird das zweite vergessen,
+   bricht ein Einheitenwechsel die Angabe still – genau das war Befund S5-03.
+
+Für diesen Sprint gilt: Die neuen Felder sind **Stückzahlen und Reihennummern**, keine Längen.
+Sie gehören also **nicht** in die Umrechnungsliste. Das ist zu prüfen, nicht anzunehmen.
+
+**Nicht in diesem Sprint:** Garnbedarf (MAS-22) – er bräuchte zuerst eine Entscheidung über
+Garn-Einheiten (Lauflänge und Knäuelgewicht, Meter/Gramm oder Yards/Ounces), für die
+`js/einheiten.js` noch keine Behandlung hat. Ebenso die fünf übrigen Befunde MAS-69 bis MAS-72,
+MAS-76 und MAS-78.
 
 ## Sprint 5 „Englisch und Zoll“ – Epic MAS-73, Ziel Version 0.5.0
 

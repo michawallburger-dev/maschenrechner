@@ -1,4 +1,4 @@
-# Produktentscheidungen E1 bis E36
+# Produktentscheidungen E1 bis E39
 
 Fachliche Festlegungen der Auftraggeberseite. Sie begründen, **warum** die App etwas so tut, und
 sind damit die Grundlage für jede Weiterentwicklung. Jira sagt, *was* gebaut wird; diese Datei
@@ -50,6 +50,9 @@ Datei gepflegt**, nicht der Schnappschuss.
 | E34 | Umschalten der Einheit (**vorläufig**) | Beim Wechsel der Längeneinheit werden vorhandene Werte **umgerechnet**, nicht umgedeutet: Aus „10 cm“ wird „3,94 in“ bzw. „3⅞ in“. Der physische Wert bleibt also gleich, auch wenn krumme Zahlen entstehen. Ausdrücklich verworfen: die Zahlen stehen lassen und nur neu deuten – das verfälscht vorhandene Projekte still und widerspricht dem Grundsatz aus R6/R10. Eine Rückfrage beim Umschalten wurde nicht gewählt, weil ihre Option „Zahlen behalten“ genau diesen Fehler anbietet. **Deckt sich mit dem Entwurf von US-24 (MAS-28) aus Sprint 1**, der dasselbe schon vorsah – die Entscheidung bestätigt also eine alte Festlegung. **Noch nicht bestätigt.** |
 | E35 | Nadelstärke (**vorläufig**) | Die Nadelstärke bleibt **immer in mm**, unabhängig von Sprache und Längeneinheit; E5 gilt in diesem Punkt unverändert. Begründung: Auch amerikanische Anleitungen nennen heute meist Millimeter mit, und die Tabelle der US-Größen ist nicht linear und nicht überall eindeutig. Die US-Größe zusätzlich anzuzeigen ist eine eigene Backlog-Story. **Noch nicht bestätigt.** |
 | E36 | Sprint-5-Umfang | Sprint 5 „Englisch und Zoll“ (Version 0.5.0) umfasst **US-23** (Oberfläche auf Englisch, MAS-27), **US-24** (Längeneinheit Zoll, MAS-28) und **US-41** (wählbare Darstellung aus E32, MAS-74), Epic **MAS-73**. Die **Bruch­eingabe ist ausdrücklich nicht enthalten** und geht als **US-42 (MAS-75)** in Sprint 6: Sie berührt `UNVOLLSTAENDIG_MUSTER` in `js/eingabe.js` – den Code, aus dem die Befunde MAS-30 und MAS-31 stammen –, während der Nutzen fast vollständig im Lesen liegt. Entschieden am 02.11.2026. |
+| E37 | Rundung auf Muster | Die Rundung lässt sich **je Strickstück** auf ein Muster festlegen: **gerade Zahl** oder **Vielfaches von n mit Versatz m** – also „teilbar durch 4 plus 2 Randmaschen“, wie Anleitungen es schreiben. Die Regel wirkt auf die vier Rechner **und** auf Anfangs- und Endmaschen des Zu-/Abnahmeplans. Damit ist **E4 eingelöst** („Gerade Zahlen und Rapporte folgen später“). **Beachten:** Gerundete Plan-Maschen können eine Differenz ergeben, die nicht durch die Maschen je Zu-/Abnahme teilbar ist – dann greift die Auswahl aus **E28** häufiger als bisher. Entschieden am 03.11.2026. |
+| E38 | Tausendertrenner entfällt | **Ersetzt E13.** In Zahlenfeldern wird kein Tausendertrenner mehr gelesen; einzugeben ist „1000“. Grund: Seit Sprint 5 gibt es zwei Sprachen, und „1,000“ ist deutsch **eins** und englisch **tausend** – es gibt keine Lesart, die in beiden Sprachen eindeutig ist (Befund S5-06, MAS-77). E13 galt nur, solange die App einsprachig war. **Preis:** Der deutschen Nutzerin geht eine Bequemlichkeit verloren, die mit MAS-30 ausdrücklich eingeführt wurde; die Regressionstests zu MAS-30 sind entsprechend umzuschreiben. Komma und Punkt bleiben beide als **Dezimaltrenner** erlaubt. Entschieden am 03.11.2026. |
+| E39 | Sprint-6-Umfang | Sprint 6 (Version 0.6.0) umfasst **US-40** (erste Zu-/Abnahme genau in einer Reihe, MAS-63), **US-17** (Rundung auf Muster, MAS-21), **US-42** (Brucheingabe, MAS-75) und **S5-06** (Tausendertrenner, MAS-77). Begründung des Zuschnitts: zwei Rechenfeatures, die ohne neue Texte auskommen und deutschsprachigen Nutzerinnen sofort nützen, plus das Eingabe-Paket – MAS-75 und MAS-77 fassen **dieselbe Datei** an (`js/eingabe.js`), und dort zweimal einzugreifen wäre die schlechtere Reihenfolge. **US-40 ist bestätigter Bedarf:** Der Auftraggeber hat am 03.11.2026 bestätigt, dass die Enduserin Strickstücke hat, die erst glatt gestrickt werden und deren Formgebung in einer bestimmten Reihe beginnt. Damit ist der offene Punkt 3 von MAS-63 beantwortet. Entschieden am 03.11.2026. |
 
 ## Durch den Praxistest geklärt (21.10.2026, MAS-56 bestanden)
 
@@ -63,17 +66,20 @@ Datei gepflegt**, nicht der Schnappschuss.
 
 ## Noch offen
 
-- **E34 und E35 sind vorläufig** und gehören auf die Tagesordnung: das Verhalten beim Umschalten
-  der Längeneinheit und die Nadelstärke. Beide sind so eingetragen, dass Sprint 5 damit arbeiten
-  kann – eine andere Entscheidung ändert aber die Akzeptanzkriterien von US-24 (MAS-28).
+- **E34 und E35 sind weiter als vorläufig eingetragen**, obwohl beide umgesetzt, von der QA
+  abgenommen und mit 0.5.0 veröffentlicht sind: das Umrechnen beim Einheitenwechsel und die
+  Nadelstärke in mm. Eine ausdrückliche Bestätigung fehlt noch.
+- **Der Praxistest steht für zwei Versionen aus** (0.4.0 und 0.5.0). Daran hängen MAS-57 AK4
+  und die Frage aus S5-02, ob ein Screenreader die Bruchzeichen richtig vorliest.
 - **US-25 (MAS-29)** liegt weiter im Backlog. Mit E30 ist geklärt, dass sie den Mechanismus aus
   US-38 ohne Umbau nutzen kann; offen ist nur, wann sie kommt.
-- *(Erledigt mit 0.4.0)* **E25 und die Startreihe.** US-39 ist umgesetzt; E24 und E31 geben den
-  neuen Stand wieder. Die frühere Frage, ob US-39 in Sprint 4 kommt, ist damit beantwortet.
+- **Garn-Einheiten sind ungeklärt.** Kommt US-18 (Garnbedarf, MAS-22) irgendwann, braucht es
+  zuerst eine Entscheidung über Lauflänge und Knäuelgewicht: Meter und Gramm immer, oder Yards
+  und Ounces bei Zoll? `js/einheiten.js` kennt bisher nur Längen des Stoffs.
 
-## Regeln für neue Entscheidungen
 
-- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E37**) und wird hier eingetragen,
+
+- Jede Entscheidung bekommt die nächste freie Nummer (nächste: **E40**) und wird hier eingetragen,
   sobald sie fällt – nicht erst am Sprintende.
 - Vorläufige Entscheidungen werden ausdrücklich als vorläufig markiert und in die Liste der
   offenen Punkte aufgenommen.
