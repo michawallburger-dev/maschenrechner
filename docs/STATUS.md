@@ -6,8 +6,8 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 - **Veröffentlicht:** Version **0.5.0** am 03.11.2026 auf https://michawallburger-dev.github.io/maschenrechner/
 - **Sprint:** **6 geplant** „Muster und Eingabe“ (Epic MAS-79, Ziel 0.6.0). Sprint 5 ist
   abgeschlossen und veröffentlicht; die Praxistests von 0.4.0 **und** 0.5.0 stehen beide aus.
-- **Rolle:** **Product Owner** – Planung von Sprint 6 **abgeschlossen**, wartet auf Freigabe.
-  Als Nächstes die Rolle **Architekt**.
+- **Rolle:** **Architekt** – die Sprint-6-Planung ist am 03.11.2026 **freigegeben**.
+  Der Entwurf `docs/architektur/sprint-6-architektur.md` ist noch nicht geschrieben.
 - **QA Sprint 4:** Nachtest zu `cf49a64` → **Freigabe**. Bericht im Abschnitt „Nachtest"
   von `docs/qa/sprint-4-testbericht.md`. S4-01 bis S4-05 behoben, S4-06 dokumentiert,
   vier neue niedrige Befunde S4-07 bis S4-10 offen, angelegt als MAS-69 bis MAS-72.
@@ -22,7 +22,7 @@ Kurze Übergabe zwischen Sessions und Rechnern. Bei Widerspruch zu `git log` gil
 
 ## Nächster Schritt
 
-**1. Rolle Architekt** für Sprint 6, sobald die Planung freigegeben ist: neues
+**1. Rolle Architekt** für Sprint 6 – **die Planung ist freigegeben**: neues
 `docs/architektur/sprint-6-architektur.md`, aufbauend auf v5.3. Zu entwerfen sind die
 Brucherkennung und der Wegfall des Tausendertrenners in `js/eingabe.js`, die Rundungsregel in
 `js/rechner.js` und die neue Verteilung in `js/plan.js`.
